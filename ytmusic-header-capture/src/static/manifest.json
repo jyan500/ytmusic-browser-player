@@ -1,0 +1,20 @@
+{
+  "manifest_version": 3,
+  "name": "YT Music Header Capture",
+  "version": "1.0",
+  "description": "Collects request headers for music.youtube.com",
+  "permissions": [
+    "webRequest",
+    "storage"
+  ],
+  "host_permissions": [
+    "https://music.youtube.com/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "YT Music Headers"
+  }
+}
