@@ -1,7 +1,8 @@
 chrome.webRequest.onBeforeSendHeaders.addListener(
     (details) => {
         const headers = details.requestHeaders || [];
-        chrome.storage.local.set({ ytMusicHeaders: relevant });
+        console.log("headers: ", headers)
+        chrome.storage.local.set({ ytMusicHeaders: headers });
     },
     { urls: ["https://music.youtube.com/*"] },
     ["requestHeaders", "extraHeaders"]

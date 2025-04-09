@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react"
 import "../assets/tailwind.css"
 
 export const Popup = () => {
-	// const headers = chrome.storage.local.get("ytMusicHeaders")
+	const headers = chrome.storage.local.get("ytMusicHeaders")
 	// return (
 	// 	<div className = "tw-p-4 tw-font-bold">
 	// 	{JSON.stringify(headers, null, 2)}
@@ -17,7 +17,11 @@ export const Popup = () => {
     }, [time]);
 
     return (
-        <div className='tw-h-screen tw-flex tw-flex-col tw-justify-center tw-items-center tw-text-center tw-bg-slate-200 tw-text-5xl'>
+        // <div className='tw-h-screen tw-flex tw-flex-col tw-justify-center tw-items-center tw-text-center tw-bg-slate-200 tw-text-5xl'>
+        //     {time}
+		// 	{JSON.stringify(headers, null, 2)}
+        // </div>
+        <div className='h-screen flex flex-col justify-center items-center text-center bg-slate-200 text-5xl'>
             {time}
         </div>
     );

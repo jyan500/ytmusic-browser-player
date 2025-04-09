@@ -30,15 +30,7 @@ module.exports = {
                 use: [
                     "style-loader",
                     "css-loader",
-                    {
-                        loader: "postcss-loader",
-                        options: {
-                            postcssOptions: {
-                                indent: "postcss",
-                                plugins: [autoprefixer]
-                            }
-                        }
-                    }
+                    "postcss-loader",
                 ]
             },
         ],
