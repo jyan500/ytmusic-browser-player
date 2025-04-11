@@ -1,3 +1,9 @@
+export interface UserProfile {
+	accountName: string
+    channelHandle: string 
+    accountPhotoUrl: string
+}
+
 export interface CustomError {
 	data: Record<string, Array<string>>
 	status: number

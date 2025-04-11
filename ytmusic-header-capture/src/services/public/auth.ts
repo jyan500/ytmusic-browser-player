@@ -1,23 +1,27 @@
 import { BaseQueryFn, FetchArgs, createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react"
 import { BACKEND_BASE_URL, LOGIN_URL } from "../../helpers/urls" 
 import { CustomError } from "../../types/common" 
-import { api } from "../api" 
+import { publicApi } from "../public" 
 
 export interface UserResponse {
-	token: string
+	accountName: string
+    channelHandle: string 
+    accountPhotoUrl: string
 }
 
 export interface LoginRequest {
+	headers: string
 }
 
-export const authApi = api.injectEndpoints({
+export const authApi = publicApi.injectEndpoints({
 	overrideExisting: false,
 	endpoints: (builder) => ({
 		login: builder.mutation<UserResponse, LoginRequest>({
-			query: (credentials) => ({
+			query: ({headers}) => ({
 				url: LOGIN_URL,
 				method: "POST",
 				body: {
+					headers: headers 
 				}
 			})	
 		}),

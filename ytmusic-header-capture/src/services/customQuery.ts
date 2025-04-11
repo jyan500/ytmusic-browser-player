@@ -14,9 +14,9 @@ async (args, api, extraOptions) => {
 	let result = await fetchBaseQuery({
 		baseUrl: BACKEND_BASE_URL,
 		prepareHeaders: (headers, { getState }) => {
-	        const token = (getState() as RootState).auth.token;
-	        if (token) {
-		        headers.set('Authorization', `Bearer ${token}`)
+	        const authHeader = (getState() as RootState).auth.headers;
+	        if (authHeader) {
+		        headers.set('Authorization', authHeader)
 	        }
 	        return headers
 	    }})(args, api, extraOptions)	

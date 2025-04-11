@@ -3,11 +3,11 @@ import type { PayloadAction } from '@reduxjs/toolkit'
 import type { RootState } from '../store'
 
 type AuthState = {
-    token: string | null,
+    headers: string | null,
 }
 
 const initialState: AuthState = {
-	token: localStorage.getItem("token") ?? null,
+	headers: localStorage.getItem("headers") ?? null,
 }
 
 const authSlice = createSlice({
@@ -15,12 +15,12 @@ const authSlice = createSlice({
     initialState,
     reducers: {
         logout: (state) => {
-            localStorage.removeItem("token")
-            state.token = null
+            localStorage.removeItem("headers")
+            state.headers = null
         },
-        setCredentials: (state, {payload: { token }}: PayloadAction<{ token: string }>) => {
-            localStorage.setItem("token", token)
-            state.token = token
+        setCredentials: (state, {payload: { headers }}: PayloadAction<{ headers: string }>) => {
+            localStorage.setItem("headers", headers)
+            state.headers = headers
         },
     },
 })
