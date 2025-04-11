@@ -33,4 +33,5 @@ def require_authentication(func):
         return func(*args, **kwargs)
 
     return wrapper
+
     
