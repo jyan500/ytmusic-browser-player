@@ -14,16 +14,6 @@ export const Popup = () => {
 	const { userProfile } = useAppSelector((state) => state.userProfile)
 
 	useEffect(() => {
-		// if (!localStorage.getItem("ytMusicHeaders")){
-		// 	console.log("could not retrieve headers...")
-		// 	chrome.storage.local.get("ytMusicHeaders").then((res) => {
-		// 		localStorage.setItem('ytMusicHeaders', JSON.stringify(res.ytMusicHeaders));
-		// 		console.log("loaded headers")
-		// 	})
-		// }
-		// else {
-		// 	console.log(JSON.parse(localStorage.getItem("ytMusicHeaders") ?? ""))
-		// }
 		if (!headers && !userProfile){
 			authenticate()
 		}
@@ -47,9 +37,6 @@ export const Popup = () => {
 	}
 
     return (
-        // <div className='tw-h-screen tw-flex tw-flex-col tw-justify-center tw-items-center tw-text-center tw-bg-slate-200 tw-text-5xl'>
-        //     {time}
-        // </div>
         <div className='h-screen flex flex-col justify-center items-center text-center bg-slate-200 text-5xl'>
         	<BackendErrorMessage error={error}/>
         	{isLoading && userProfile ? <p>Loading...</p> : <p>Authenticated {userProfile?.accountName}</p>}
