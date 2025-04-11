@@ -10,7 +10,7 @@
   ],
   "host_permissions": [
     "https://music.youtube.com/*",
-    "http://localhost:5000/*"
+    "http://localhost:5001/*"
   ],
   "background": {
     "service_worker": "background.js"
