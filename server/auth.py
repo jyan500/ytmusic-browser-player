@@ -1,8 +1,6 @@
 from flask import Blueprint, request, jsonify
 import ytmusicapi
 
-from base.views import BaseView
-
 auth = Blueprint('auth', __name__)
 
 @auth.route("/login", methods=["POST"])
