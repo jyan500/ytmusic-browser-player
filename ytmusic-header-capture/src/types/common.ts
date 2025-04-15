@@ -4,6 +4,13 @@ export interface UserProfile {
     accountPhotoUrl: string
 }
 
+export interface Playlist {
+	playlistId: string
+    title: string
+    thumbnails?: Array<string>,
+    count: number
+}
+
 export interface CustomError {
 	data: Record<string, Array<string>>
 	status: number

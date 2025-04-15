@@ -5,7 +5,7 @@ auth = Blueprint('auth', __name__)
 
 @auth.route("/login", methods=["POST"])
 def login():
-    headers = request.json["headers"]
+    headers = request.json.get("headers")
     try:
         ytmusic = ytmusicapi.YTMusic(headers) 
         return jsonify(ytmusic.get_account_info()), 200

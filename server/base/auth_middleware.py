@@ -22,8 +22,7 @@ class AuthMiddleware:
 
     def authenticate(self):
         auth_string = request.headers.get('Authorization')
-
-        if not auth_header or not self.is_valid_token(auth_string):
+        if not auth_string or not self.is_valid_token(auth_string):
             raise APIException('Unauthorized', 401)
 
 

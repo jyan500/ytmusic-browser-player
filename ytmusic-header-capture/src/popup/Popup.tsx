@@ -4,8 +4,10 @@ import axios from "axios"
 import { useAppSelector, useAppDispatch } from "../hooks/redux-hooks"
 import { useLoginMutation } from "../services/public/auth"
 import { setUserProfile } from "../slices/userProfileSlice"
+import { setCredentials } from "../slices/authSlice"
 import { BackendErrorMessage } from "../components/BackendErrorMessage"
 import { UserProfile } from "../types/common"
+import { PlaylistContainer } from "../components/PlaylistContainer"
 
 export const Popup = () => {
 	const [login, {isLoading, error}] = useLoginMutation()
@@ -14,9 +16,10 @@ export const Popup = () => {
 	const { userProfile } = useAppSelector((state) => state.userProfile)
 
 	useEffect(() => {
-		if (!headers && !userProfile){
-			authenticate()
-		}
+		// if (!headers && !userProfile){
+		// 	authenticate()
+		// }
+		authenticate()
 	}, [])
 
 	const authenticate = async () => {
@@ -24,6 +27,7 @@ export const Popup = () => {
 		if (res){
 			try {
 				const response = await login({headers: JSON.stringify(res.ytMusicHeaders)}).unwrap()
+				dispatch(setCredentials({headers: JSON.stringify(res.ytMusicHeaders)}))
 				dispatch(setUserProfile({userProfile: {
 					accountName: response.accountName,
 				    channelHandle: response.channelHandle,
@@ -39,7 +43,11 @@ export const Popup = () => {
     return (
         <div className='h-screen flex flex-col justify-center items-center text-center bg-slate-200 text-5xl'>
         	<BackendErrorMessage error={error}/>
-        	{isLoading && userProfile ? <p>Loading...</p> : <p>Authenticated {userProfile?.accountName}</p>}
+        	{isLoading && !userProfile && !headers ? <p>Loading...</p> : 
+        	<div>
+	        	Authenticated {userProfile?.accountName}
+	        	<PlaylistContainer/>
+        	</div>}
         </div>
     );
 }
