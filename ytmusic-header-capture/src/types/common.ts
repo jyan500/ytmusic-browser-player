@@ -23,3 +23,15 @@ export interface SerializedError {
 	stack?: string
 	code?: string
 }
+
+export interface IPagination {
+	totalPages?: number;
+	page?: number;
+	perPage: number;
+}
+
+export interface ListResponse<T> {
+	pagination: IPagination
+	data: Array<T>
+	additional?: Record<string, any>
+}

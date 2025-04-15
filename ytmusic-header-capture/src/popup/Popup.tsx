@@ -44,7 +44,7 @@ export const Popup = () => {
         <div className='h-screen flex flex-col justify-center items-center text-center bg-slate-200 text-5xl'>
         	<BackendErrorMessage error={error}/>
         	{isLoading && !userProfile && !headers ? <p>Loading...</p> : 
-        	<div>
+        	<div className = "overflow-y-scroll">
 	        	Authenticated {userProfile?.accountName}
 	        	<PlaylistContainer/>
         	</div>}
