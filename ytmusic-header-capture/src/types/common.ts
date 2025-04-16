@@ -4,11 +4,17 @@ export interface UserProfile {
     accountPhotoUrl: string
 }
 
+export interface Thumbnail {
+	url: string
+	width: number
+	height: number
+}
+
 export interface PlaylistInfo {
 	id: string 
 	privacy: string
 	title: string
-	thumbnails: Array<string> 
+	thumbnails: Array<Thumbnail> 
 	description: string
 	author: string
 	year: string
@@ -31,7 +37,7 @@ export interface Track {
 	duration_seconds: number
 	setVideoId: string 
 	likeStatus: string
-	thumbnails: Array<string>
+	thumbnails: Array<Thumbnail>
 	isAvailable: string
 	isExplicit: string
 	videoType: string
@@ -44,7 +50,7 @@ export interface Track {
 export interface Playlist {
 	playlistId: string
     title: string
-    thumbnails?: Array<string>,
+    thumbnails?: Array<Thumbnail>,
     count: number
 }
 

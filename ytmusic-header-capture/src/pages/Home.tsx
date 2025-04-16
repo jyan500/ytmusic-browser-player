@@ -44,7 +44,7 @@ export const Home = () => {
 	}
 
     return (
-        <div className = "container">
+        <div>
 	        <BackendErrorMessage error={error}/>
         	{isLoading && !userProfile && !headers ? <p>Loading...</p> : 
         	<div className = "flex flex-col gap-y-2">
