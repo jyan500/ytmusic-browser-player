@@ -7,6 +7,7 @@ import { goTo, Link } from "react-chrome-extension-router"
 import { Home } from "../pages/Home"
 import { NavButton } from "../components/NavButton"
 import { Playlist } from "../pages/Playlist"
+import { PaginationRow } from "../components/PaginationRow"
 
 export const Playlists = () => {
 	const { headers } = useAppSelector((state) => state.auth)
@@ -29,12 +30,7 @@ export const Playlists = () => {
 						})
 					}
 					</div>	
-					<button disabled={page == 1} onClick={() => {
-						setPage(page-1)
-					}}>Prev</button>
-					<button disabled={page == data?.pagination.totalPages} onClick={() => {
-						setPage(page+1)
-					}}>Next</button>
+					<PaginationRow page={page} setPage={setPage} totalPages={data.pagination.totalPages ?? 0}/>
 				</> : <p>Loading Playlists...</p>
 			}
 		</div>
