@@ -1,18 +1,22 @@
-import React from "react"
-import { Playlist as PlaylistType } from "../types/common"
+import React, {useState} from "react"
+import { Playlist as TPlaylist, PlaylistInfo, Track } from "../types/common"
 import { Playlists } from "../pages/Playlists"
 import { goTo } from "react-chrome-extension-router"
 import { NavButton } from "../components/NavButton"
+import { useGetPlaylistQuery } from "../services/private/playlists"
+import { skipToken } from '@reduxjs/toolkit/query/react'
 
 interface Props {
-	playlistId: string 
+	playlist: TPlaylist
 }
 
-export const Playlist = ({playlistId}: Props) => {
+export const Playlist = ({playlist}: Props) => {
+	const [page, setPage] = useState(1)
+	const {data, isLoading, isError} = useGetPlaylistQuery(playlist.playlistId ? {playlistId: playlist.playlistId, params: {}} : skipToken)
 	return (
 		<div>
 			<NavButton onClick={(e) => {goTo(Playlists)}} message={"Go Back"}/>
-			<p>{playlistId}</p>
+			<p>{playlist.title}</p>
 		</div>
 	)
 }

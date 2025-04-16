@@ -4,6 +4,43 @@ export interface UserProfile {
     accountPhotoUrl: string
 }
 
+export interface PlaylistInfo {
+	id: string 
+	privacy: string
+	title: string
+	thumbnails: Array<string> 
+	description: string
+	author: string
+	year: string
+	duration: string
+	duration_seconds: number
+	trackCount: number
+}
+
+export interface OptionType {
+	id: string
+	name: string
+}
+
+export interface Track {
+	videoId: string,
+	title: string,
+	artists: Array<OptionType>
+	album: Array<OptionType>
+	duration: string
+	duration_seconds: number
+	setVideoId: string 
+	likeStatus: string
+	thumbnails: Array<string>
+	isAvailable: string
+	isExplicit: string
+	videoType: string
+	feedbackTokens: {
+		add: string,
+		remove: string	
+	}	
+}
+
 export interface Playlist {
 	playlistId: string
     title: string

@@ -22,7 +22,7 @@ export const Playlists = () => {
 					{
 						data?.data.map((playlist: TPlaylist) => {
 							return (
-								<Link props={{playlistId: playlist.playlistId}} component={Playlist} className= "flex flex-row items-center border border-gray-300 shadow-md p-2">
+								<Link props={{playlist}} component={Playlist} className= "flex flex-row items-center border border-gray-300 shadow-md p-2">
 									<p>{playlist?.title}</p>	
 								</Link>
 							)
