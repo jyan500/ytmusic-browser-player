@@ -9,7 +9,7 @@ from helpers.functions import (
 
 playlists = Blueprint('playlists', __name__)
 
-@playlists.route("/playlists", methods=["GET"])
+@playlists.route("/playlists", endpoint="get_playlists", methods=["GET"])
 @require_authentication
 def get_playlists():
     perPage = int(request.args.get("perPage")) if request.args.get("perPage") != "" else 10
@@ -17,3 +17,9 @@ def get_playlists():
     ytmusic = initYTMusic(request)
     playlists = ytmusic.get_library_playlists(limit=None)
     return jsonify(paginate(playlists, page, perPage)), 200
+
+@playlists.route("/playlists/<playlistId>", endpoint="get_playlist", methods=["GET"])
+@require_authentication
+def get_playlist(playlistId):
+    return jsonify({}), 200
+
