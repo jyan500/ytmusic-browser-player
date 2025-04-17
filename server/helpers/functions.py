@@ -28,3 +28,4 @@ def paginate(data: [dict], page: int, perPage: int) -> dict:
 			"totalPages": totalPages,
 		}
 	}
+	
