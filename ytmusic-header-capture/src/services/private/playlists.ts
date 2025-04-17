@@ -6,7 +6,7 @@ import { privateApi } from "../private"
 export const playlistsApi = privateApi.injectEndpoints({
 	overrideExisting: false,
 	endpoints: (builder) => ({
-		getPlaylists: builder.query<ListResponse<Playlist>, Record<string, any>>({
+		getPlaylists: builder.query<Array<Playlist>, Record<string, any>>({
 			query: (params) => ({
 				url: PLAYLIST_URL,
 				method: "GET",
@@ -20,7 +20,7 @@ export const playlistsApi = privateApi.injectEndpoints({
 				params: params
 			})
 		}),
-		getPlaylistTracks: builder.query<ListResponse<Track>, {playlistId: string, params: Record<string, any>}>({
+		getPlaylistTracks: builder.query<Array<Track>, {playlistId: string, params: Record<string, any>}>({
 			query: ({playlistId, params}) => ({
 				url: `${PLAYLIST_URL}/${playlistId}/tracks`,
 				method: "GET",

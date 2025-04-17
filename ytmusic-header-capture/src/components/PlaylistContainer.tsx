@@ -10,7 +10,7 @@ export const PlaylistContainer = () => {
 	const {data, isLoading, isError} = useGetPlaylistsQuery(headers ? {perPage: 10, page:page} : skipToken)
 	return (
 		<div className="container">
-			{
+		{/*	{
 				data && !isLoading ? <>
 					<div className = "flex flex-col gap-y-2">
 					{
@@ -30,7 +30,7 @@ export const PlaylistContainer = () => {
 						setPage(page+1)
 					}}>Next</button>
 				</> : <p>Loading Playlists...</p>
-			}
+			}*/}
 		</div>
 	)
 }

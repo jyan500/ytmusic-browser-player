@@ -7,7 +7,7 @@ import { Home } from "../pages/Home"
 
 export const Popup = () => {
     return (
-        <div className='h-screen w-full text-xl'>
+        <div className='w-full text-xl'>
         	<Router>
         		<Home/>	
         	</Router>
