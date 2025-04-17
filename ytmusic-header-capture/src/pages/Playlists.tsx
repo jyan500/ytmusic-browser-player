@@ -15,9 +15,12 @@ export const Playlists = () => {
 	const {data, isLoading, isError} = useGetPlaylistsQuery(headers ? {perPage: 10, page:page} : skipToken)
 	return (
 		<div className="w-full">
-			<NavButton onClick={(e) => {goTo(Home)}} message={"Return Home"}/>
-			<p>My Playlists</p>
-			{/*<button className = "flex flex-col" onClick={() => goTo(Playlist, {playlist})}>*/}
+			<div className = "flex flex-col gap-y-2 text-lg">
+				<div>
+					<NavButton onClick={(e) => {goTo(Home)}} message={"Return Home"}/>
+				</div>
+				<p>My Playlists</p>
+			</div>
 			<div className = "w-full flex flex-col justify-center items-center gap-y-2">
 				{
 					data && !isLoading ? <>
@@ -29,10 +32,13 @@ export const Playlists = () => {
 								const biggestWidth = Math.max(...widths)
 								const thumbnail = playlist.thumbnails?.find((thumbnail) => thumbnail.width === biggestWidth)
 								return (
-									<button className="flex flex-col">
-										<div className="justify-center items-start flex flex-col gap-y-2">
+									<button className = "flex flex-col" onClick={() => goTo(Playlist, {playlist})}>
+										<div className="items-start flex flex-col gap-y-2">
 											<img className="h-32 object-fill" src = {thumbnail?.url}/>
-											<Link component={Playlist} props={{playlist: playlist}}><p className = "text-center break-words">{playlist?.title}</p></Link>
+											<div className = "text-left break-words">
+												<p className = "font-semibold">{playlist?.title}</p>
+												<p>{playlist?.description}</p>
+											</div>
 										</div>
 									</button>
 								)

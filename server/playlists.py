@@ -16,7 +16,6 @@ def get_playlists():
     page = int(request.args.get("page")) if request.args.get("page") != "" else 1
     ytmusic = initYTMusic(request)
     playlists = ytmusic.get_library_playlists(limit=None)
-    # return jsonify(paginate(playlists, page, perPage)), 200
     return jsonify(playlists), 200
 
 @playlists.route("/playlists/<playlistId>", endpoint="get_playlist", methods=["GET"])

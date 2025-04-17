@@ -50,7 +50,8 @@ export interface Track {
 export interface Playlist {
 	playlistId: string
     title: string
-    thumbnails?: Array<Thumbnail>,
+    thumbnails?: Array<Thumbnail>
+    description: string
     count: number
 }
 

@@ -47,7 +47,7 @@ export const Home = () => {
         <div>
 	        <BackendErrorMessage error={error}/>
         	{isLoading && !userProfile && !headers ? <p>Loading...</p> : 
-        	<div className = "flex flex-col gap-y-2">
+        	<div className = "text-xl flex flex-col gap-y-2">
 	        	Authenticated {userProfile?.accountName}
         		<Link component={Playlists}>
         			See Playlists
