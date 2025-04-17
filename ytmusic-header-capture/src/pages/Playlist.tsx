@@ -6,6 +6,8 @@ import { NavButton } from "../components/NavButton"
 import { useGetPlaylistTracksQuery } from "../services/private/playlists"
 import { skipToken } from '@reduxjs/toolkit/query/react'
 import { PaginationRow } from "../components/PaginationRow"
+import { InfiniteScrollList } from "../components/InfiniteScrollList"
+import { FlatList } from "../components/FlatList"
 
 interface Props {
 	playlist: TPlaylist
@@ -32,16 +34,7 @@ export const Playlist = ({playlist}: Props) => {
 			<div>
 				{
 					isTracksLoading && !tracks ? <p>Tracks loading... </p> : (
-						<>
-							{tracks?.map((track: Track) => {
-								return (
-									<div className = "border-1 border-gray-300 flex flex-col gap-y-2 shadow-md">
-										<p>{track.title}</p>							
-									</div>
-								)
-							})}
-							{/*<PaginationRow page={page} setPage={setPage} totalPages={tracks?.pagination.totalPages ?? 0}/>*/}
-						</>
+						<InfiniteScrollList<Track> data={tracks ?? []} component={FlatList}/>
 					)
 				}
 			</div>

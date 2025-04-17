@@ -7,7 +7,6 @@ import { setUserProfile } from "../slices/userProfileSlice"
 import { setCredentials } from "../slices/authSlice"
 import { BackendErrorMessage } from "../components/BackendErrorMessage"
 import { UserProfile } from "../types/common"
-import { PlaylistContainer } from "../components/PlaylistContainer"
 import {
 	Link,
 } from 'react-chrome-extension-router';

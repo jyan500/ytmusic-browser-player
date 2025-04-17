@@ -34,7 +34,7 @@ export const Playlists = () => {
 								return (
 									<button className = "flex flex-col" onClick={() => goTo(Playlist, {playlist})}>
 										<div className="items-start flex flex-col gap-y-2">
-											<img className="h-32 object-fill" src = {thumbnail?.url}/>
+											<img loading="lazy" className="h-32 object-fill" src = {thumbnail?.url}/>
 											<div className = "text-left break-words">
 												<p className = "font-semibold">{playlist?.title}</p>
 												<p>{playlist?.description}</p>
