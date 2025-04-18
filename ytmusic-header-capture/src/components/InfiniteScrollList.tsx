@@ -1,16 +1,10 @@
 import React, { useState, useEffect } from "react"
 import { ITEMS_PER_VIEW } from "../helpers/constants"
 import { useInView } from "react-intersection-observer"
-import { WithTitle, FlatList } from "./FlatList"
+import { FlatList } from "./FlatList"
+import { GenericPropType, WithAttribute, ComponentWithDataProp } from "../types/common"
 
-type ComponentWithDataProp<T extends WithTitle, P = {}> = React.FC<{ data: T[] } & P>
-
-type Props<T extends WithTitle> = {
-	data: Array<T>	
-	component: ComponentWithDataProp<T>
-}
-
-export const InfiniteScrollList = <T extends WithTitle>({data, component: Component}: Props<T>) => {
+export const InfiniteScrollList = <T extends WithAttribute>({data, component: Component}: GenericPropType<T>) => {
 	const [visibleCount, setVisibleCount] = useState(ITEMS_PER_VIEW)
 	const {ref, inView} = useInView()
 
