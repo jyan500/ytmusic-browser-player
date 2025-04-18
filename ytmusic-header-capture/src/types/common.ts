@@ -79,3 +79,14 @@ export interface ListResponse<T> {
 	data: Array<T>
 	additional?: Record<string, any>
 }
+
+export type WithAttribute = {
+	[key: string]: any
+}
+
+export type ComponentWithDataProp<T extends WithAttribute, P = {}> = React.FC<{ data: T[] } & P>
+
+export type GenericPropType<T extends WithAttribute> = {
+	data: Array<T>	
+	component: ComponentWithDataProp<T>
+}

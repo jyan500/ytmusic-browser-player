@@ -8,6 +8,8 @@ import { Home } from "../pages/Home"
 import { NavButton } from "../components/NavButton"
 import { Playlist } from "../pages/Playlist"
 import { PaginationRow } from "../components/PaginationRow"
+import { InfiniteScrollList } from "../components/InfiniteScrollList"
+import { PlaylistGrid } from "../components/PlaylistGrid"
 
 export const Playlists = () => {
 	const { headers } = useAppSelector((state) => state.auth)
@@ -24,31 +26,11 @@ export const Playlists = () => {
 			<div className = "w-full flex flex-col justify-center items-center gap-y-2">
 				{
 					data && !isLoading ? <>
-						<div className = "grid grid-cols-5 gap-2">
-						{
-							data.map((playlist: TPlaylist) => {
-								// find the largest thumbnail and compress to fit 
-								const widths = playlist.thumbnails?.map((thumbnail) => thumbnail.width) ?? []
-								const biggestWidth = Math.max(...widths)
-								const thumbnail = playlist.thumbnails?.find((thumbnail) => thumbnail.width === biggestWidth)
-								return (
-									<button className = "flex flex-col" onClick={() => goTo(Playlist, {playlist})}>
-										<div className="items-start flex flex-col gap-y-2">
-											<img className="h-32 object-fill" src = {thumbnail?.url}/>
-											<div className = "text-left break-words">
-												<p className = "font-semibold">{playlist?.title}</p>
-												<p>{playlist?.description}</p>
-											</div>
-										</div>
-									</button>
-								)
-							})
-						}
-						</div>	
-						{/*<PaginationRow page={page} setPage={setPage} totalPages={data.pagination.totalPages ?? 0}/>*/}
+						<InfiniteScrollList data={data} component={PlaylistGrid}/>
 					</> : <p>Loading Playlists...</p>
 				}
 			</div>
 		</div>
 	)
 }
+
