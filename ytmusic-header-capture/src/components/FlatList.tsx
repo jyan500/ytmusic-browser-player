@@ -3,7 +3,7 @@ import { WithAttribute } from "../types/common"
 
 type Props<T extends WithAttribute> = {
     data: Array<T>;
-};
+}
 
 export const FlatList = <T extends WithAttribute>({ data }: Props<T>) => {
     return (
@@ -14,5 +14,5 @@ export const FlatList = <T extends WithAttribute>({ data }: Props<T>) => {
                 </div>
             ))}
         </div>
-    );
-};
+    )
+}
