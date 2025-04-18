@@ -17,3 +17,4 @@ export const PlaylistGrid = ({data}: Props) => {
 		</div>	
 	)
 }
+

@@ -23,5 +23,4 @@ export const PlaylistCardItem = ({playlist}: Props) => {
 			</div>
 		</button>
 	)
-
 }
