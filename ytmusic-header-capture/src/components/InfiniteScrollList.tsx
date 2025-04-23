@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react"
 import { ITEMS_PER_VIEW } from "../helpers/constants"
 import { useInView } from "react-intersection-observer"
-import { FlatList } from "./FlatList"
 import { GenericPropType, WithAttribute } from "../types/common"
 
 export const InfiniteScrollList = <T extends WithAttribute>({data, component: Component}: GenericPropType<T>) => {

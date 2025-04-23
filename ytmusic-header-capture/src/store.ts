@@ -4,6 +4,7 @@ import { publicApi } from "./services/public"
 import { privateApi } from "./services/private"
 import { authReducer } from "./slices/authSlice"
 import { userProfileReducer } from "./slices/userProfileSlice"
+import { audioPlayerReducer } from "./slices/audioPlayerSlice"
 
 export const store = configureStore({
 	reducer: {
@@ -11,6 +12,7 @@ export const store = configureStore({
 		[publicApi.reducerPath]: publicApi.reducer,
 		auth: authReducer,
 		userProfile: userProfileReducer,
+		audioPlayer: audioPlayerReducer,
 	},
 	middleware: (getDefaultMiddleware) => getDefaultMiddleware()
 	.concat(publicApi.middleware)

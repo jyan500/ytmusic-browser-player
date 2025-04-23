@@ -10,6 +10,11 @@ export interface Thumbnail {
 	height: number
 }
 
+export interface PlaybackInfo {
+	videoId: string
+	playbackURL: string
+}
+
 export interface PlaylistInfo {
 	id: string 
 	privacy: string
@@ -55,6 +60,57 @@ export interface Playlist {
     count: number
 }
 
+export interface Song {
+    streamingData: {
+        expiresInSeconds: string
+        adaptiveFormats: [
+            {
+                itag: number
+                url: string
+                mimeType: string
+                bitrate: number
+                initRange: {
+                    start: string
+                    end: string
+                },
+                indexRange: {
+                    start: string
+                    end: string
+                },
+                lastModified: string
+                contentLength: string
+                quality: string
+                projectionType: string
+                averageBitrate: number
+                highReplication: boolean
+                audioQuality: string
+                approxDurationMs: string
+                audioSampleRate: string
+                audioChannels: number
+                loudnessDb: number
+            }
+        ]
+    }
+    videoDetails: {
+        videoId: string
+        title: string
+        lengthSeconds: string
+        channelId: string
+        isOwnerViewing: boolean
+        isCrawlable: boolean
+        thumbnail: {
+            thumbnails: Array<Thumbnail>
+        },
+        allowRatings: boolean
+        viewCount: string
+        author: string
+        isPrivate: boolean
+        isUnpluggedCorpus: boolean
+        musicVideoType: string 
+        isLiveContent: boolean
+    }
+}
+
 export interface CustomError {
 	data: Record<string, Array<string>>
 	status: number
@@ -90,3 +146,4 @@ export type GenericPropType<T extends WithAttribute> = {
 	data: Array<T>	
 	component: ComponentWithDataProp<T>
 }
+
