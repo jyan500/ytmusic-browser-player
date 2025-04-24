@@ -26,4 +26,5 @@ export const AudioPlayer = () => {
 			</div>
 		</div>	
 	)
+	
 }

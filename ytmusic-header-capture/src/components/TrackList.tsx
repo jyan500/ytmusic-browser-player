@@ -4,7 +4,6 @@ import { useAppDispatch, useAppSelector } from "../hooks/redux-hooks"
 import { setCurrentTrack, setQueuedTracks, setStoredPlaybackInfo, setIsLoading } from "../slices/audioPlayerSlice"
 import { useLazyGetSongPlaybackQuery } from "../services/private/songs"
 import { IconPlay } from "../icons/IconPlay"
-import { AudioPlayer } from "./AudioPlayer"
 
 type Props = {
     data: Array<Track>;
