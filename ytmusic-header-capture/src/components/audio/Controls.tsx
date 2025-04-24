@@ -17,6 +17,7 @@ import {
 	setQueuedTracks,
 	setCurrentTrack,
 	setStoredPlaybackInfo,
+	setIsPlaying,
 
 } from "../../slices/audioPlayerSlice"
 import { useAudioPlayerContext } from "../../context/AudioPlayerProvider"
@@ -30,6 +31,7 @@ export const Controls = () => {
 		index,
 		timeProgress,
 		isLoading,
+		isPlaying,
 		duration
 	} = useAppSelector((state) => state.audioPlayer)
 	const { audioRef, progressBarRef } = useAudioPlayerContext()
@@ -37,7 +39,6 @@ export const Controls = () => {
 	const playAnimationRef = useRef<number | null>(null)
 	const [isShuffle, setIsShuffle] = useState<boolean>(false)
 	const [isRepeat, setIsRepeat] = useState<boolean>(false)
-	const [isPlaying, setIsPlaying] = useState<boolean>(false)
     const [trigger, { data: songData, error, isFetching }] = useLazyGetSongPlaybackQuery();
 
 	const skipForward = () => {
@@ -153,7 +154,7 @@ export const Controls = () => {
 	/* Set the playback information once the song data is finished loading */
 	useEffect(() => {
         if (!isFetching && songData){
-        	setIsPlaying(false)
+        	dispatch(setIsPlaying(false))
             dispatch(setStoredPlaybackInfo([...storedPlaybackInfo, songData]))
             dispatch(setIsLoading(false))
         }
@@ -181,7 +182,7 @@ export const Controls = () => {
 				<IconRewind/>
 			</button>
 			<button onClick={()=>{
-				setIsPlaying((prev) => !prev)
+				dispatch(setIsPlaying(!isPlaying))
 			}}>
 				{isPlaying ? <IconPause/> : <IconPlay/>}
 			</button>

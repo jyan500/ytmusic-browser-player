@@ -17,7 +17,7 @@ export const AudioPlayer = () => {
 					<Controls/>
 					<ProgressBar/>
 				</div>
-				<div className = "flex items-center gap-2 text-gray-400">
+				<div className = "flex items-center gap-2 text-gray-400 w-64">
 					<VolumeControl/>
 					{/*<button onClick={() => setOpenDrawer((prev) => !prev)}>
 						<IconMenu/>

@@ -10,7 +10,7 @@ import { Home } from "../pages/Home"
 export const Popup = () => {
     return (
         <>
-        <div className='p-2 w-full'>
+        <div className='p-2 w-full pb-[113px]'>
         	<Router>
         		<Home/>	
         	</Router>

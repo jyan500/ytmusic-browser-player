@@ -25,11 +25,11 @@ export const VolumeControl = () => {
 			<div className="flex items-center gap-3">
 				<button onClick={() => setMuteVolume(prev => !prev)}>
 					{muteVolume || volume < 5 ? (
-						<IconVolumeOff className = "w-6 h-6"/>
+						<IconVolumeOff/>
 					) : volume < 40 ? (
-						<IconVolumeLow className = "w-6 h-6"/>
+						<IconVolumeLow/>
 					) : (
-						<IconVolumeHigh className = "w-6 h-6"/>
+						<IconVolumeHigh/>
 					)}
 				</button>
 				<input
