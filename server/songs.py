@@ -22,5 +22,4 @@ def get_song_playback(videoId):
     ytmusic = initYTMusic(request)
     playbackURL = getPlaybackURL(videoId)
     return {"videoId": videoId, "playbackURL": playbackURL }, 200
-
     
