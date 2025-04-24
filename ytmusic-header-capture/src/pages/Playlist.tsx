@@ -7,7 +7,7 @@ import { useGetPlaylistTracksQuery } from "../services/private/playlists"
 import { skipToken } from '@reduxjs/toolkit/query/react'
 import { PaginationRow } from "../components/PaginationRow"
 import { InfiniteScrollList } from "../components/InfiniteScrollList"
-import { FlatList } from "../components/FlatList"
+import { TrackList } from "../components/TrackList"
 
 interface Props {
 	playlist: TPlaylist
@@ -34,7 +34,7 @@ export const Playlist = ({playlist}: Props) => {
 			<div>
 				{
 					isTracksLoading && !tracks ? <p>Tracks loading... </p> : (
-						<InfiniteScrollList<Track> data={tracks ?? []} component={FlatList}/>
+						<InfiniteScrollList<Track> data={tracks ?? []} component={TrackList}/>
 					)
 				}
 			</div>

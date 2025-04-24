@@ -1,7 +1,13 @@
 @import "tailwindcss";
 
+@theme {
+  --color-dark: #2e2d2d;
+  --color-orange: #f50;
+}
+
 body{
     width: 700px;
     height: 800px;
     background: #e7f1f1;
 }
+
