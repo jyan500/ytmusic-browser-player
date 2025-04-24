@@ -36,14 +36,14 @@ export const ProgressBar = () => {
 
 	return (
 		<div className="flex items-center justify-center gap-5 w-full">
-			<span>{formatTime(timeProgress)}</span>				
+			<span className = "text-center truncate w-24">{formatTime(timeProgress)}</span>				
 			<input 
 				defaultValue="0"
 				onChange={handleProgressBarChange} 
 				ref={progressBarRef} 
 				className="max-w-[80%] bg-gray-300" 
 				type="range"/>
-			<span>{formatTime(duration)}</span>
+			<span className = "text-center truncate w-24">{formatTime(duration)}</span>
 		</div>
 	)
 }
