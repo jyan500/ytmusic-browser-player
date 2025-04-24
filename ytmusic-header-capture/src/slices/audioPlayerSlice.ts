@@ -9,6 +9,8 @@ type AudioPlayerState = {
    currentTrack: Track | null
    showAudioPlayer: boolean
    isLoading: boolean
+   timeProgress: number
+   duration: number
 }
 
 const initialState: AudioPlayerState = {
@@ -16,7 +18,9 @@ const initialState: AudioPlayerState = {
     queuedTracks: [],
     currentTrack: null,
     showAudioPlayer: false,
-    isLoading: false
+    isLoading: false,
+    timeProgress: 0,
+    duration: 0
 }
 
 const audioPlayerSlice = createSlice({
@@ -37,6 +41,12 @@ const audioPlayerSlice = createSlice({
         },
         setIsLoading: (state, action: PayloadAction<boolean>) => {
             state.isLoading = action.payload 
+        },
+        setTimeProgress: (state, action: PayloadAction<number>) => {
+            state.timeProgress = action.payload 
+        },
+        setDuration: (state, action: PayloadAction<number>) => {
+            state.duration = action.payload 
         }
     },
 })
@@ -46,7 +56,9 @@ export const {
     setQueuedTracks, 
     setCurrentTrack, 
     setShowAudioPlayer, 
-    setIsLoading 
+    setTimeProgress,
+    setIsLoading,
+    setDuration,
 } = audioPlayerSlice.actions
 
 export const audioPlayerReducer = audioPlayerSlice.reducer

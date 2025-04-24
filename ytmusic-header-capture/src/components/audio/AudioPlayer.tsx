@@ -11,7 +11,7 @@ export const AudioPlayer = () => {
 	const [openDrawer, setOpenDrawer] = useState(false)
 	return (
 		<div className = "w-full fixed bottom-0">
-			<div className = "flex flex-col gap-9 lg:flex-row justify-between items-center text-white p-[0.5rem_10px] min-h-8 bg-dark">
+			<div className = "flex flex-row gap-9 justify-between items-center text-white p-[0.5rem_10px] min-h-8 bg-dark">
 				<TrackInfo/>
 				<div className = "w-full flex flex-col items-center gap-1 m-auto flex-1">
 					<Controls/>

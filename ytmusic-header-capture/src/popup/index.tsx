@@ -3,12 +3,15 @@ import { createRoot } from "react-dom/client";
 import { Popup } from "./Popup";
 import { Provider } from "react-redux"
 import { store } from "../store"
+import { AudioPlayerProvider } from "../context/AudioPlayerProvider"
 
 const container = document.createElement("div");
 document.body.appendChild(container);
 const root = createRoot(container);
 root.render(
 <Provider store={store}>
-	<Popup/>
+	<AudioPlayerProvider>
+		<Popup/>
+	</AudioPlayerProvider>
 </Provider>
 );
