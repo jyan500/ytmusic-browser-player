@@ -8,6 +8,8 @@ import { skipToken } from '@reduxjs/toolkit/query/react'
 import { PaginationRow } from "../components/PaginationRow"
 import { InfiniteScrollList } from "../components/InfiniteScrollList"
 import { TrackList } from "../components/TrackList"
+import { PlaylistCardItem } from "../components/PlaylistCardItem"
+import { PlayButton } from "../components/PlayButton"
 
 interface Props {
 	playlist: TPlaylist
@@ -29,8 +31,13 @@ export const Playlist = ({playlist}: Props) => {
 	return (
 		<div>
 			<NavButton onClick={(e) => {goTo(Playlists)}} message={"Go Back"}/>
-			<p>{playlist.title}</p>
-			<p>Playlist Tracks</p>
+			<div className = "flex flex-col justify-center items-center">
+				<PlaylistCardItem isHeader={true} imageHeight={"h-64"} playlist={playlist}>	
+					<div className = "w-full flex flex-row justify-center items-center">
+						<PlayButton onClick={() => console.log("test")} />
+					</div>
+				</PlaylistCardItem>
+			</div>
 			<div>
 				{
 					isTracksLoading && !tracks ? <p>Tracks loading... </p> : (

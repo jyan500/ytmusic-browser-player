@@ -12,13 +12,26 @@ import { IconShuffle } from "../../icons/IconShuffle"
 import {
 	setTimeProgress,
 	setDuration,
+	setIndex,
+	setIsLoading,
+	setQueuedTracks,
+	setCurrentTrack,
+	setStoredPlaybackInfo,
+	setIsPlaying,
+
 } from "../../slices/audioPlayerSlice"
 import { useAudioPlayerContext } from "../../context/AudioPlayerProvider"
+import { useLazyGetSongPlaybackQuery } from "../../services/private/songs"
+import { Track } from "../../types/common"
 
 export const Controls = () => {
 	const { 
 		storedPlaybackInfo,  
+		queuedTracks,
+		index,
 		timeProgress,
+		isLoading,
+		isPlaying,
 		duration
 	} = useAppSelector((state) => state.audioPlayer)
 	const { audioRef, progressBarRef } = useAudioPlayerContext()
@@ -26,7 +39,53 @@ export const Controls = () => {
 	const playAnimationRef = useRef<number | null>(null)
 	const [isShuffle, setIsShuffle] = useState<boolean>(false)
 	const [isRepeat, setIsRepeat] = useState<boolean>(false)
-	const [isPlaying, setIsPlaying] = useState<boolean>(false)
+    const [trigger, { data: songData, error, isFetching }] = useLazyGetSongPlaybackQuery();
+
+	const skipForward = () => {
+		if (audioRef.current){
+			audioRef.current.currentTime += 15
+			updateProgress()
+		}
+	}
+
+	const skipBackward = () => {
+		if (audioRef.current){
+			audioRef.current.currentTime -= 15
+			updateProgress()
+		}	
+	}
+
+	const handlePrevious = useCallback(() => {
+		if (queuedTracks?.length && index - 1 >= 0){
+			dispatch(setIndex(index-1))	
+			const track = queuedTracks[index-1]
+	        dispatch(setCurrentTrack(track))
+	        setPlayback(track)
+		}
+	}, [setCurrentTrack, setIndex])
+
+	const handleNext = useCallback(() => {
+		if (queuedTracks?.length && index + 1 < queuedTracks?.length){
+			dispatch(setIndex(index+1))
+			const track = queuedTracks[index+1]
+	        dispatch(setCurrentTrack(track))
+	        setPlayback(track)
+		}
+	}, [setCurrentTrack, setIndex])
+
+	const setPlayback = (track: Track) => {
+		const existingPlayback = getExistingPlayback(track.videoId)
+		if (!existingPlayback){
+			dispatch(setCurrentTrack(track))
+		}
+		else {
+			trigger(track.videoId)
+		}
+	}
+
+	const getExistingPlayback = (videoId: string) => {
+		return storedPlaybackInfo.find((playback) => playback.videoId === videoId) != null
+	}
 
 	const updateProgress = useCallback(() => {
 		if (audioRef.current && progressBarRef.current && duration){
@@ -74,10 +133,32 @@ export const Controls = () => {
 	}, [isPlaying, startAnimation, updateProgress, audioRef])
 
 	useEffect(() => {
-		if (audioRef?.current){
-			audioRef.current.volume = 0.3
+		const currentAudioRef = audioRef.current
+		if (currentAudioRef){
+			currentAudioRef.onended = () => {
+				if (isRepeat){
+					currentAudioRef.play()
+				}	
+				else {
+					handleNext()
+				}
+			}	
 		}
-	}, [])
+		return () => {
+			if (currentAudioRef){
+				currentAudioRef.onended = null
+			}
+		}
+	}, [isRepeat, handleNext, audioRef])
+
+	/* Set the playback information once the song data is finished loading */
+	useEffect(() => {
+        if (!isFetching && songData){
+        	dispatch(setIsPlaying(false))
+            dispatch(setStoredPlaybackInfo([...storedPlaybackInfo, songData]))
+            dispatch(setIsLoading(false))
+        }
+    }, [songData, isFetching])
 
 	const onLoadedMetadata = () => {
 		if (audioRef?.current){
@@ -94,21 +175,21 @@ export const Controls = () => {
 	return (
 		<div className = "flex gap-4 items-center">
 			<audio onLoadedMetadata={onLoadedMetadata} ref={audioRef} src={storedPlaybackInfo.length ? storedPlaybackInfo[0].playbackURL : ""}/>	
-			<button onClick={()=> {}}>
+			<button onClick={handlePrevious}>
 				<IconSkipStart/>
 			</button>
-			<button onClick={()=> {}}>
+			<button onClick={skipBackward}>
 				<IconRewind/>
 			</button>
 			<button onClick={()=>{
-				setIsPlaying((prev) => !prev)
+				dispatch(setIsPlaying(!isPlaying))
 			}}>
 				{isPlaying ? <IconPause/> : <IconPlay/>}
 			</button>
-			<button onClick={()=> {}}>
+			<button onClick={skipForward}>
 				<IconFastForward/>
 			</button>
-			<button onClick={()=> {}}>
+			<button onClick={handleNext}>
 				<IconSkipEnd/>
 			</button>
 			<button onClick={()=> {

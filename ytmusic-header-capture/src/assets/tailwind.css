@@ -3,11 +3,17 @@
 @theme {
   --color-dark: #2e2d2d;
   --color-orange: #f50;
+  --color-dark-secondary: #4c4848;
+  --color-orange-secondary: #a66646;
 }
 
 body{
     width: 700px;
     height: 800px;
     background: #e7f1f1;
+}
+
+button, a {
+  cursor: pointer; 
 }
 

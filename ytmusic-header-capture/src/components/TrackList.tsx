@@ -1,9 +1,10 @@
 import React, { useEffect } from "react";
 import { OptionType, Track } from "../types/common"
 import { useAppDispatch, useAppSelector } from "../hooks/redux-hooks"
-import { setCurrentTrack, setQueuedTracks, setStoredPlaybackInfo, setIsLoading } from "../slices/audioPlayerSlice"
+import { setIsPlaying, setCurrentTrack, setQueuedTracks, setStoredPlaybackInfo, setIsLoading } from "../slices/audioPlayerSlice"
 import { useLazyGetSongPlaybackQuery } from "../services/private/songs"
 import { IconPlay } from "../icons/IconPlay"
+import { useAudioPlayerContext } from "../context/AudioPlayerProvider"
 
 type Props = {
     data: Array<Track>;
@@ -11,13 +12,15 @@ type Props = {
 
 export const TrackList = ({ data }: Props) => {
     const dispatch = useAppDispatch()
-    const { storedPlaybackInfo } = useAppSelector((state) => state.audioPlayer)
-    const [trigger, { data: songData, error, isFetching }] = useLazyGetSongPlaybackQuery();
+    const { currentTrack, storedPlaybackInfo } = useAppSelector((state) => state.audioPlayer)
+    const [ trigger, { data: songData, error, isFetching }] = useLazyGetSongPlaybackQuery();
+    const { audioRef } = useAudioPlayerContext()
 
     useEffect(() => {
         if (!isFetching && songData){
             dispatch(setStoredPlaybackInfo([songData, ...storedPlaybackInfo]))
             dispatch(setIsLoading(false))
+            dispatch(setIsPlaying(true))
         }
     }, [songData, isFetching])
 
@@ -49,12 +52,18 @@ export const TrackList = ({ data }: Props) => {
     }
 
     return (
-        <div className="flex flex-col gap-y-2">
+        <ul className="flex flex-col">
             {data?.map((track: Track) => (
-                <div key={track.videoId} className="flex flex-row justify-between items-center p-2 border border-gray-300 shadow-md">
+                <li 
+                onClick={() => onPress(track)}
+                onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " "){
+                        onPress(track)
+                    }
+                }} tabIndex={0} key={track.videoId} className={`hover:cursor-pointer group flex flex-row justify-between items-center py-2 ${currentTrack?.videoId === track.videoId ? "bg-orange-secondary" : ""}`}>
                     <div className = "flex flex-row gap-x-2">
-                        <div className = "w-24 h-16 overflow-hidden group relative">
-                            <img className = "w-24 h-16" src = {track.thumbnails?.[0]?.url}/> 
+                        <div className = "w-24 h-16 overflow-hidden relative">
+                            <img className = "w-24 h-16 object-cover" src = {track.thumbnails?.[0]?.url}/> 
                             <div className = "absolute flex justify-center items-center inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-in-out">
                                 <button onClick={() => onPress(track)}><IconPlay className={"h-6 w-6 text-white"}/></button>
                             </div>
@@ -66,8 +75,8 @@ export const TrackList = ({ data }: Props) => {
                     <div>
                         <p>{track.duration}</p>
                     </div>
-                </div>
+                </li>
             ))}
-        </div>
+        </ul>
     )
 }
