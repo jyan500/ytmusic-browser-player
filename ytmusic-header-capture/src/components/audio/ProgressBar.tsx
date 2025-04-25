@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react"
+import React, { useEffect, useState, useRef } from "react"
 import { useAppSelector, useAppDispatch } from "../../hooks/redux-hooks"
 import { setTimeProgress } from "../../slices/audioPlayerSlice"
 import { formatTime } from "../../helpers/functions"
@@ -8,9 +8,12 @@ export const ProgressBar = () => {
 	const { duration, timeProgress } = useAppSelector((state) => state.audioPlayer)
 	const { progressBarRef, audioRef } = useAudioPlayerContext()
 	const dispatch = useAppDispatch()
+	const [hoverValue, setHoverValue] = useState<number|null>(null)
+	const [tooltipPos, setTooltipPos] = useState<number>(0)
 
 	useEffect(() => {
 		if (progressBarRef?.current){
+			progressBarRef.current.min = "0"
 			progressBarRef.current.max = duration.toString()	
 		}
 	}, [duration])
@@ -34,16 +37,54 @@ export const ProgressBar = () => {
 		}
 	}
 
+	const handleMouseMove = (e: React.MouseEvent<HTMLInputElement, MouseEvent>) => {
+		if (progressBarRef?.current){
+			const input = progressBarRef.current
+			// get the "length" of the range input
+			const rect = input.getBoundingClientRect()
+			const min = Number(input.min)
+			const max = Number(input.max)
+
+			// calculates the horizontal offset from the left edge of the input
+			const offsetX = e.clientX - rect.left
+			// calculate percent that the mouse position is at
+			// in relation to the input length
+			const percent = Math.min(Math.max(offsetX/rect.width, 0), 1)
+			// get the time value in seconds that's proportional
+			// to the length of the progress bar 
+			const value = min + percent * (max - min)
+
+			setHoverValue(value)
+			setTooltipPos(offsetX)
+		}
+	}
+
+	const handleMouseLeave = () => {
+		setHoverValue(null)
+	}
+
 	return (
-		<div className="flex items-center justify-center gap-5 w-full">
-			<span className = "text-center w-28">{formatTime(timeProgress)}</span>				
+		<div className="relative flex items-center justify-center gap-3 w-full">
+			{/*<span className = "text-center w-28">{formatTime(timeProgress)}</span>*/}				
+			{
+				hoverValue !== null ? (
+					<div 
+						className="absolute bottom-full mb-2 px-2 py-1 text-sm text-white bg-dark rounded shadow-sm pointer-events-none transition-opacity"
+						style={{left: tooltipPos, transform: "translateX(-50%)"}}
+					>	
+						{formatTime(hoverValue)}
+					</div>
+				) : null 
+			}
 			<input 
 				defaultValue="0"
 				onChange={handleProgressBarChange} 
 				ref={progressBarRef} 
-				className="max-w-[80%] bg-gray-300" 
+				className="bg-gray-300" 
+				onMouseMove={handleMouseMove}
+				onMouseLeave={handleMouseLeave}
 				type="range"/>
-			<span className = "text-center w-28">{formatTime(duration)}</span>
+			{/*<span className = "text-center w-28">{formatTime(duration)}</span>*/}
 		</div>
 	)
 }

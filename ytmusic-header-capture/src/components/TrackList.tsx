@@ -52,7 +52,7 @@ export const TrackList = ({ data }: Props) => {
     }
 
     return (
-        <ul className="flex flex-col">
+        <ul className="flex flex-col gap-y-2">
             {data?.map((track: Track) => (
                 <li 
                 onClick={() => onPress(track)}
@@ -60,7 +60,7 @@ export const TrackList = ({ data }: Props) => {
                     if (e.key === "Enter" || e.key === " "){
                         onPress(track)
                     }
-                }} tabIndex={0} key={track.videoId} className={`hover:cursor-pointer group flex flex-row justify-between items-center py-2 ${currentTrack?.videoId === track.videoId ? "bg-orange-secondary" : ""}`}>
+                }} tabIndex={0} key={track.videoId} className={`hover:cursor-pointer group flex flex-row justify-between items-center ${currentTrack?.videoId === track.videoId ? "bg-orange-secondary" : ""}`}>
                     <div className = "flex flex-row gap-x-2">
                         <div className = "w-24 h-16 overflow-hidden relative">
                             <img className = "w-24 h-16 object-cover" src = {track.thumbnails?.[0]?.url}/> 
@@ -68,11 +68,11 @@ export const TrackList = ({ data }: Props) => {
                                 <button onClick={() => onPress(track)}><IconPlay className={"h-6 w-6 text-white"}/></button>
                             </div>
                         </div>
-                        <div className = "flex flex-col gap-y-2">
+                        <div className = "py-1 flex flex-col gap-y-2">
                             {rowContent(track)}
                         </div>
                     </div>
-                    <div>
+                    <div className = "pr-2">
                         <p>{track.duration}</p>
                     </div>
                 </li>
