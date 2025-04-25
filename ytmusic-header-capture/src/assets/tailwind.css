@@ -13,3 +13,7 @@ body{
     background: #e7f1f1;
 }
 
+button, a {
+  cursor: pointer; 
+}
+
