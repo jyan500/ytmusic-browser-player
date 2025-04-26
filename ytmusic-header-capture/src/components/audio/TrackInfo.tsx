@@ -11,15 +11,15 @@ interface Props {
 export const TrackInfo = ({track}: Props) => {
 	return (
 		<div className = "flex items-center gap-4">
-			<div className = "w-24 h-24 flex items-center justify-center bg-gray-200 rounded-md overflow-hidden">	
+			<div className = "w-16 h-16 flex items-center justify-center bg-gray-200 rounded-md overflow-hidden">	
 				<TrackImage track={track}/>
 			</div>	
-			<div>
-				<p className = "font-bold truncate max-w-64">{track?.title}</p>	
+			<div className = "w-40">
+				<p className = "font-bold truncate">{track?.title}</p>	
 				{
 	                track?.artists?.map((artist: OptionType) => {
 	                    return (
-	                        <p className = "text-sm text-gray-400" key={artist.id}>{artist.name}</p>
+	                        <p className = "text-sm text-gray-400 truncate" key={artist.id}>{artist.name}</p>
 	                    )
 	                })
 	            }
