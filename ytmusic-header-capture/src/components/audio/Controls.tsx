@@ -198,8 +198,8 @@ export const Controls = () => {
 			<button onClick={handleNext}>
 				<IconSkipEnd/>
 			</button>
-			<div className = "w-24">
-				<span className = "text-center">{formatTime(timeProgress)}/{formatTime(duration)}</span>
+			<div className = "w-20">
+				<span className = "text-center truncate">{formatTime(timeProgress)}/{formatTime(duration)}</span>
 			</div>
 			<button onClick={()=> {
 				setIsShuffle((prev) => !prev)

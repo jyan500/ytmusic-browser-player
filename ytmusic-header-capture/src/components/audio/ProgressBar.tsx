@@ -64,8 +64,7 @@ export const ProgressBar = () => {
 	}
 
 	return (
-		<div className="relative flex items-center justify-center gap-3 w-full">
-			{/*<span className = "text-center w-28">{formatTime(timeProgress)}</span>*/}				
+		<div className="relative flex items-center justify-center w-full">
 			{
 				hoverValue !== null ? (
 					<div 
@@ -84,7 +83,6 @@ export const ProgressBar = () => {
 				onMouseMove={handleMouseMove}
 				onMouseLeave={handleMouseLeave}
 				type="range"/>
-			{/*<span className = "text-center w-28">{formatTime(duration)}</span>*/}
 		</div>
 	)
 }

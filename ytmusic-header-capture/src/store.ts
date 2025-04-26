@@ -5,6 +5,7 @@ import { privateApi } from "./services/private"
 import { authReducer } from "./slices/authSlice"
 import { userProfileReducer } from "./slices/userProfileSlice"
 import { audioPlayerReducer } from "./slices/audioPlayerSlice"
+import { queuedTrackListReducer } from "./slices/queuedTrackListSlice"
 
 export const store = configureStore({
 	reducer: {
@@ -13,6 +14,7 @@ export const store = configureStore({
 		auth: authReducer,
 		userProfile: userProfileReducer,
 		audioPlayer: audioPlayerReducer,
+		queuedTrackList: queuedTrackListReducer,
 	},
 	middleware: (getDefaultMiddleware) => getDefaultMiddleware()
 	.concat(publicApi.middleware)
