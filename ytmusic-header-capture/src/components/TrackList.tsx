@@ -4,6 +4,7 @@ import { useAppDispatch, useAppSelector } from "../hooks/redux-hooks"
 import { setIsPlaying, setCurrentTrack, setQueuedTracks, setStoredPlaybackInfo, setIsLoading } from "../slices/audioPlayerSlice"
 import { useLazyGetSongPlaybackQuery } from "../services/private/songs"
 import { IconPlay } from "../icons/IconPlay"
+import { IconPause } from "../icons/IconPause"
 import { useAudioPlayerContext } from "../context/AudioPlayerProvider"
 
 type Props = {
@@ -12,7 +13,7 @@ type Props = {
 
 export const TrackList = ({ data }: Props) => {
     const dispatch = useAppDispatch()
-    const { currentTrack, storedPlaybackInfo } = useAppSelector((state) => state.audioPlayer)
+    const { isPlaying, currentTrack, storedPlaybackInfo } = useAppSelector((state) => state.audioPlayer)
     const [ trigger, { data: songData, error, isFetching }] = useLazyGetSongPlaybackQuery();
     const { audioRef } = useAudioPlayerContext()
 
@@ -29,9 +30,17 @@ export const TrackList = ({ data }: Props) => {
     }
 
     const onPress = (track: Track) => {
-        dispatch(setIsLoading(true))
-        dispatch(setCurrentTrack(track))
-        search(track.videoId)
+        if (currentTrack?.videoId === track.videoId){
+            dispatch(setIsPlaying(!isPlaying))
+        }
+        else {
+            dispatch(setIsLoading(true))
+            dispatch(setCurrentTrack(track))
+            const foundPlayback = storedPlaybackInfo?.find((playback) => playback.videoId === track.videoId)
+            if (!foundPlayback){
+                search(track.videoId)
+            }
+        }
     }
 
     const rowContent = (track: Track) => {
@@ -65,7 +74,13 @@ export const TrackList = ({ data }: Props) => {
                         <div className = "w-24 h-16 overflow-hidden relative">
                             <img className = "w-24 h-16 object-cover" src = {track.thumbnails?.[0]?.url}/> 
                             <div className = "absolute flex justify-center items-center inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-in-out">
-                                <button onClick={() => onPress(track)}><IconPlay className={"h-6 w-6 text-white"}/></button>
+                                <button onClick={() => onPress(track)}>
+                                {
+                                    isPlaying && currentTrack?.videoId === track.videoId ? 
+                                    <IconPause className={"h-6 w-6 text-white"}/> :
+                                    <IconPlay className={"h-6 w-6 text-white"}/>
+                                }
+                                </button>
                             </div>
                         </div>
                         <div className = "py-1 flex flex-col gap-y-2">

@@ -14,17 +14,14 @@ export const AudioPlayer = () => {
 	return (
 		<div className = "w-full fixed bottom-0">
 			<ProgressBar/>
-			<div className = "flex flex-row gap-6 justify-between items-center text-white p-[0.5rem_10px] min-h-8 bg-dark">
-				<div className = "flex flex-row items-center gap-4">
-					<TrackImage track={currentTrack}/>
+			<div className = "flex flex-row gap-6 items-center text-white p-[0.5rem_10px] min-h-8 bg-dark">
+				<div className = "w-3/7">
 					<TrackInfo track={currentTrack}/>
 				</div>
-				<div className = "w-full flex flex-col items-center gap-2 m-auto flex-1">
-					<div className = "flex flex-row gap-x-2">
-						<Controls/>
-						<div className = "w-56">
-							<VolumeControl/>
-						</div>
+				<div className = "w-4/7 flex flex-row items-center gap-2 m-auto">
+					<Controls/>
+					<div className = "w-28">
+						<VolumeControl/>
 					</div>
 				</div>
 			</div>

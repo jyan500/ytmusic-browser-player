@@ -24,6 +24,7 @@ import { useAudioPlayerContext } from "../../context/AudioPlayerProvider"
 import { PlayButton } from "../PlayButton"
 import { useLazyGetSongPlaybackQuery } from "../../services/private/songs"
 import { Track } from "../../types/common"
+import { formatTime } from "../../helpers/functions"
 
 export const Controls = () => {
 	const { 
@@ -31,6 +32,7 @@ export const Controls = () => {
 		queuedTracks,
 		index,
 		timeProgress,
+		currentTrack,
 		isLoading,
 		isPlaying,
 		duration
@@ -41,6 +43,8 @@ export const Controls = () => {
 	const [isShuffle, setIsShuffle] = useState<boolean>(false)
 	const [isRepeat, setIsRepeat] = useState<boolean>(false)
     const [trigger, { data: songData, error, isFetching }] = useLazyGetSongPlaybackQuery();
+
+    const playbackURL = storedPlaybackInfo?.length ? storedPlaybackInfo.find((playback) => playback.videoId === currentTrack?.videoId)?.playbackURL : ""
 
 	const skipForward = () => {
 		if (audioRef.current){
@@ -175,24 +179,28 @@ export const Controls = () => {
 
 	return (
 		<div className = "flex gap-4 items-center">
-			<audio onLoadedMetadata={onLoadedMetadata} ref={audioRef} src={storedPlaybackInfo.length ? storedPlaybackInfo[0].playbackURL : ""}/>	
+			<audio onLoadedMetadata={onLoadedMetadata} ref={audioRef} src={playbackURL}/>	
 			<button onClick={handlePrevious}>
 				<IconSkipStart/>
 			</button>
-			<button onClick={skipBackward}>
+			{/*<button onClick={skipBackward}>
 				<IconRewind/>
-			</button>
-			<button onClick={()=>{
+			</button>*/}
+			{/*<button onClick={()=>{
 				dispatch(setIsPlaying(!isPlaying))
 			}}>
 				{isPlaying ? <IconPause/> : <IconPlay/>}
-			</button>
-			<button onClick={skipForward}>
+			</button>*/}
+			<PlayButton isPlaying={isPlaying} iconWidthHeight={"w-4"} width={"w-8"} height={"h-8"} onClick={() => dispatch(setIsPlaying(!isPlaying))}/>
+		{/*	<button onClick={skipForward}>
 				<IconFastForward/>
-			</button>
+			</button>*/}
 			<button onClick={handleNext}>
 				<IconSkipEnd/>
 			</button>
+			<div className = "w-24">
+				<span className = "text-center">{formatTime(timeProgress)}/{formatTime(duration)}</span>
+			</div>
 			<button onClick={()=> {
 				setIsShuffle((prev) => !prev)
 			}}>
