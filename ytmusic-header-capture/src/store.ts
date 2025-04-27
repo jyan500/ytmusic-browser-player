@@ -31,6 +31,12 @@ const persistConfig = {
 	key: "root",
 	version: 1,
 	storage: localStorage,
+	whitelist: [
+		"auth", 
+		"userProfile", 
+		"audioPlayer", 
+		"queuedTrackList"
+	]
 }
 
 const persistedReducer = persistReducer(persistConfig, reducers)
