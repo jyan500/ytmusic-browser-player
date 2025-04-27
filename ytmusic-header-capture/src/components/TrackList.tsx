@@ -13,7 +13,7 @@ type Props = {
 
 export const TrackList = ({ data }: Props) => {
     const dispatch = useAppDispatch()
-    const { isPlaying, currentTrack, storedPlaybackInfo } = useAppSelector((state) => state.audioPlayer)
+    const { queuedTracks, isPlaying, currentTrack, storedPlaybackInfo } = useAppSelector((state) => state.audioPlayer)
     const [ trigger, { data: songData, error, isFetching }] = useLazyGetSongPlaybackQuery();
     const { audioRef } = useAudioPlayerContext()
 
@@ -35,6 +35,7 @@ export const TrackList = ({ data }: Props) => {
         }
         else {
             dispatch(setIsLoading(true))
+            dispatch(setQueuedTracks([...queuedTracks, track]))
             dispatch(setCurrentTrack(track))
             const foundPlayback = storedPlaybackInfo?.find((playback) => playback.videoId === track.videoId)
             if (!foundPlayback){

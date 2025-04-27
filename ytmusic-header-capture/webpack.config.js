@@ -48,6 +48,9 @@ module.exports = {
     ],
     resolve: {
         extensions: [".tsx", ".ts", ".js"],
+        fallback: {
+            "chrome": false,
+        },
     },
     output: {
         filename: "[name].js",

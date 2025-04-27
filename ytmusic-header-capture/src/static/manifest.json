@@ -6,7 +6,8 @@
   "permissions": [
     "webRequest",
     "storage",
-    "scripting"
+    "scripting",
+    "unlimitedStorage"
   ],
   "host_permissions": [
     "https://music.youtube.com/*",
