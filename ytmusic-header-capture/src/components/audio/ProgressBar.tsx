@@ -47,6 +47,8 @@ export const ProgressBar = () => {
 
 			// calculates the horizontal offset from the left edge of the input
 			const offsetX = e.clientX - rect.left
+			console.log("offsetX: ", offsetX)
+			console.log("rect.right: ", rect.right)	
 			// calculate percent that the mouse position is at
 			// in relation to the input length
 			const percent = Math.min(Math.max(offsetX/rect.width, 0), 1)
@@ -55,7 +57,19 @@ export const ProgressBar = () => {
 			const value = min + percent * (max - min)
 
 			setHoverValue(value)
-			setTooltipPos(offsetX)
+			// 22 is an approximate size of the tooltip, the additional logic here
+			// is to prevent the tooltip from going underneath the window by setting
+			// the mouse position to be X amount of pixels away from each boundary once it
+			// gets too close
+			if (offsetX <= 22) {
+				setTooltipPos(22)
+			}
+			else if (offsetX >= (rect.right - 22)){
+				setTooltipPos(rect.right - 22)	
+			}
+			else {
+				setTooltipPos(offsetX)
+			}
 		}
 	}
 
@@ -68,7 +82,7 @@ export const ProgressBar = () => {
 			{
 				hoverValue !== null ? (
 					<div 
-						className="absolute bottom-full mb-2 px-2 py-1 text-sm text-white bg-dark rounded shadow-sm pointer-events-none transition-opacity"
+						className="absolute bottom-full mb-2 px-1 py-0.5 text-xs text-white bg-dark rounded shadow-sm pointer-events-none transition-opacity"
 						style={{left: tooltipPos, transform: "translateX(-50%)"}}
 					>	
 						{formatTime(hoverValue)}
