@@ -10,6 +10,7 @@ export const ProgressBar = () => {
 	const dispatch = useAppDispatch()
 	const [hoverValue, setHoverValue] = useState<number|null>(null)
 	const [tooltipPos, setTooltipPos] = useState<number>(0)
+	const tooltipRef = useRef<HTMLDivElement>(null)
 
 	useEffect(() => {
 		if (progressBarRef?.current){
@@ -38,17 +39,38 @@ export const ProgressBar = () => {
 	}
 
 	const handleMouseMove = (e: React.MouseEvent<HTMLInputElement, MouseEvent>) => {
-		if (progressBarRef?.current){
+		if (progressBarRef?.current && tooltipRef?.current){
 			const input = progressBarRef.current
 			// get the "length" of the range input
 			const rect = input.getBoundingClientRect()
+			/* 
+			Visually, it's roughly half of the tooltip's width that we have to account for.
+
+			this:
+
+            [tooltip]                  [tooltip]
+			------------------------------------
+			^^^^							^^^^
+			mouse cursor		    mouse cursor
+
+			instead of this:
+
+		[tooltip]                  			[tooltip]
+			------------------------------------
+			^^^^							^^^^
+			mouse cursor		    mouse cursor
+
+			this prevents the tooltip from displaying underneath of the window
+			if it gets too close to the sides.
+
+			*/
+			 
+			const tooltipBoundary = tooltipRef?.current.getBoundingClientRect().width/2
 			const min = Number(input.min)
 			const max = Number(input.max)
 
 			// calculates the horizontal offset from the left edge of the input
 			const offsetX = e.clientX - rect.left
-			console.log("offsetX: ", offsetX)
-			console.log("rect.right: ", rect.right)	
 			// calculate percent that the mouse position is at
 			// in relation to the input length
 			const percent = Math.min(Math.max(offsetX/rect.width, 0), 1)
@@ -57,15 +79,15 @@ export const ProgressBar = () => {
 			const value = min + percent * (max - min)
 
 			setHoverValue(value)
-			// 22 is an approximate size of the tooltip, the additional logic here
+			// the additional logic here
 			// is to prevent the tooltip from going underneath the window by setting
 			// the mouse position to be X amount of pixels away from each boundary once it
 			// gets too close
-			if (offsetX <= 22) {
-				setTooltipPos(22)
+			if (offsetX <= tooltipBoundary) {
+				setTooltipPos(tooltipBoundary)
 			}
-			else if (offsetX >= (rect.right - 22)){
-				setTooltipPos(rect.right - 22)	
+			else if (offsetX >= (rect.right - tooltipBoundary)){
+				setTooltipPos(rect.right - tooltipBoundary)	
 			}
 			else {
 				setTooltipPos(offsetX)
@@ -80,14 +102,13 @@ export const ProgressBar = () => {
 	return (
 		<div className="relative flex items-center justify-center w-full">
 			{
-				hoverValue !== null ? (
-					<div 
-						className="absolute bottom-full mb-2 px-1 py-0.5 text-xs text-white bg-dark rounded shadow-sm pointer-events-none transition-opacity"
-						style={{left: tooltipPos, transform: "translateX(-50%)"}}
-					>	
-						{formatTime(hoverValue)}
-					</div>
-				) : null 
+				<div 
+					ref={tooltipRef}
+					className={`${hoverValue != null ? "visible" : "invisible"} absolute bottom-full mb-2 px-1 py-0.5 text-xs text-white bg-dark rounded shadow-sm pointer-events-none transition-opacity`}
+					style={{left: tooltipPos, transform: "translateX(-50%)"}}
+				>	
+					{hoverValue ? formatTime(hoverValue) : "00:00"}
+				</div>
 			}
 			<input 
 				defaultValue="0"
