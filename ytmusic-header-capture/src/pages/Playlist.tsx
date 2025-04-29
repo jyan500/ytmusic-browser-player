@@ -1,6 +1,6 @@
 import React, {useState, useEffect, useRef} from "react"
 import { useAppSelector, useAppDispatch } from "../hooks/redux-hooks"
-import { setIsLoading, setIsPlaying, setCurrentTrack, setQueuedTracks, setStoredPlaybackInfo } from "../slices/audioPlayerSlice"
+import { setShowAudioPlayer, setIsLoading, setIsPlaying, setCurrentTrack, setQueuedTracks, setStoredPlaybackInfo } from "../slices/audioPlayerSlice"
 import { Playlist as TPlaylist, PlaylistInfo, Track } from "../types/common"
 import { Playlists } from "../pages/Playlists"
 import { goTo } from "react-chrome-extension-router"
@@ -13,7 +13,7 @@ import { InfiniteScrollList } from "../components/InfiniteScrollList"
 import { TrackList } from "../components/TrackList"
 import { PlaylistCardItem } from "../components/PlaylistCardItem"
 import { PlayButton } from "../components/PlayButton"
-import { setShowQueuedTrackList } from "../slices/queuedTrackListSlice"
+import { setShowQueuedTrackList, setPlaylistTitle } from "../slices/queuedTrackListSlice"
 
 interface Props {
 	playlist: TPlaylist
@@ -22,7 +22,7 @@ interface Props {
 export const Playlist = ({playlist}: Props) => {
 	const [page, setPage] = useState(1)
 	const dispatch = useAppDispatch()
-	const { storedPlaybackInfo } = useAppSelector((state) => state.audioPlayer)
+	const { showAudioPlayer, storedPlaybackInfo } = useAppSelector((state) => state.audioPlayer)
 	const { showQueuedTrackList } = useAppSelector((state) => state.queuedTrackList)
 	const {data: tracks, isLoading: isTracksLoading, isError: isTracksError} = useGetPlaylistTracksQuery(playlist ? {playlistId: playlist.playlistId, params: {page: page, perPage: 10}} : skipToken)
     const [ trigger, { data: songData, error, isFetching }] = useLazyGetSongPlaybackQuery();
@@ -59,13 +59,17 @@ export const Playlist = ({playlist}: Props) => {
 			dispatch(setQueuedTracks(tracks))
             trigger(top.videoId)
 		}
+		dispatch(setPlaylistTitle(playlist.title))
+		if (!showAudioPlayer){
+			dispatch(setShowAudioPlayer(true))
+		}
 		if (!showQueuedTrackList){
 			dispatch(setShowQueuedTrackList(true))
 		}
 	}
 
 	return (
-		<div>
+		<div className = "space-y-2">
 			<NavButton onClick={(e) => {goTo(Playlists)}} message={"Go Back"}/>
 			<div className = "flex flex-col justify-center items-center">
 				<PlaylistCardItem isHeader={true} imageHeight={"h-64"} playlist={playlist}>	
@@ -84,7 +88,6 @@ export const Playlist = ({playlist}: Props) => {
 					)
 				}
 			</div>
-
 		</div>
 	)
 }

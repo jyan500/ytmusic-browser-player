@@ -10,6 +10,7 @@ import { UserProfile } from "../types/common"
 import {
 	Link,
 } from 'react-chrome-extension-router';
+import { Avatar } from "../components/Avatar"
 
 export const Home = () => {
 	const [login, {isLoading, error}] = useLoginMutation()
@@ -46,7 +47,11 @@ export const Home = () => {
 	        <BackendErrorMessage error={error}/>
         	{isLoading && !userProfile && !headers ? <p>Loading...</p> : 
         	<div className = "text-xl flex flex-col gap-y-2">
-	        	Authenticated {userProfile?.accountName}
+	        	Authenticated
+	        	<div className = "flex flex-row items-center gap-x-2">
+	        		<Avatar className = "w-6 h-6 rounded-full" imageUrl={userProfile?.accountPhotoUrl}/>
+		        	<p>{userProfile?.accountName}</p>
+	        	</div>
         		<Link component={Playlists}>
         			See Playlists
 			    </Link>

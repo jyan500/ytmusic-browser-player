@@ -5,10 +5,12 @@ import { PlaybackInfo, Track } from "../types/common"
 
 type QueuedTrackListState = {
     showQueuedTrackList: boolean
+    playlistTitle?: string
 }
 
 const initialState: QueuedTrackListState = {
-    showQueuedTrackList: false
+    showQueuedTrackList: false,
+    playlistTitle: ""
 }
 
 const queuedTrackListSlice = createSlice({
@@ -17,12 +19,16 @@ const queuedTrackListSlice = createSlice({
     reducers: {
         setShowQueuedTrackList: (state, action: PayloadAction<boolean>) => {
             state.showQueuedTrackList = action.payload
+        },
+        setPlaylistTitle: (state, action: PayloadAction<string>) => {
+            state.playlistTitle  = action.payload 
         }
     },
 })
 
 export const { 
-    setShowQueuedTrackList
+    setShowQueuedTrackList,
+    setPlaylistTitle
 } = queuedTrackListSlice.actions
 
 export const queuedTrackListReducer = queuedTrackListSlice.reducer

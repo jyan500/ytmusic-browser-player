@@ -9,13 +9,14 @@ import { ProgressBar } from "./ProgressBar"
 import { VolumeControl } from "./VolumeControl"
 import { Playlist } from "./Playlist"
 import { setShowQueuedTrackList } from "../../slices/queuedTrackListSlice"
+import { TRANSITION_TRANSFORM } from "../../helpers/constants"
 
 export const AudioPlayer = () => {
 	const { showQueuedTrackList } = useAppSelector((state) => state.queuedTrackList)
 	const dispatch = useAppDispatch()
-	const { currentTrack } = useAppSelector((state) => state.audioPlayer)
+	const { showAudioPlayer: isOpen, currentTrack } = useAppSelector((state) => state.audioPlayer)
 	return (
-		<div className = "w-full fixed bottom-0">
+		<div className = {`${isOpen ? `translate-y-0` : "translate-y-full"} ${TRANSITION_TRANSFORM} w-full fixed bottom-0 left-0`}>
 			<ProgressBar/>
 			<div className = "flex flex-row gap-4 items-center text-white p-[0.5rem_10px] min-h-8 bg-dark">
 				<div className = "w-3/8">
