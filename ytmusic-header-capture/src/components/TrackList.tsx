@@ -7,6 +7,7 @@ import { useLazyGetSongPlaybackQuery } from "../services/private/songs"
 import { IconPlay } from "../icons/IconPlay"
 import { IconPause } from "../icons/IconPause"
 import { useAudioPlayerContext } from "../context/AudioPlayerProvider"
+import { ImagePlayButton } from "./ImagePlayButton"
 
 type Props = {
     data: Array<Track>;
@@ -86,6 +87,7 @@ export const TrackList = ({ data }: Props) => {
                     }
                 }} tabIndex={0} key={track.videoId} className={`hover:cursor-pointer group flex flex-row justify-between items-center ${currentTrack?.videoId === track.videoId ? "bg-orange-secondary" : ""}`}>
                     <div className = "flex flex-row gap-x-2">
+                        {/*
                         <div className = "w-24 h-16 overflow-hidden relative">
                             <img className = "w-24 h-16 object-cover" src = {track.thumbnails?.[0]?.url}/> 
                             <div className = "absolute flex justify-center items-center inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-in-out">
@@ -98,6 +100,16 @@ export const TrackList = ({ data }: Props) => {
                                 </button>
                             </div>
                         </div>
+                        */}
+                        <ImagePlayButton 
+                            playButtonWidth={"w-6"}
+                            playButtonHeight={"h-6"}
+                            imageWidth={"w-24"}
+                            imageHeight={"h-16"}
+                            showPlayButton={isPlaying && currentTrack?.videoId === track.videoId}
+                            onPress={() => onPress(track)}
+                            imageURL={track.thumbnails?.[0].url}
+                        />
                         <div className = "py-1 flex flex-col gap-y-2">
                             {rowContent(track)}
                         </div>

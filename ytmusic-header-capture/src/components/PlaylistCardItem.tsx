@@ -37,9 +37,10 @@ interface CardContentProps {
 	children: React.ReactNode
 	isHeader?: boolean
 	imageHeight?: string
+	canPlay?: boolean
 }
 
-const CardContent = ({imageHeight, isHeader, playlist, thumbnail, children}: CardContentProps) => {
+const CardContent = ({imageHeight, isHeader, playlist, thumbnail, canPlay, children}: CardContentProps) => {
 	return (
 		<>
 			<div className={`${isHeader ? "items-center" : "items-start"} flex flex-col gap-y-2`}>
@@ -77,6 +78,7 @@ export const PlaylistCardItem = ({playlist, imageHeight, children, isHeader}: Pr
 				playlist={playlist} 
 				thumbnail={thumbnail} 
 				isHeader={isHeader}
+				canPlay={true}
 			>
 				{children}
 			</CardContent>
