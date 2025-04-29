@@ -6,9 +6,11 @@ import { PlaybackInfo, Track } from "../types/common"
 type AudioPlayerState = {
    storedPlaybackInfo: PlaybackInfo | null
    queuedTracks: Array<Track>
+   shuffledQueuedTracks: Array<Track>
    currentTrack: Track | null
    showAudioPlayer: boolean
    isLoading: boolean
+   isShuffling: boolean
    isPlaying: boolean
    timeProgress: number
    duration: number
@@ -18,11 +20,13 @@ type AudioPlayerState = {
 const initialState: AudioPlayerState = {
     storedPlaybackInfo: null,
     queuedTracks: [],
+    shuffledQueuedTracks: [],
     index: 0,
     currentTrack: null,
     showAudioPlayer: false,
     isLoading: false,
     isPlaying: false,
+    isShuffling: false,
     timeProgress: 0,
     duration: 0
 }
@@ -57,6 +61,12 @@ const audioPlayerSlice = createSlice({
         },
         setIndex: (state, action: PayloadAction<number>) => {
            state.index = action.payload 
+        },
+        setIsShuffling: (state, action: PayloadAction<boolean>) => {
+            state.isShuffling = action.payload 
+        },
+        setShuffledQueuedTracks: (state, action: PayloadAction<Array<Track>>) => {
+            state.shuffledQueuedTracks = action.payload
         }
     },
 })
@@ -69,6 +79,8 @@ export const {
     setTimeProgress,
     setIsLoading,
     setIsPlaying,
+    setIsShuffling,
+    setShuffledQueuedTracks,
     setDuration,
     setIndex,
 } = audioPlayerSlice.actions

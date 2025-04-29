@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import { OptionType, Track } from "../types/common"
 import { useAppDispatch, useAppSelector } from "../hooks/redux-hooks"
 import { setIsPlaying, setCurrentTrack, setQueuedTracks, setIndex, setStoredPlaybackInfo, setIsLoading } from "../slices/audioPlayerSlice"
+import { setShowQueuedTrackList } from "../slices/queuedTrackListSlice"
 import { useLazyGetSongPlaybackQuery } from "../services/private/songs"
 import { IconPlay } from "../icons/IconPlay"
 import { IconPause } from "../icons/IconPause"
@@ -14,6 +15,7 @@ type Props = {
 export const TrackList = ({ data }: Props) => {
     const dispatch = useAppDispatch()
     const { queuedTracks, isPlaying, currentTrack, index, storedPlaybackInfo } = useAppSelector((state) => state.audioPlayer)
+    const { showQueuedTrackList } = useAppSelector((state) => state.queuedTrackList)
     const [ trigger, { data: songData, error, isFetching }] = useLazyGetSongPlaybackQuery();
     const { audioRef } = useAudioPlayerContext()
 
@@ -26,7 +28,10 @@ export const TrackList = ({ data }: Props) => {
     }, [songData, isFetching])
 
     const search = (videoId: string) => {
-        trigger(videoId)
+        // if we're inside the queued tracklist, use the cached results
+        // otherwise, reload the song in case the cache results expire
+        // on youtube's end
+        trigger(videoId, showQueuedTrackList)
     }
 
     const onPress = (track: Track) => {

@@ -17,3 +17,20 @@ export const formatTime = (time: number | undefined): string => {
 	}	
 	return "00:00"
 }
+
+/* 
+Fisher-Yates Shuffle Algorithm creates a copy of the original list, shuffles the copy and returns 
+the copy 
+*/
+export const shuffle = (elementList: Array<any>) => {
+	let array = [...elementList]
+	for (let i = array.length - 1; i > 0; i--) { 
+	    // Generate random index 
+	    const j = Math.floor(Math.random() * (i + 1));
+	    // Swap elements at indices i and j
+	    const temp = array[i];
+	    array[i] = array[j];
+	    array[j] = temp;
+	}
+	return array
+}

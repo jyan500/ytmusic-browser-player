@@ -9,12 +9,12 @@ import { PADDING_AVOID_AUDIO_PLAYER_OVERLAP, OVERFLOW_MAX_HEIGHT } from "../../h
 export const QueuedTrackList = () => {
 	const dispatch = useAppDispatch()
 	const { showQueuedTrackList: isOpen } = useAppSelector((state) => state.queuedTrackList)
-	const { queuedTracks } = useAppSelector((state) => state.audioPlayer)
+	const { queuedTracks, isShuffling, shuffledQueuedTracks } = useAppSelector((state) => state.audioPlayer)
 	const transition = "transform transition-transform duration-500 ease-in-out"
 	return (
 		<div className = {`${isOpen ? `translate-y-0`: "translate-y-full"} ${transition} fixed bottom-0 left-0 bg-dark w-full ${PADDING_AVOID_AUDIO_PLAYER_OVERLAP} ${OVERFLOW_MAX_HEIGHT}`}>
 			<div className = "p-2">
-				<InfiniteScrollList<Track> data={queuedTracks ?? []} component={TrackList}/>
+				<InfiniteScrollList<Track> data={isShuffling ? shuffledQueuedTracks : queuedTracks} component={TrackList}/>
 			</div>
 		</div>
 	)

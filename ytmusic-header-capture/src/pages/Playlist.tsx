@@ -13,6 +13,7 @@ import { InfiniteScrollList } from "../components/InfiniteScrollList"
 import { TrackList } from "../components/TrackList"
 import { PlaylistCardItem } from "../components/PlaylistCardItem"
 import { PlayButton } from "../components/PlayButton"
+import { setShowQueuedTrackList } from "../slices/queuedTrackListSlice"
 
 interface Props {
 	playlist: TPlaylist
@@ -22,6 +23,7 @@ export const Playlist = ({playlist}: Props) => {
 	const [page, setPage] = useState(1)
 	const dispatch = useAppDispatch()
 	const { storedPlaybackInfo } = useAppSelector((state) => state.audioPlayer)
+	const { showQueuedTrackList } = useAppSelector((state) => state.queuedTrackList)
 	const {data: tracks, isLoading: isTracksLoading, isError: isTracksError} = useGetPlaylistTracksQuery(playlist ? {playlistId: playlist.playlistId, params: {page: page, perPage: 10}} : skipToken)
     const [ trigger, { data: songData, error, isFetching }] = useLazyGetSongPlaybackQuery();
 	const divRef = useRef<HTMLDivElement | null>(null)
@@ -56,6 +58,9 @@ export const Playlist = ({playlist}: Props) => {
 			dispatch(setCurrentTrack(top))
 			dispatch(setQueuedTracks(tracks))
             trigger(top.videoId)
+		}
+		if (!showQueuedTrackList){
+			dispatch(setShowQueuedTrackList(true))
 		}
 	}
 
