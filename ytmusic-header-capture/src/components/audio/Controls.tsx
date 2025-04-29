@@ -43,8 +43,7 @@ export const Controls = () => {
 	const [isShuffle, setIsShuffle] = useState<boolean>(false)
 	const [isRepeat, setIsRepeat] = useState<boolean>(false)
     const [trigger, { data: songData, error, isFetching }] = useLazyGetSongPlaybackQuery();
-
-    const playbackURL = storedPlaybackInfo?.length ? storedPlaybackInfo.find((playback) => playback.videoId === currentTrack?.videoId)?.playbackURL : ""
+    const playbackURL = storedPlaybackInfo ? storedPlaybackInfo.playbackURL : ""
 
 	const skipForward = () => {
 		if (audioRef.current){
@@ -67,7 +66,7 @@ export const Controls = () => {
 	        dispatch(setCurrentTrack(track))
 	        setPlayback(track)
 		}
-	}, [setCurrentTrack, setIndex])
+	}, [currentTrack, queuedTracks, index])
 
 	const handleNext = useCallback(() => {
 		if (queuedTracks?.length && index + 1 < queuedTracks?.length){
@@ -76,22 +75,17 @@ export const Controls = () => {
 	        dispatch(setCurrentTrack(track))
 	        setPlayback(track)
 		}
-	}, [setCurrentTrack, setIndex])
+	}, [currentTrack, queuedTracks, index])
 
 	const setPlayback = (track: Track) => {
-		const existingPlayback = getExistingPlayback(track.videoId)
-		if (!existingPlayback){
-			dispatch(setCurrentTrack(track))
-		}
-		else {
-			trigger(track.videoId)
-		}
+		trigger(track.videoId)
 	}
 
-	const getExistingPlayback = (videoId: string) => {
-		return storedPlaybackInfo.find((playback) => playback.videoId === videoId) != null
-	}
+	// const getExistingPlayback = (videoId: string) => {
+	// 	return storedPlaybackInfo.find((playback) => playback.videoId === videoId) != null
+	// }
 
+	/* Handle animation for the progress bar once the audio playback begins */
 	const updateProgress = useCallback(() => {
 		if (audioRef.current && progressBarRef.current && duration){
 			const currentTime = audioRef.current.currentTime
@@ -159,9 +153,9 @@ export const Controls = () => {
 	/* Set the playback information once the song data is finished loading */
 	useEffect(() => {
         if (!isFetching && songData){
-        	dispatch(setIsPlaying(false))
-            dispatch(setStoredPlaybackInfo([...storedPlaybackInfo, songData]))
             dispatch(setIsLoading(false))
+            dispatch(setStoredPlaybackInfo(songData))
+        	dispatch(setIsPlaying(true))
         }
     }, [songData, isFetching])
 
@@ -186,13 +180,8 @@ export const Controls = () => {
 			{/*<button onClick={skipBackward}>
 				<IconRewind/>
 			</button>*/}
-			{/*<button onClick={()=>{
-				dispatch(setIsPlaying(!isPlaying))
-			}}>
-				{isPlaying ? <IconPause/> : <IconPlay/>}
-			</button>*/}
 			<PlayButton isPlaying={isPlaying} iconWidthHeight={"w-4"} width={"w-8"} height={"h-8"} onClick={() => dispatch(setIsPlaying(!isPlaying))}/>
-		{/*	<button onClick={skipForward}>
+			{/*	<button onClick={skipForward}>
 				<IconFastForward/>
 			</button>*/}
 			<button onClick={handleNext}>

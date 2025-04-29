@@ -4,7 +4,7 @@ import type { RootState } from '../store'
 import { PlaybackInfo, Track } from "../types/common"
 
 type AudioPlayerState = {
-   storedPlaybackInfo: Array<PlaybackInfo> 
+   storedPlaybackInfo: PlaybackInfo | null
    queuedTracks: Array<Track>
    currentTrack: Track | null
    showAudioPlayer: boolean
@@ -16,7 +16,7 @@ type AudioPlayerState = {
 }
 
 const initialState: AudioPlayerState = {
-    storedPlaybackInfo: [],
+    storedPlaybackInfo: null,
     queuedTracks: [],
     index: 0,
     currentTrack: null,
@@ -31,7 +31,7 @@ const audioPlayerSlice = createSlice({
     name: 'audioPlayer',
     initialState,
     reducers: {
-        setStoredPlaybackInfo: (state, action: PayloadAction<Array<PlaybackInfo>>) => {
+        setStoredPlaybackInfo: (state, action: PayloadAction<PlaybackInfo>) => {
             state.storedPlaybackInfo = action.payload
         },
         setQueuedTracks: (state, action: PayloadAction<Array<Track>>) => {

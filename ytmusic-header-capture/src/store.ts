@@ -34,8 +34,8 @@ const persistConfig = {
 	whitelist: [
 		"auth", 
 		"userProfile", 
-		"audioPlayer", 
-		"queuedTrackList"
+		// "audioPlayer", 
+		// "queuedTrackList"
 	]
 }
 

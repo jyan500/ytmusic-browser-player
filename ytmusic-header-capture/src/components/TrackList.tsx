@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { OptionType, Track } from "../types/common"
 import { useAppDispatch, useAppSelector } from "../hooks/redux-hooks"
-import { setIsPlaying, setCurrentTrack, setQueuedTracks, setStoredPlaybackInfo, setIsLoading } from "../slices/audioPlayerSlice"
+import { setIsPlaying, setCurrentTrack, setQueuedTracks, setIndex, setStoredPlaybackInfo, setIsLoading } from "../slices/audioPlayerSlice"
 import { useLazyGetSongPlaybackQuery } from "../services/private/songs"
 import { IconPlay } from "../icons/IconPlay"
 import { IconPause } from "../icons/IconPause"
@@ -13,15 +13,15 @@ type Props = {
 
 export const TrackList = ({ data }: Props) => {
     const dispatch = useAppDispatch()
-    const { queuedTracks, isPlaying, currentTrack, storedPlaybackInfo } = useAppSelector((state) => state.audioPlayer)
+    const { queuedTracks, isPlaying, currentTrack, index, storedPlaybackInfo } = useAppSelector((state) => state.audioPlayer)
     const [ trigger, { data: songData, error, isFetching }] = useLazyGetSongPlaybackQuery();
     const { audioRef } = useAudioPlayerContext()
 
     useEffect(() => {
         if (!isFetching && songData){
-            dispatch(setStoredPlaybackInfo([songData, ...storedPlaybackInfo]))
             dispatch(setIsLoading(false))
             dispatch(setIsPlaying(true))
+            dispatch(setStoredPlaybackInfo(songData))
         }
     }, [songData, isFetching])
 
@@ -35,12 +35,18 @@ export const TrackList = ({ data }: Props) => {
         }
         else {
             dispatch(setIsLoading(true))
-            dispatch(setQueuedTracks([...queuedTracks, track]))
-            dispatch(setCurrentTrack(track))
-            const foundPlayback = storedPlaybackInfo?.find((playback) => playback.videoId === track.videoId)
-            if (!foundPlayback){
-                search(track.videoId)
+            const queuedTrack = queuedTracks.find((qTrack) => qTrack.videoId === track.videoId)
+            if (!queuedTrack){
+                dispatch(setQueuedTracks([...queuedTracks, track]))
             }
+            // if there are queued tracks and we're playing a song in the queue
+            // set the index to this track
+            else {
+                const index = queuedTracks.indexOf(queuedTrack)
+                dispatch(setIndex(index))
+            }
+            dispatch(setCurrentTrack(track))
+            search(track.videoId)
         }
     }
 
