@@ -1,35 +1,30 @@
 import React from "react"
 import { IconMusicNote } from "../../icons/IconMusicNote"
-import { OptionType } from "../../types/common"
+import { Track, OptionType } from "../../types/common"
 import { useAppDispatch, useAppSelector } from "../../hooks/redux-hooks"
+import { TrackImage } from "./TrackImage"
 
-export const TrackInfo = () => {
-	const { currentTrack } = useAppSelector((state) => state.audioPlayer)
+interface Props {
+	track: Track | null | undefined 
+}
+
+export const TrackInfo = ({track}: Props) => {
 	return (
-		<div className = "flex flex-row items-center gap-4">
-			<div className = "w-24 h-24 flex items-center justify-center bg-gray-200 rounded-md overflow-hidden">	
-			{
-				currentTrack?.thumbnails ? (
-					<img alt={"audio avatar"} className = "w-full h-full object-cover" src={currentTrack?.thumbnails?.[0]?.url} />
-				) : 
-				<div className = "flex items-center justify-center w-full h-full">
-					<span className="text-xl text-gray-600">
-						<IconMusicNote/>
-					</span>
-				</div>
-			}
-			</div>
-			<div>
-				<p className = "font-bold truncate max-w-64">{currentTrack?.title}</p>	
+		<div className = "flex items-center gap-4">
+			<div className = "w-16 h-16 flex items-center justify-center bg-gray-200 rounded-md overflow-hidden">	
+				<TrackImage track={track}/>
+			</div>	
+			<div className = "w-40">
+				<p className = "font-bold truncate">{track?.title}</p>	
 				{
-                    currentTrack?.artists?.map((artist: OptionType) => {
-                        return (
-                            <p className = "text-sm text-gray-400" key={artist.id}>{artist.name}</p>
-                        )
-                    })
-                }
-			</div>
-		</div>	
+	                track?.artists?.map((artist: OptionType) => {
+	                    return (
+	                        <p className = "text-sm text-gray-400 truncate" key={artist.id}>{artist.name}</p>
+	                    )
+	                })
+	            }
+            </div>
+		</div>
 	)
 }
 

@@ -16,13 +16,18 @@ import {
 	setIsLoading,
 	setQueuedTracks,
 	setCurrentTrack,
+	setShuffledQueuedTracks,
+	setIsShuffling,
 	setStoredPlaybackInfo,
 	setIsPlaying,
 
 } from "../../slices/audioPlayerSlice"
+import { setShowQueuedTrackList } from "../../slices/queuedTrackListSlice" 
 import { useAudioPlayerContext } from "../../context/AudioPlayerProvider"
+import { PlayButton } from "../PlayButton"
 import { useLazyGetSongPlaybackQuery } from "../../services/private/songs"
 import { Track } from "../../types/common"
+import { formatTime, shuffle } from "../../helpers/functions"
 
 export const Controls = () => {
 	const { 
@@ -30,16 +35,20 @@ export const Controls = () => {
 		queuedTracks,
 		index,
 		timeProgress,
+		currentTrack,
 		isLoading,
+		shuffledQueuedTracks,
+		isShuffling,
 		isPlaying,
 		duration
 	} = useAppSelector((state) => state.audioPlayer)
+	const { showQueuedTrackList } = useAppSelector((state) => state.queuedTrackList)
 	const { audioRef, progressBarRef } = useAudioPlayerContext()
 	const dispatch = useAppDispatch()
 	const playAnimationRef = useRef<number | null>(null)
-	const [isShuffle, setIsShuffle] = useState<boolean>(false)
 	const [isRepeat, setIsRepeat] = useState<boolean>(false)
     const [trigger, { data: songData, error, isFetching }] = useLazyGetSongPlaybackQuery();
+    const playbackURL = storedPlaybackInfo ? storedPlaybackInfo.playbackURL : ""
 
 	const skipForward = () => {
 		if (audioRef.current){
@@ -56,37 +65,35 @@ export const Controls = () => {
 	}
 
 	const handlePrevious = useCallback(() => {
-		if (queuedTracks?.length && index - 1 >= 0){
+		let queued = isShuffling ? shuffledQueuedTracks : queuedTracks
+		if (queued?.length && index - 1 >= 0){
 			dispatch(setIndex(index-1))	
-			const track = queuedTracks[index-1]
+			const track = queued[index-1]
 	        dispatch(setCurrentTrack(track))
 	        setPlayback(track)
 		}
-	}, [setCurrentTrack, setIndex])
+	}, [currentTrack, queuedTracks, shuffledQueuedTracks, index])
 
 	const handleNext = useCallback(() => {
-		if (queuedTracks?.length && index + 1 < queuedTracks?.length){
+		let queued = isShuffling ? shuffledQueuedTracks : queuedTracks
+		if (queued?.length && index + 1 < queued?.length){
 			dispatch(setIndex(index+1))
-			const track = queuedTracks[index+1]
+			const track = queued[index+1]
 	        dispatch(setCurrentTrack(track))
 	        setPlayback(track)
 		}
-	}, [setCurrentTrack, setIndex])
+	}, [currentTrack, queuedTracks, shuffledQueuedTracks, index])
 
 	const setPlayback = (track: Track) => {
-		const existingPlayback = getExistingPlayback(track.videoId)
-		if (!existingPlayback){
-			dispatch(setCurrentTrack(track))
-		}
-		else {
-			trigger(track.videoId)
-		}
+		// set to true to use the cached result if available
+		trigger(track.videoId, true)
 	}
 
-	const getExistingPlayback = (videoId: string) => {
-		return storedPlaybackInfo.find((playback) => playback.videoId === videoId) != null
-	}
+	// const getExistingPlayback = (videoId: string) => {
+	// 	return storedPlaybackInfo.find((playback) => playback.videoId === videoId) != null
+	// }
 
+	/* Handle animation for the progress bar once the audio playback begins */
 	const updateProgress = useCallback(() => {
 		if (audioRef.current && progressBarRef.current && duration){
 			const currentTime = audioRef.current.currentTime
@@ -154,9 +161,9 @@ export const Controls = () => {
 	/* Set the playback information once the song data is finished loading */
 	useEffect(() => {
         if (!isFetching && songData){
-        	dispatch(setIsPlaying(false))
-            dispatch(setStoredPlaybackInfo([...storedPlaybackInfo, songData]))
             dispatch(setIsLoading(false))
+            dispatch(setStoredPlaybackInfo(songData))
+        	dispatch(setIsPlaying(true))
         }
     }, [songData, isFetching])
 
@@ -172,30 +179,51 @@ export const Controls = () => {
 		}
 	}
 
+	const handleOnShuffle = () => {
+		if (currentTrack){
+			// create shuffled queued tracks by randomly ordering the queued tracks
+			if (!isShuffling){
+				// make sure in the shuffled version, we don't include the current track 
+				let shuffledTracks = shuffle(queuedTracks.filter((track) => track.videoId !== currentTrack?.videoId))
+				// start the index back at 0, since the first element in the shuffled track
+				// should be the current track
+				dispatch(setIndex(0))
+				dispatch(setShuffledQueuedTracks([currentTrack, ...shuffledTracks]))
+				dispatch(setIsShuffling(true))
+			}
+			else {
+				// get the track index of the current song in the original order
+				const currentTrackIndex = queuedTracks.indexOf(currentTrack)
+				dispatch(setIndex(currentTrackIndex))
+				dispatch(setIsShuffling(false))
+			}
+		}
+		if (!showQueuedTrackList){
+			dispatch(setShowQueuedTrackList(true))
+		}
+	}
+
 	return (
 		<div className = "flex gap-4 items-center">
-			<audio onLoadedMetadata={onLoadedMetadata} ref={audioRef} src={storedPlaybackInfo.length ? storedPlaybackInfo[0].playbackURL : ""}/>	
+			<audio onLoadedMetadata={onLoadedMetadata} ref={audioRef} src={playbackURL}/>	
 			<button onClick={handlePrevious}>
 				<IconSkipStart/>
 			</button>
-			<button onClick={skipBackward}>
+			{/*<button onClick={skipBackward}>
 				<IconRewind/>
-			</button>
-			<button onClick={()=>{
-				dispatch(setIsPlaying(!isPlaying))
-			}}>
-				{isPlaying ? <IconPause/> : <IconPlay/>}
-			</button>
-			<button onClick={skipForward}>
+			</button>*/}
+			<PlayButton isPlaying={isPlaying} iconWidthHeight={"w-4"} width={"w-8"} height={"h-8"} onClick={() => dispatch(setIsPlaying(!isPlaying))}/>
+			{/*	<button onClick={skipForward}>
 				<IconFastForward/>
-			</button>
+			</button>*/}
 			<button onClick={handleNext}>
 				<IconSkipEnd/>
 			</button>
-			<button onClick={()=> {
-				setIsShuffle((prev) => !prev)
-			}}>
-				<IconShuffle className={isShuffle ? "text-orange" : ""}/>
+			<div className = "w-20">
+				<span className = "text-center truncate">{formatTime(timeProgress)}/{formatTime(duration)}</span>
+			</div>
+			<button onClick={handleOnShuffle}>
+				<IconShuffle className={isShuffling ? "text-orange" : ""}/>
 			</button>
 			<button onClick={()=> {
 				setIsRepeat((prev) => !prev)

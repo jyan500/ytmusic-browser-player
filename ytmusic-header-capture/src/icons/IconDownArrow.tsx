@@ -7,10 +7,10 @@ interface Props {
 	color?: string
 }
 
-export const IconUpArrow = ({className, color}: Props) => {
+export const IconDownArrow = ({className, color}: Props) => {
 	return (
 		<BaseIcon className={className} color={color}>
-			<IoIosArrowUp/>
+			<IoIosArrowDown/>
 		</BaseIcon>
 	)
 }
