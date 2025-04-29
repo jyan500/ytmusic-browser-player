@@ -99,6 +99,18 @@ export const ProgressBar = () => {
 		setHoverValue(null)
 	}
 
+	const handleMouseDown = () => {
+		if (audioRef?.current){
+			audioRef?.current.pause()
+		}
+	}
+
+	const handleMouseUp = () => {
+		if (audioRef?.current){
+			audioRef?.current.play()
+		}
+	}
+
 	return (
 		<div className="relative flex items-center justify-center w-full">
 			{
@@ -115,6 +127,8 @@ export const ProgressBar = () => {
 				onChange={handleProgressBarChange} 
 				ref={progressBarRef} 
 				className="bg-gray-300" 
+				onMouseDown={handleMouseDown}
+				onMouseUp={handleMouseUp}
 				onMouseMove={handleMouseMove}
 				onMouseLeave={handleMouseLeave}
 				type="range"/>
