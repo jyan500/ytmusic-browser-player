@@ -13,7 +13,7 @@ import { InfiniteScrollList } from "../components/InfiniteScrollList"
 import { TrackList } from "../components/TrackList"
 import { PlaylistCardItem } from "../components/PlaylistCardItem"
 import { PlayButton } from "../components/PlayButton"
-import { setShowQueuedTrackList, setPlaylistTitle } from "../slices/queuedTrackListSlice"
+import { setShowQueuedTrackList, setPlaylist } from "../slices/queuedTrackListSlice"
 
 interface Props {
 	playlist: TPlaylist
@@ -22,8 +22,8 @@ interface Props {
 export const Playlist = ({playlist}: Props) => {
 	const [page, setPage] = useState(1)
 	const dispatch = useAppDispatch()
-	const { showAudioPlayer, storedPlaybackInfo } = useAppSelector((state) => state.audioPlayer)
-	const { showQueuedTrackList } = useAppSelector((state) => state.queuedTrackList)
+	const { isPlaying, showAudioPlayer, storedPlaybackInfo } = useAppSelector((state) => state.audioPlayer)
+	const { showQueuedTrackList, playlist: currentPlaylist } = useAppSelector((state) => state.queuedTrackList)
 	const {data: tracks, isLoading: isTracksLoading, isError: isTracksError} = useGetPlaylistTracksQuery(playlist ? {playlistId: playlist.playlistId, params: {page: page, perPage: 10}} : skipToken)
     const [ trigger, { data: songData, error, isFetching }] = useLazyGetSongPlaybackQuery();
 	const divRef = useRef<HTMLDivElement | null>(null)
@@ -59,13 +59,17 @@ export const Playlist = ({playlist}: Props) => {
 			dispatch(setQueuedTracks(tracks))
             trigger(top.videoId)
 		}
-		dispatch(setPlaylistTitle(playlist.title))
+		dispatch(setPlaylist(playlist))
 		if (!showAudioPlayer){
 			dispatch(setShowAudioPlayer(true))
 		}
 		if (!showQueuedTrackList){
 			dispatch(setShowQueuedTrackList(true))
 		}
+	}
+
+	const onPause = () => {
+		dispatch(setIsPlaying(false))		
 	}
 
 	return (
@@ -76,7 +80,14 @@ export const Playlist = ({playlist}: Props) => {
 					<div className = "w-full flex flex-row justify-center items-center">
 						{
 							!isTracksLoading && tracks ? 
-								<PlayButton onClick={() => onQueuePlaylist()} /> : null
+								<PlayButton isPlaying={isPlaying && currentPlaylist?.playlistId === playlist?.playlistId} onClick={() => {
+									if (isPlaying && currentPlaylist?.playlistId === playlist?.playlistId){
+										onPause()
+									}
+									else {
+										onQueuePlaylist()
+									}
+								}} /> : null
 						}
 					</div>
 				</PlaylistCardItem>

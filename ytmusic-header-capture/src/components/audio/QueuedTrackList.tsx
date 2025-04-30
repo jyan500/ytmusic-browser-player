@@ -8,12 +8,12 @@ import { TRANSITION_TRANSFORM, PADDING_AVOID_AUDIO_PLAYER_OVERLAP, OVERFLOW_MAX_
 
 export const QueuedTrackList = () => {
 	const dispatch = useAppDispatch()
-	const { showQueuedTrackList: isOpen, playlistTitle } = useAppSelector((state) => state.queuedTrackList)
+	const { showQueuedTrackList: isOpen, playlist } = useAppSelector((state) => state.queuedTrackList)
 	const { queuedTracks, isShuffling, shuffledQueuedTracks } = useAppSelector((state) => state.audioPlayer)
 	return (
 		<div className = {`${isOpen ? `translate-y-0`: "translate-y-full"} ${TRANSITION_TRANSFORM} fixed bottom-0 left-0 bg-dark w-full ${PADDING_AVOID_AUDIO_PLAYER_OVERLAP} ${OVERFLOW_MAX_HEIGHT}`}>
 			<div className = "p-2 space-y-2">
-				<p className = "text-lg">Playing from: <span className = "text-gray-300">{playlistTitle}</span></p>
+				<p className = "text-lg">Playing from: <span className = "text-gray-300">{playlist?.title ?? ""}</span></p>
 				<InfiniteScrollList<Track> data={isShuffling ? shuffledQueuedTracks : queuedTracks} component={TrackList}/>
 			</div>
 		</div>

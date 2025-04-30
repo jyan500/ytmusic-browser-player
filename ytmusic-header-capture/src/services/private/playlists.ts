@@ -37,4 +37,5 @@ export const {
 	useGetPlaylistsQuery, 
 	useGetPlaylistQuery,
 	useGetPlaylistTracksQuery,
+	useLazyGetPlaylistTracksQuery,
 } = playlistsApi 

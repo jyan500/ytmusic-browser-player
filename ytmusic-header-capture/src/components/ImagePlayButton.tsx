@@ -2,7 +2,7 @@ import React from "react"
 import { IconPause } from "../icons/IconPause"
 import { IconPlay } from "../icons/IconPlay"
 
-interface Props {
+export interface Props {
     imageHeight: string
     imageWidth: string
     playButtonWidth: string
@@ -23,7 +23,7 @@ export const ImagePlayButton = ({
 }: Props) => {
     return (
         <div className = {`${imageWidth} ${imageHeight} overflow-hidden relative`}>
-            <img className = {`${imageWidth} ${imageHeight} object-cover`} src = {imageURL}/> 
+            <img loading="lazy" className = {`${imageWidth} ${imageHeight} object-cover`} src = {imageURL}/> 
             <div className = "absolute flex justify-center items-center inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-in-out">
                 <button onClick={onPress}>
                 {

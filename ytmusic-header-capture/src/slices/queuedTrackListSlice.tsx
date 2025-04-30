@@ -1,16 +1,16 @@
 import { createSlice } from '@reduxjs/toolkit'
 import type { PayloadAction } from '@reduxjs/toolkit'
 import type { RootState } from '../store'
-import { PlaybackInfo, Track } from "../types/common"
+import { Playlist, PlaybackInfo, Track } from "../types/common"
 
 type QueuedTrackListState = {
     showQueuedTrackList: boolean
-    playlistTitle?: string
+    playlist?: Playlist
 }
 
 const initialState: QueuedTrackListState = {
     showQueuedTrackList: false,
-    playlistTitle: ""
+    playlist: undefined
 }
 
 const queuedTrackListSlice = createSlice({
@@ -20,15 +20,15 @@ const queuedTrackListSlice = createSlice({
         setShowQueuedTrackList: (state, action: PayloadAction<boolean>) => {
             state.showQueuedTrackList = action.payload
         },
-        setPlaylistTitle: (state, action: PayloadAction<string>) => {
-            state.playlistTitle  = action.payload 
+        setPlaylist: (state, action: PayloadAction<Playlist>) => {
+            state.playlist  = action.payload 
         }
     },
 })
 
 export const { 
     setShowQueuedTrackList,
-    setPlaylistTitle
+    setPlaylist
 } = queuedTrackListSlice.actions
 
 export const queuedTrackListReducer = queuedTrackListSlice.reducer
