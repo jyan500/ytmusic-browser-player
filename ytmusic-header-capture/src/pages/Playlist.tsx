@@ -22,7 +22,7 @@ interface Props {
 export const Playlist = ({playlist}: Props) => {
 	const [page, setPage] = useState(1)
 	const dispatch = useAppDispatch()
-	const { isPlaying, showAudioPlayer, storedPlaybackInfo } = useAppSelector((state) => state.audioPlayer)
+	const { isPlaying, queuedTracks, showAudioPlayer, storedPlaybackInfo } = useAppSelector((state) => state.audioPlayer)
 	const { showQueuedTrackList, playlist: currentPlaylist } = useAppSelector((state) => state.queuedTrackList)
 	const {data: tracks, isLoading: isTracksLoading, isError: isTracksError} = useGetPlaylistTracksQuery(playlist ? {playlistId: playlist.playlistId, params: {page: page, perPage: 10}} : skipToken)
     const [ trigger, { data: songData, error, isFetching }] = useLazyGetSongPlaybackQuery();
@@ -81,11 +81,18 @@ export const Playlist = ({playlist}: Props) => {
 						{
 							!isTracksLoading && tracks ? 
 								<PlayButton isPlaying={isPlaying && currentPlaylist?.playlistId === playlist?.playlistId} onClick={() => {
-									if (isPlaying && currentPlaylist?.playlistId === playlist?.playlistId){
-										onPause()
+									if (isPlaying && queuedTracks?.length && storedPlaybackInfo && currentPlaylist?.playlistId === playlist?.playlistId){
+										dispatch(setIsPlaying(false))
 									}
 									else {
-										onQueuePlaylist()
+										// if there's already currently a song playing but the playback has been paused, resume.
+										if (queuedTracks?.length && storedPlaybackInfo) {
+											dispatch(setIsPlaying(true))
+										}
+										// Otherwise, load the playlist tracks and the first song of the playlist.
+										else {
+											onQueuePlaylist()
+										}
 									}
 								}} /> : null
 						}

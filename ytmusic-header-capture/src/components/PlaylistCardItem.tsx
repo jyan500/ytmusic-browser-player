@@ -101,7 +101,7 @@ const CardContent = ({
 export const PlaylistCardItem = ({playlist, imageHeight, children, isHeader}: Props) => {
 	// find the largest thumbnail and compress to fit 
 	const dispatch = useAppDispatch()
-	const { isPlaying, showAudioPlayer, storedPlaybackInfo } = useAppSelector((state) => state.audioPlayer)
+	const { queuedTracks, isPlaying, showAudioPlayer, storedPlaybackInfo } = useAppSelector((state) => state.audioPlayer)
 	const { showQueuedTrackList, playlist: currentPlaylist } = useAppSelector((state) => state.queuedTrackList)
 	const widths = playlist?.thumbnails?.map((thumbnail) => thumbnail.width) ?? []
 	const biggestWidth = Math.max(...widths)
@@ -114,10 +114,6 @@ export const PlaylistCardItem = ({playlist, imageHeight, children, isHeader}: Pr
 		if (playlist){
 			triggerGetTracks({playlistId: playlist?.playlistId, params: {page: 1, perPage: 10}}, true)
 		}
-	}
-
-	const onPause = () =>{
-		dispatch(setIsPlaying(false))
 	}
 
 	const onQueuePlaylist = () => {
@@ -184,11 +180,18 @@ export const PlaylistCardItem = ({playlist, imageHeight, children, isHeader}: Pr
 					canPlay={true}
 					imagePlayButtonProps={{
 						onPress: () => {
-							if (isPlaying && currentPlaylist?.playlistId === playlist?.playlistId){
-								onPause()
+							if (isPlaying && queuedTracks?.length && storedPlaybackInfo && currentPlaylist?.playlistId === playlist?.playlistId){
+								dispatch(setIsPlaying(false))
 							}
 							else {
-								onPressPlay()
+								// if there's already currently a song playing but the playback has been paused, resume.
+								if (queuedTracks?.length && storedPlaybackInfo){
+									dispatch(setIsPlaying(true))
+								}
+								// Otherwise, load the playlist tracks and the first song of the playlist.
+								else {
+									onPressPlay()
+								}
 							}
 						},
 						imageHeight: imageHeight ?? "h-32", 
