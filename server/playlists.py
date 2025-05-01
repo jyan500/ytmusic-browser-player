@@ -36,4 +36,15 @@ def get_playlist_tracks(playlistId):
     tracks = playlistInfo["tracks"]
     return jsonify(tracks), 200
 
+@playlists.route("/playlists/<playlistId>/related-tracks", endpoint="get_playlist_related_tracks", methods=["GET"])
+@require_authentication
+def get_playlist_related_tracks(playlistId):
+    ytmusic = initYTMusic(request)
+    watchPlaylist = ytmusic.get_watch_playlist(playlistId=playlistId)
+    result = []
+    if len(watchPlaylist) > 0 and "related" in watchPlaylist:
+        browseId = watchPlaylist["related"] 
+        result = ytmusic.get_song_related(browseId)
+    return jsonify(result, 200)
+
 

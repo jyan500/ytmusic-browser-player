@@ -30,6 +30,13 @@ export const playlistsApi = privateApi.injectEndpoints({
 			}),
 			providesTags: ["PlaylistTracks"]
 		}),
+		getPlaylistRelatedTracks: builder.query<Array<Track>, {playlistId: string}>({
+			query: ({playlistId}) => ({
+				url: `${PLAYLIST_URL}/${playlistId}/related-tracks`,
+				method: "GET"
+			}),
+			providesTags: ["PlaylistRelatedTracks"]
+		})
 	}),
 })
 
@@ -38,4 +45,5 @@ export const {
 	useGetPlaylistQuery,
 	useGetPlaylistTracksQuery,
 	useLazyGetPlaylistTracksQuery,
+	useLazyGetPlaylistRelatedTracksQuery,
 } = playlistsApi 

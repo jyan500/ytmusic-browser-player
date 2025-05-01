@@ -5,7 +5,7 @@ import { Playlist as TPlaylist, PlaylistInfo, Track } from "../types/common"
 import { Playlists } from "../pages/Playlists"
 import { goTo } from "react-chrome-extension-router"
 import { NavButton } from "../components/NavButton"
-import { useGetPlaylistTracksQuery } from "../services/private/playlists"
+import { useGetPlaylistTracksQuery, useLazyGetPlaylistRelatedTracksQuery } from "../services/private/playlists"
 import { useLazyGetSongPlaybackQuery } from "../services/private/songs"
 import { skipToken } from '@reduxjs/toolkit/query/react'
 import { PaginationRow } from "../components/PaginationRow"
@@ -26,6 +26,7 @@ export const Playlist = ({playlist}: Props) => {
 	const { showQueuedTrackList, playlist: currentPlaylist } = useAppSelector((state) => state.queuedTrackList)
 	const {data: tracks, isLoading: isTracksLoading, isError: isTracksError} = useGetPlaylistTracksQuery(playlist ? {playlistId: playlist.playlistId, params: {page: page, perPage: 10}} : skipToken)
     const [ trigger, { data: songData, error, isFetching }] = useLazyGetSongPlaybackQuery();
+    const [ triggerRelatedTracks, {data: relatedTracksData, error: relatedTracksError, isFetching: isRelatedTracksFetching}] = useLazyGetPlaylistRelatedTracksQuery()
 	const divRef = useRef<HTMLDivElement | null>(null)
 
 	useEffect(() => {
@@ -58,6 +59,7 @@ export const Playlist = ({playlist}: Props) => {
 			dispatch(setCurrentTrack(top))
 			dispatch(setQueuedTracks(tracks))
             trigger(top.videoId)
+            triggerRelatedTracks({playlistId: playlist.playlistId})
 		}
 		dispatch(setPlaylist(playlist))
 		if (!showAudioPlayer){
@@ -81,18 +83,16 @@ export const Playlist = ({playlist}: Props) => {
 						{
 							!isTracksLoading && tracks ? 
 								<PlayButton isPlaying={isPlaying && currentPlaylist?.playlistId === playlist?.playlistId} onClick={() => {
-									if (isPlaying && queuedTracks?.length && storedPlaybackInfo && currentPlaylist?.playlistId === playlist?.playlistId){
-										dispatch(setIsPlaying(false))
+									// if the playlist is the currently selected playlist
+									if (currentPlaylist?.playlistId === playlist?.playlistId){
+										// if there are queued tracks and a current song playing, toggle the playback
+										if (queuedTracks?.length && storedPlaybackInfo){
+											dispatch(setIsPlaying(!isPlaying))
+										}
 									}
+									// Otherwise, load the playlist tracks and the first song of the playlist.
 									else {
-										// if there's already currently a song playing but the playback has been paused, resume.
-										if (queuedTracks?.length && storedPlaybackInfo) {
-											dispatch(setIsPlaying(true))
-										}
-										// Otherwise, load the playlist tracks and the first song of the playlist.
-										else {
-											onQueuePlaylist()
-										}
+										onQueuePlaylist()
 									}
 								}} /> : null
 						}
