@@ -39,6 +39,6 @@ Uses pytubefix to return an audio-only streaming URL
 """
 def getPlaybackURL(videoId):
 	url = f"https://www.youtube.com/watch?v={videoId}"
-	yt = YouTube(url, on_progress_callback=on_progress)
+	yt = YouTube(url, client="WEB", on_progress_callback=on_progress)
 	ys = yt.streams.get_audio_only()
 	return ys.url

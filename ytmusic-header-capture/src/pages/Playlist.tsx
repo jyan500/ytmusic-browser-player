@@ -1,6 +1,14 @@
 import React, {useState, useEffect, useRef} from "react"
 import { useAppSelector, useAppDispatch } from "../hooks/redux-hooks"
-import { setShowAudioPlayer, setIsLoading, setIsPlaying, setCurrentTrack, setQueuedTracks, setStoredPlaybackInfo } from "../slices/audioPlayerSlice"
+import { 
+	setSuggestedTracks, 
+	setShowAudioPlayer, 
+	setIsLoading, 
+	setIsPlaying, 
+	setCurrentTrack, 
+	setQueuedTracks, 
+	setStoredPlaybackInfo } 
+from "../slices/audioPlayerSlice"
 import { Playlist as TPlaylist, PlaylistInfo, Track } from "../types/common"
 import { Playlists } from "../pages/Playlists"
 import { goTo } from "react-chrome-extension-router"
@@ -44,6 +52,12 @@ export const Playlist = ({playlist}: Props) => {
             dispatch(setIsPlaying(true))
         }
     }, [songData, isFetching])
+
+    useEffect(() => {
+    	if (!isRelatedTracksFetching && relatedTracksData){
+    		dispatch(setSuggestedTracks(relatedTracksData))
+    	}
+    }, [relatedTracksData, isRelatedTracksFetching])
 
 	const onQueuePlaylist = () => {
 		/* 

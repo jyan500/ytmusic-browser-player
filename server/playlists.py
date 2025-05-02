@@ -40,11 +40,10 @@ def get_playlist_tracks(playlistId):
 @require_authentication
 def get_playlist_related_tracks(playlistId):
     ytmusic = initYTMusic(request)
-    watchPlaylist = ytmusic.get_watch_playlist(playlistId=playlistId)
+    playlistInfo = ytmusic.get_playlist(playlistId=playlistId, limit=None, suggestions_limit=20)
     result = []
-    if len(watchPlaylist) > 0 and "related" in watchPlaylist:
-        browseId = watchPlaylist["related"] 
-        result = ytmusic.get_song_related(browseId)
+    if len(playlistInfo) > 0 and "suggestions" in playlistInfo:
+        result = playlistInfo["suggestions"]
     return jsonify(result, 200)
 
 

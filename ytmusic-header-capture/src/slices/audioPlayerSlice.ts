@@ -7,6 +7,7 @@ type AudioPlayerState = {
    storedPlaybackInfo: PlaybackInfo | null
    queuedTracks: Array<Track>
    shuffledQueuedTracks: Array<Track>
+   suggestedTracks: Array<Track>
    currentTrack: Track | null
    showAudioPlayer: boolean
    isLoading: boolean
@@ -15,11 +16,13 @@ type AudioPlayerState = {
    timeProgress: number
    duration: number
    index: number
+   isAutoPlay: boolean
 }
 
 const initialState: AudioPlayerState = {
     storedPlaybackInfo: null,
     queuedTracks: [],
+    suggestedTracks:[],
     shuffledQueuedTracks: [],
     index: 0,
     currentTrack: null,
@@ -28,7 +31,8 @@ const initialState: AudioPlayerState = {
     isPlaying: false,
     isShuffling: false,
     timeProgress: 0,
-    duration: 0
+    duration: 0,
+    isAutoPlay: true 
 }
 
 const audioPlayerSlice = createSlice({
@@ -67,6 +71,12 @@ const audioPlayerSlice = createSlice({
         },
         setShuffledQueuedTracks: (state, action: PayloadAction<Array<Track>>) => {
             state.shuffledQueuedTracks = action.payload
+        },
+        setSuggestedTracks: (state, action: PayloadAction<Array<Track>>) => {
+            state.suggestedTracks = action.payload
+        },
+        setIsAutoPlay: (state, action: PayloadAction<boolean>) => {
+            state.isAutoPlay = action.payload
         }
     },
 })
@@ -81,8 +91,10 @@ export const {
     setIsPlaying,
     setIsShuffling,
     setShuffledQueuedTracks,
+    setSuggestedTracks,
     setDuration,
     setIndex,
+    setIsAutoPlay,
 } = audioPlayerSlice.actions
 
 export const audioPlayerReducer = audioPlayerSlice.reducer

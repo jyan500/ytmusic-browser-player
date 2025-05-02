@@ -10,7 +10,7 @@ import { UserProfile } from "../types/common"
 import {
 	Link,
 } from 'react-chrome-extension-router';
-import { Avatar } from "../components/Avatar"
+import { Avatar } from "../components/elements/Avatar"
 
 export const Home = () => {
 	const [login, {isLoading, error}] = useLoginMutation()
