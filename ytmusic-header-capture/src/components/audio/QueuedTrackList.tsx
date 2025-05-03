@@ -1,7 +1,7 @@
 import React from "react"
 import { setShowQueuedTrackList } from "../../slices/queuedTrackListSlice"
 import { setIsAutoPlay } from "../../slices/audioPlayerSlice"
-import { TrackList } from "../TrackList"
+import { TrackList, Props as TrackListPropType } from "../TrackList"
 import { useAppSelector, useAppDispatch } from "../../hooks/redux-hooks"
 import { Track } from "../../types/common"
 import { InfiniteScrollList } from "../InfiniteScrollList"
@@ -32,7 +32,9 @@ export const QueuedTrackList = () => {
 						}}/>
 					</div>
 				</div>
-				<InfiniteScrollList<Track> data={isShuffling ? shuffledQueuedTracks : queuedTracks} component={TrackList}/>
+				<InfiniteScrollList<Track, Omit<TrackListPropType, "data">> props={{
+					inQueueTrackList: false	
+				}} data={isShuffling ? shuffledQueuedTracks : queuedTracks} component={TrackList}/>
 			</div>
 		</div>
 	)

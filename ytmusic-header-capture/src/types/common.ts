@@ -142,8 +142,9 @@ export type WithAttribute = {
 
 export type ComponentWithDataProp<T extends WithAttribute, P = {}> = React.FC<{ data: T[] } & P>
 
-export type GenericPropType<T extends WithAttribute> = {
+export type GenericPropType<T extends WithAttribute, P={}> = {
 	data: Array<T>	
-	component: ComponentWithDataProp<T>
+	props?: P
+	component: ComponentWithDataProp<T, P>
 }
 

@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { OptionType, Track } from "../types/common"
+import { OptionType, Track, Playlist } from "../types/common"
 import { useAppDispatch, useAppSelector } from "../hooks/redux-hooks"
 import { setShowAudioPlayer, setIsPlaying, setCurrentTrack, setQueuedTracks, setIndex, setStoredPlaybackInfo, setIsLoading } from "../slices/audioPlayerSlice"
 import { setShowQueuedTrackList } from "../slices/queuedTrackListSlice"
@@ -9,14 +9,16 @@ import { IconPause } from "../icons/IconPause"
 import { useAudioPlayerContext } from "../context/AudioPlayerProvider"
 import { ImagePlayButton } from "./ImagePlayButton"
 
-type Props = {
+export interface Props {
     data: Array<Track>;
+    playlist?: Playlist
+    inQueueTrackList: boolean
 }
 
-export const TrackList = ({ data }: Props) => {
+export const TrackList = ({ data, playlist, inQueueTrackList }: Props) => {
     const dispatch = useAppDispatch()
     const { showAudioPlayer, queuedTracks, isPlaying, currentTrack, index, storedPlaybackInfo } = useAppSelector((state) => state.audioPlayer)
-    const { showQueuedTrackList } = useAppSelector((state) => state.queuedTrackList)
+    const { showQueuedTrackList, playlist: currentPlaylist } = useAppSelector((state) => state.queuedTrackList)
     const [ trigger, { data: songData, error, isFetching }] = useLazyGetSongPlaybackQuery();
     const { audioRef } = useAudioPlayerContext()
 

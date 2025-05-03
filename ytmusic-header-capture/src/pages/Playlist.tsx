@@ -18,7 +18,7 @@ import { useLazyGetSongPlaybackQuery } from "../services/private/songs"
 import { skipToken } from '@reduxjs/toolkit/query/react'
 import { PaginationRow } from "../components/PaginationRow"
 import { InfiniteScrollList } from "../components/InfiniteScrollList"
-import { TrackList } from "../components/TrackList"
+import { TrackList, Props as TrackListPropType } from "../components/TrackList"
 import { PlaylistCardItem } from "../components/PlaylistCardItem"
 import { PlayButton } from "../components/PlayButton"
 import { setShowQueuedTrackList, setPlaylist } from "../slices/queuedTrackListSlice"
@@ -34,7 +34,7 @@ export const Playlist = ({playlist}: Props) => {
 	const { showQueuedTrackList, playlist: currentPlaylist } = useAppSelector((state) => state.queuedTrackList)
 	const {data: tracks, isLoading: isTracksLoading, isError: isTracksError} = useGetPlaylistTracksQuery(playlist ? {playlistId: playlist.playlistId, params: {page: page, perPage: 10}} : skipToken)
     const [ trigger, { data: songData, error, isFetching }] = useLazyGetSongPlaybackQuery();
-    const [ triggerRelatedTracks, {data: relatedTracksData, error: relatedTracksError, isFetching: isRelatedTracksFetching}] = useLazyGetPlaylistRelatedTracksQuery()
+    // const [ triggerRelatedTracks, {data: relatedTracksData, error: relatedTracksError, isFetching: isRelatedTracksFetching}] = useLazyGetPlaylistRelatedTracksQuery()
 	const divRef = useRef<HTMLDivElement | null>(null)
 
 	useEffect(() => {
@@ -53,11 +53,11 @@ export const Playlist = ({playlist}: Props) => {
         }
     }, [songData, isFetching])
 
-    useEffect(() => {
-    	if (!isRelatedTracksFetching && relatedTracksData){
-    		dispatch(setSuggestedTracks(relatedTracksData))
-    	}
-    }, [relatedTracksData, isRelatedTracksFetching])
+    // useEffect(() => {
+    // 	if (!isRelatedTracksFetching && relatedTracksData){
+    // 		dispatch(setSuggestedTracks(relatedTracksData))
+    // 	}
+    // }, [relatedTracksData, isRelatedTracksFetching])
 
 	const onQueuePlaylist = () => {
 		/* 
@@ -73,7 +73,7 @@ export const Playlist = ({playlist}: Props) => {
 			dispatch(setCurrentTrack(top))
 			dispatch(setQueuedTracks(tracks))
             trigger(top.videoId)
-            triggerRelatedTracks({playlistId: playlist.playlistId})
+            // triggerRelatedTracks({playlistId: playlist.playlistId, videoId: top.videoId})
 		}
 		dispatch(setPlaylist(playlist))
 		if (!showAudioPlayer){
@@ -116,7 +116,10 @@ export const Playlist = ({playlist}: Props) => {
 			<div>
 				{
 					isTracksLoading && !tracks ? <p>Tracks loading... </p> : (
-						<InfiniteScrollList<Track> data={tracks ?? []} component={TrackList}/>
+						<InfiniteScrollList<Track, Omit<TrackListPropType, "data">> data={tracks ?? []} props={{
+							playlist: playlist,
+							inQueueTrackList: false
+						}} component={TrackList}/>
 					)
 				}
 			</div>

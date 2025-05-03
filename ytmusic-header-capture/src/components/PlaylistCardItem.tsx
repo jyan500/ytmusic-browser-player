@@ -113,7 +113,7 @@ export const PlaylistCardItem = ({playlist, imageHeight, children, isHeader}: Pr
 	const onPressPlay = () => {
 		// need to get all the tracks for the playlist first when the button is clicked
 		if (playlist){
-			triggerGetTracks({playlistId: playlist?.playlistId, params: {page: 1, perPage: 10}}, true)
+			triggerGetTracks({playlistId: playlist?.playlistId, params: {page: 1, perPage: 10}})
 		}
 	}
 
@@ -132,7 +132,7 @@ export const PlaylistCardItem = ({playlist, imageHeight, children, isHeader}: Pr
 				dispatch(setCurrentTrack(top))
 				dispatch(setQueuedTracks(tracksData))
 	            triggerGetPlayback(top.videoId)
-	            triggerRelatedTracks({playlistId: playlist.playlistId})
+	            // triggerRelatedTracks({playlistId: playlist.playlistId, videoId: top.videoId})
 			}
 			dispatch(setPlaylist(playlist))
 			if (!showAudioPlayer){
@@ -158,11 +158,11 @@ export const PlaylistCardItem = ({playlist, imageHeight, children, isHeader}: Pr
         }
     }, [songData, isFetchingSong])
 
-    useEffect(() => {
-    	if (!isRelatedTracksFetching && relatedTracksData){
-    		dispatch(setSuggestedTracks(relatedTracksData))
-    	}
-    }, [relatedTracksData, isRelatedTracksFetching])
+    // useEffect(() => {
+    // 	if (!isRelatedTracksFetching && relatedTracksData){
+    // 		dispatch(setSuggestedTracks(relatedTracksData))
+    // 	}
+    // }, [relatedTracksData, isRelatedTracksFetching])
 
 	return (
 		isHeader ? 
