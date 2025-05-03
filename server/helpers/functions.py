@@ -60,7 +60,7 @@ def getPlaybackURLFallback(videoId):
 	# https://www.reddit.com/r/youtubedl/comments/1eqhyk0/how_to_just_extract_download_links_with_extract/
 	# https://stackoverflow.com/questions/74893626/getting-youtube-audio-stream-with-yt-dlp-not-using-pafy
 	ydl_opts = {
-		'extractor_args': {'youtube': {'player_client': ['tv']}},
+		'extractor_args': {'youtube': {'player_client': ['tv'], "player_skip": ["webpage", "initial_data"]}},
 	}
 
 	url = ""
