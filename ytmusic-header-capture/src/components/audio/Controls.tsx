@@ -162,6 +162,7 @@ export const Controls = () => {
 	useEffect(() => {
         if (!isFetching && songData){
             dispatch(setIsLoading(false))
+            console.log("new songData: ", songData)
             dispatch(setStoredPlaybackInfo(songData))
         	dispatch(setIsPlaying(true))
         }

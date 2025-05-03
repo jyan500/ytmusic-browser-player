@@ -33,7 +33,8 @@ export const QueuedTrackList = () => {
 					</div>
 				</div>
 				<InfiniteScrollList<Track, Omit<TrackListPropType, "data">> props={{
-					inQueueTrackList: false	
+					inQueueTrackList: false,
+					playlist: playlist
 				}} data={isShuffling ? shuffledQueuedTracks : queuedTracks} component={TrackList}/>
 			</div>
 		</div>

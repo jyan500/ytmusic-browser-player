@@ -5,6 +5,7 @@ from base.auth_middleware import require_authentication
 from helpers.functions import (
     initYTMusic,
     getPlaybackURL,
+    getPlaybackURLFallback,
 )
 
 songs = Blueprint('songs', __name__)
@@ -20,8 +21,9 @@ def get_song(videoId):
 @require_authentication
 def get_song_playback(videoId):
     ytmusic = initYTMusic(request)
-    playbackURL = getPlaybackURL(videoId)
-    return {"videoId": videoId, "playbackURL": playbackURL }, 200
+    # playbackURL = getPlaybackURL(videoId)
+    fallbackURL = getPlaybackURLFallback(videoId)
+    return {"videoId": videoId, "playbackURL": fallbackURL }, 200
 
 @songs.route("/songs/<videoId>/related", endpoint="get_related_songs", methods=["GET"])
 @require_authentication
