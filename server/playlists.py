@@ -41,9 +41,10 @@ def get_playlist_tracks(playlistId):
 def get_playlist_related_tracks(playlistId):
     ytmusic = initYTMusic(request)
     videoId = request.args.get("videoId") if request.args.get("videoId") != "" else ""
-    result = ytmusic.get_watch_playlist(limit=25, videoId=videoId, radio=True)
-    if (len(result) and "tracks" in result):
-        result = result["tracks"]
-    return jsonify(result, 200)
+    relatedTracks = ytmusic.get_watch_playlist(limit=25, videoId=videoId, radio=True)
+    tracks = []
+    if (len(relatedTracks) and "tracks" in relatedTracks):
+        tracks = relatedTracks["tracks"]
+    return jsonify(tracks), 200
 
 

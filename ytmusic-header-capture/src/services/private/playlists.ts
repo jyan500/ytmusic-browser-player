@@ -1,6 +1,6 @@
 import { BaseQueryFn, FetchArgs, createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react"
 import { BACKEND_BASE_URL, PLAYLIST_URL } from "../../helpers/urls" 
-import { CustomError, Playlist, PlaylistInfo, Track, ListResponse } from "../../types/common" 
+import { CustomError, Playlist, Thumbnail, PlaylistInfo, Track, ListResponse } from "../../types/common" 
 import { privateApi } from "../private" 
 
 export const playlistsApi = privateApi.injectEndpoints({
@@ -38,6 +38,13 @@ export const playlistsApi = privateApi.injectEndpoints({
 					videoId: videoId
 				}
 			}),
+			// sort by ticket name
+			transformResponse: (response: Array<Track>) => {
+				// convert "length" to "duration" and "thumbnail" to thumbnails
+				return response.map((track: Track) => {
+					return {...track, thumbnails: track.thumbnail ?? [] as Thumbnail[], duration: track.length}
+				})
+			},
 			providesTags: ["PlaylistRelatedTracks"]
 		})
 	}),

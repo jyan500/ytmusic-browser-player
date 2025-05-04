@@ -19,9 +19,10 @@ export const Home = () => {
 	const { userProfile } = useAppSelector((state) => state.userProfile)
 
 	useEffect(() => {
-		if (!headers && !userProfile){
-			authenticate()
-		}
+		// if (!headers && !userProfile){
+		// 	authenticate()
+		// }
+		authenticate()
 	}, [])
 
 	const authenticate = async () => {

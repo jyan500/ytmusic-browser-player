@@ -1,3 +1,5 @@
+import { Track, Thumbnail } from "../types/common"
+
 /* Takes the current time in seconds and returns formatted time in hh:mm:ss */
 export const formatTime = (time: number | undefined): string => {
 	if (typeof time === "number" && !isNaN(time)){

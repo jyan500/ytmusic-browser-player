@@ -34,7 +34,7 @@ export const Playlist = ({playlist}: Props) => {
 	const { showQueuedTrackList, playlist: currentPlaylist } = useAppSelector((state) => state.queuedTrackList)
 	const {data: tracks, isLoading: isTracksLoading, isError: isTracksError} = useGetPlaylistTracksQuery(playlist ? {playlistId: playlist.playlistId, params: {page: page, perPage: 10}} : skipToken)
     const [ trigger, { data: songData, error, isFetching }] = useLazyGetSongPlaybackQuery();
-    // const [ triggerRelatedTracks, {data: relatedTracksData, error: relatedTracksError, isFetching: isRelatedTracksFetching}] = useLazyGetPlaylistRelatedTracksQuery()
+    const [ triggerRelatedTracks, {data: relatedTracksData, error: relatedTracksError, isFetching: isRelatedTracksFetching}] = useLazyGetPlaylistRelatedTracksQuery()
 	const divRef = useRef<HTMLDivElement | null>(null)
 
 	useEffect(() => {
@@ -53,11 +53,11 @@ export const Playlist = ({playlist}: Props) => {
         }
     }, [songData, isFetching])
 
-    // useEffect(() => {
-    // 	if (!isRelatedTracksFetching && relatedTracksData){
-    // 		dispatch(setSuggestedTracks(relatedTracksData))
-    // 	}
-    // }, [relatedTracksData, isRelatedTracksFetching])
+    useEffect(() => {
+    	if (!isRelatedTracksFetching && relatedTracksData){
+    		dispatch(setSuggestedTracks(relatedTracksData))
+    	}
+    }, [relatedTracksData, isRelatedTracksFetching])
 
 	const onQueuePlaylist = () => {
 		/* 
@@ -73,7 +73,7 @@ export const Playlist = ({playlist}: Props) => {
 			dispatch(setCurrentTrack(top))
 			dispatch(setQueuedTracks(tracks))
             trigger(top.videoId)
-            // triggerRelatedTracks({playlistId: playlist.playlistId, videoId: top.videoId})
+            triggerRelatedTracks({playlistId: playlist.playlistId, videoId: top.videoId})
 		}
 		dispatch(setPlaylist(playlist))
 		if (!showAudioPlayer){

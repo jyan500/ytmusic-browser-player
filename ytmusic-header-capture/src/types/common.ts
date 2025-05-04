@@ -38,17 +38,19 @@ export interface Track {
 	title: string,
 	artists: Array<OptionType>
 	album: Array<OptionType>
-	duration: string
-	duration_seconds: number
-	setVideoId: string 
+	length?: string
+	duration?: string
+	duration_seconds?: number
+	setVideoId?: string 
 	likeStatus: string
 	thumbnails: Array<Thumbnail>
-	isAvailable: string
-	isExplicit: string
+	thumbnail?: Array<Thumbnail>
+	isAvailable?: string
+	isExplicit?: string
 	videoType: string
-	feedbackTokens: {
-		add: string,
-		remove: string	
+	feedbackTokens?: {
+		add?: string,
+		remove?: string	
 	}	
 }
 

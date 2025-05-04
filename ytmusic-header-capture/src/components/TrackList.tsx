@@ -1,9 +1,10 @@
 import React, { useEffect } from "react";
-import { OptionType, Track, Playlist } from "../types/common"
+import { OptionType, Track, Thumbnail, Playlist } from "../types/common"
 import { useAppDispatch, useAppSelector } from "../hooks/redux-hooks"
-import { setShowAudioPlayer, setIsPlaying, setCurrentTrack, setQueuedTracks, setIndex, setStoredPlaybackInfo, setIsLoading } from "../slices/audioPlayerSlice"
+import { setShowAudioPlayer, setSuggestedTracks, setIsPlaying, setCurrentTrack, setQueuedTracks, setIndex, setStoredPlaybackInfo, setIsLoading } from "../slices/audioPlayerSlice"
 import { setShowQueuedTrackList, setPlaylist } from "../slices/queuedTrackListSlice"
 import { useLazyGetSongPlaybackQuery } from "../services/private/songs"
+import { useLazyGetPlaylistRelatedTracksQuery } from "../services/private/playlists"
 import { IconPlay } from "../icons/IconPlay"
 import { IconPause } from "../icons/IconPause"
 import { useAudioPlayerContext } from "../context/AudioPlayerProvider"
@@ -17,9 +18,10 @@ export interface Props {
 
 export const TrackList = ({ data, playlist, inQueueTrackList }: Props) => {
     const dispatch = useAppDispatch()
-    const { showAudioPlayer, queuedTracks, isPlaying, currentTrack, index, storedPlaybackInfo } = useAppSelector((state) => state.audioPlayer)
+    const { showAudioPlayer, suggestedTracks, queuedTracks, isPlaying, currentTrack, index, storedPlaybackInfo } = useAppSelector((state) => state.audioPlayer)
     const { showQueuedTrackList, playlist: currentPlaylist } = useAppSelector((state) => state.queuedTrackList)
     const [ trigger, { data: songData, error, isFetching }] = useLazyGetSongPlaybackQuery();
+    const [ triggerRelatedTracks, {data: relatedTracksData, error: relatedTracksError, isFetching: isRelatedTracksFetching}] = useLazyGetPlaylistRelatedTracksQuery()
     const { audioRef } = useAudioPlayerContext()
 
     useEffect(() => {
@@ -29,6 +31,12 @@ export const TrackList = ({ data, playlist, inQueueTrackList }: Props) => {
             dispatch(setStoredPlaybackInfo(songData))
         }
     }, [songData, isFetching])
+
+    useEffect(() => {
+        if (!isRelatedTracksFetching && relatedTracksData){
+            dispatch(setSuggestedTracks(relatedTracksData))
+        }
+    }, [relatedTracksData, isRelatedTracksFetching])
 
     const search = (videoId: string) => {
         // if we're inside the queued tracklist, use the cached results
@@ -80,10 +88,10 @@ export const TrackList = ({ data, playlist, inQueueTrackList }: Props) => {
     const rowContent = (track: Track) => {
         return (
             <>
-                <p className = "font-bold">{track.title ?? ""}</p>
+                <p className = "font-bold">{track?.title ?? ""}</p>
                 <div className = "flex flex-row gap-x-2">
                     {
-                        track.artists?.map((artist: OptionType) => {
+                        track?.artists?.map((artist: OptionType) => {
                             return (
                                 <p key={artist.id}>{artist.name}</p>
                             )
@@ -92,6 +100,12 @@ export const TrackList = ({ data, playlist, inQueueTrackList }: Props) => {
                 </div>
             </>
         )
+    }
+
+    const getThumbnailUrl = (track: Track) => {
+        const widths = track?.thumbnails?.map((thumbnail: Thumbnail) => thumbnail.width) ?? []
+        const biggestWidth = Math.max(...widths)
+        return track?.thumbnails?.find((thumbnail: Thumbnail) => thumbnail.width === biggestWidth)?.url ?? ""
     }
 
     return (
@@ -112,14 +126,14 @@ export const TrackList = ({ data, playlist, inQueueTrackList }: Props) => {
                             imageHeight={"h-16"}
                             showPlayButton={isPlaying && currentTrack?.videoId === track.videoId}
                             onPress={() => onPress(track)}
-                            imageURL={track.thumbnails?.[0].url}
+                            imageURL={getThumbnailUrl(track)}
                         />
                         <div className = "py-1 flex flex-col gap-y-2">
                             {rowContent(track)}
                         </div>
                     </div>
                     <div className = "pr-2">
-                        <p>{track.duration}</p>
+                        <p>{track.duration ?? ""}</p>
                     </div>
                 </li>
             ))}
