@@ -22,6 +22,7 @@ import { TrackList, Props as TrackListPropType } from "../components/TrackList"
 import { PlaylistCardItem } from "../components/PlaylistCardItem"
 import { PlayButton } from "../components/PlayButton"
 import { setShowQueuedTrackList, setPlaylist } from "../slices/queuedTrackListSlice"
+import { randRange } from "../helpers/functions"
 
 interface Props {
 	playlist: TPlaylist
@@ -73,7 +74,9 @@ export const Playlist = ({playlist}: Props) => {
 			dispatch(setCurrentTrack(top))
 			dispatch(setQueuedTracks(tracks))
             trigger(top.videoId)
-            triggerRelatedTracks({playlistId: playlist.playlistId, videoId: top.videoId})
+            // pick a random track for variance on the suggestions
+            const randIndex = randRange(0, tracks.length-1)
+            triggerRelatedTracks({playlistId: playlist.playlistId, videoId: tracks[randIndex].videoId})
 		}
 		dispatch(setPlaylist(playlist))
 		if (!showAudioPlayer){

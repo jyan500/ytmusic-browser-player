@@ -29,7 +29,7 @@ import { PlayButton } from "../PlayButton"
 import { useLazyGetSongPlaybackQuery } from "../../services/private/songs"
 import { useLazyGetPlaylistRelatedTracksQuery } from "../../services/private/playlists"
 import { Track } from "../../types/common"
-import { formatTime, shuffle } from "../../helpers/functions"
+import { formatTime, shuffle, randRange } from "../../helpers/functions"
 
 export const Controls = () => {
 	const { 
@@ -168,20 +168,33 @@ export const Controls = () => {
 
 	// if the playlist is about to end, load in the suggested songs into the queue if autoplay is on
 	useEffect(() => {
-		if (index + 1 === queuedTracks?.length && isAutoPlay){
-			if (suggestedTracks?.length){
-				const suggestion = suggestedTracks[0]
+		if (index + 1 === queuedTracks?.length && isAutoPlay && currentTrack){
+			if (suggestedTracks?.length > 0){
+				// while the current track is the same as the top, use the next one
+				let suggestion = {} as Track
+				let suggestedIndex = 0 
+				for (let i = 0; i < suggestedTracks.length; ++i){
+					if (suggestedTracks[i].videoId !== currentTrack.videoId){
+						suggestion = suggestedTracks[i]
+						suggestedIndex = i
+						break
+					}
+				}
 				dispatch(setQueuedTracks([...queuedTracks, suggestion]))
-				// remove the top suggestion
-				dispatch(setSuggestedTracks(suggestedTracks.slice(1, suggestedTracks.length)))
+				// remove the suggestion from suggested tracks
+				const removedSuggestions = [...suggestedTracks]
+				removedSuggestions.splice(suggestedIndex, 1)
+				dispatch(setSuggestedTracks(removedSuggestions))
 			}
 			else {
 				// load more suggestions (if there's a playlist playing, pass it in)
-				triggerRelatedTracks({playlistId: currentPlaylist?.playlistId ?? "", videoId: queuedTracks[queuedTracks.length-1].videoId})
+				// use a random video id from the queued tracks to pass in for variance on the suggestions
+				const randIndex = randRange(0, queuedTracks.length-1) 
+				triggerRelatedTracks({playlistId: currentPlaylist?.playlistId ?? "", videoId: queuedTracks[randIndex].videoId})
 			}
 		}
 
-	}, [index, queuedTracks, suggestedTracks])
+	}, [index, currentTrack, queuedTracks, suggestedTracks])
 
 	/* Set the playback information once the song data is finished loading */
 	useEffect(() => {

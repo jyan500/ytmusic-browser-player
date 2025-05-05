@@ -53,23 +53,29 @@ export const TrackList = ({ data, playlist, inQueueTrackList }: Props) => {
             dispatch(setIsLoading(true))
             const queuedTrack = queuedTracks.find((qTrack) => qTrack.videoId === track.videoId)
             if (!queuedTrack){
-                // special case: if we're not in the queued track list, and we don't have
-                // a playlist loaded, or we're currently in a different playlist,
-                // load the tracks on the current playlist
-                // and then set index to be the current track. This way, if we play a song in the playlist,
-                // it'll load the rest of the playlist in queue.
-                if (!inQueueTrackList && (playlist && currentPlaylist?.playlistId !== playlist.playlistId) || !playlist){
-                    dispatch(setQueuedTracks(data))
-                    if (playlist){
-                        dispatch(setPlaylist(playlist))
-                    }
-                    const index = data.indexOf(track)
-                    dispatch(setIndex(index))
+                // // special case: if we're not in the queued track list, and we don't have
+                // // a playlist loaded, or we're currently in a different playlist,
+                // // load the tracks on the current playlist
+                // // and then set index to be the current track. This way, if we play a song in the playlist,
+                // // it'll load the rest of the playlist in queue.
+                // if (!inQueueTrackList && (playlist && currentPlaylist?.playlistId !== playlist.playlistId) || !playlist){
+                //     dispatch(setQueuedTracks(data))
+                //     if (playlist){
+                //         dispatch(setPlaylist(playlist))
+                //     }
+                //     const index = data.indexOf(track)
+                //     dispatch(setIndex(index))
+                // }
+                // // otherwise, just queue this track only
+                // else {
+                //     dispatch(setQueuedTracks([track]))
+                //     dispatch(setIndex(0))
+                // }
+                if (playlist){
+                    dispatch(setPlaylist(playlist))
                 }
-                // otherwise, just queue this track
-                else {
-                    dispatch(setQueuedTracks([...queuedTracks, track]))
-                }
+                dispatch(setQueuedTracks([track]))
+                dispatch(setIndex(0))
             }
             // if there are queued tracks and we're playing a song in the queue
             // set the index to this track

@@ -36,3 +36,8 @@ export const shuffle = (elementList: Array<any>) => {
 	}
 	return array
 }
+
+/* get number between two ranges of numbers */
+export const randRange = (min: number, max: number) => {
+	return Math.floor(Math.random() * (max - min + 1)) + min;
+}
