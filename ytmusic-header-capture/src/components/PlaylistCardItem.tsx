@@ -9,33 +9,13 @@ import { setShowQueuedTrackList, setPlaylist } from "../slices/queuedTrackListSl
 import { useLazyGetPlaylistTracksQuery, useLazyGetPlaylistRelatedTracksQuery } from "../services/private/playlists"
 import { useLazyGetSongPlaybackQuery } from "../services/private/songs"
 import { prepareQueueItems, randRange } from "../helpers/functions"
+import { PlayableCard } from "./PlayableCard"
 
 interface Props {
 	playlist: TPlaylist | undefined
 	imageHeight?: string
 	children?: React.ReactNode
 	isHeader?: boolean
-}
-
-interface PlaylistWrapperProps {
-	playlist?: TPlaylist | undefined
-	children: React.ReactNode
-}
-
-const HeaderPlaylistCardItem = ({children}: PlaylistWrapperProps) => {
-	return (
-		<div className = "flex flex-col gap-y-2">
-			{children}
-		</div>
-	)
-}
-
-const GridPlaylistCardItem = ({playlist, children}: PlaylistWrapperProps) => {
-	return (
-		<button className = "flex flex-col gap-y-2" onClick={() => goTo(Playlist, {playlist})}>
-			{children}
-		</button>	
-	)
 }
 
 interface CardContentProps {
@@ -170,24 +150,27 @@ export const PlaylistCardItem = ({playlist, imageHeight, children, isHeader}: Pr
 	return (
 		isHeader ? 
 			<div className = "flex flex-col gap-y-2">
-				<CardContent 
+				<PlayableCard 
 					imageHeight={imageHeight} 
-					playlist={playlist} 
+					title={playlist?.title ?? ""}
+					description={playlist?.description ?? ""}
 					thumbnail={thumbnail} 
 					isHeader={isHeader}
 					canPlay={false}
 				>
 					{children}
-				</CardContent>
+				</PlayableCard>
 			</div>
 			:
 			<div className = "flex flex-col gap-y-2">
-				<CardContent 
+				<PlayableCard 
 					imageHeight={imageHeight} 
-					playlist={playlist} 
+					title={playlist?.title ?? ""}
+					description={playlist?.description ?? ""}
 					thumbnail={thumbnail} 
 					isHeader={isHeader}
 					canPlay={true}
+					cardOnClick={() => goTo(Playlist, {playlist})}
 					imagePlayButtonProps={{
 						onPress: () => {
 							// if the playlist is the currently selected playlist
@@ -211,7 +194,7 @@ export const PlaylistCardItem = ({playlist, imageHeight, children, isHeader}: Pr
 					}}
 				>
 					{children}
-				</CardContent>
+				</PlayableCard>
 			</div>
 	)
 }

@@ -37,7 +37,7 @@ export interface Track {
 	videoId: string,
 	title: string,
 	artists: Array<OptionType>
-	album: Array<OptionType>
+	album: OptionType
 	length?: string
 	duration?: string
 	duration_seconds?: number
@@ -115,6 +115,24 @@ export interface Song {
         musicVideoType: string 
         isLiveContent: boolean
     }
+}
+
+export interface HomeContent {
+	title: string
+	// explore content can contain album information, song information or playlist information
+	content: Array<SuggestedContent>
+}
+
+export interface SuggestedContent {
+	title?: string	
+	thumbnails?: Array<Thumbnail>
+	browseId?: string
+	playlistId?: string
+	year?: string
+	subscribers?: string
+	artists?: Array<OptionType>
+	album?: OptionType
+	views?: string
 }
 
 export interface CustomError {

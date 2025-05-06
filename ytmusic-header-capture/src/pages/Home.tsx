@@ -6,17 +6,20 @@ import { useLoginMutation } from "../services/public/auth"
 import { setUserProfile } from "../slices/userProfileSlice"
 import { setCredentials } from "../slices/authSlice"
 import { BackendErrorMessage } from "../components/BackendErrorMessage"
-import { UserProfile } from "../types/common"
+import { UserProfile, HomeContent } from "../types/common"
+import { useLazyGetHomeQuery }  from "../services/private/home"
 import {
 	Link,
 } from 'react-chrome-extension-router';
 import { Avatar } from "../components/elements/Avatar"
+import { SuggestedContentContainer } from "../components/SuggestedContentContainer"
 
 export const Home = () => {
 	const [login, {isLoading, error}] = useLoginMutation()
 	const dispatch = useAppDispatch()
 	const { headers } = useAppSelector((state) => state.auth) 
 	const { userProfile } = useAppSelector((state) => state.userProfile)
+    const [ trigger, { data: homeData, error: getHomeError, isFetching: isGetHomeFetching }] = useLazyGetHomeQuery();
 
 	useEffect(() => {
 		// if (!headers && !userProfile){
@@ -24,6 +27,12 @@ export const Home = () => {
 		// }
 		authenticate()
 	}, [])
+
+	useEffect(() => {
+		if (!isLoading && headers && userProfile){
+			trigger({}, true)
+		}
+	}, [isLoading, headers, userProfile])
 
 	const authenticate = async () => {
 		const res = await chrome.storage.local.get("ytMusicHeaders")
@@ -48,7 +57,6 @@ export const Home = () => {
 	        <BackendErrorMessage error={error}/>
         	{isLoading && !userProfile && !headers ? <p>Loading...</p> : 
         	<div className = "text-xl flex flex-col gap-y-2">
-	        	Authenticated
 	        	<div className = "flex flex-row items-center gap-x-2">
 	        		<Avatar className = "w-6 h-6 rounded-full" imageUrl={userProfile?.accountPhotoUrl}/>
 		        	<p>{userProfile?.accountName}</p>
@@ -56,7 +64,19 @@ export const Home = () => {
         		<Link component={Playlists}>
         			See Playlists
 			    </Link>
-        	</div>}
+			    {
+			    	!isGetHomeFetching && homeData ? (
+			    		<div className = "flex flex-col gap-y-2">
+			    			{
+			    				homeData?.map((content: HomeContent) => (
+			    					<SuggestedContentContainer content={content}/>
+			    				))
+			    			}
+			    		</div>
+			    	) : null
+			    }
+        	</div>
+		    }
         </div>
     );
 }
