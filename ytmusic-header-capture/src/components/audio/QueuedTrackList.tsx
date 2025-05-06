@@ -9,6 +9,7 @@ import { TRANSITION_TRANSFORM, PADDING_AVOID_AUDIO_PLAYER_OVERLAP, OVERFLOW_MAX_
 import { IconDownArrow } from "../../icons/IconDownArrow"
 import { IconUpArrow } from "../../icons/IconUpArrow"
 import { Switch } from "../elements/Switch"
+import { FilterButton } from "../elements/FilterButton"
 
 export const QueuedTrackList = () => {
 	const dispatch = useAppDispatch()
@@ -74,10 +75,12 @@ export const QueuedTrackList = () => {
 					<p className = "text-lg">Playing from: <span className = "text-gray-300">{playlist?.title ?? ""}</span></p>
 					<button onClick={() => dispatch(setShowQueuedTrackList(!isOpen))}>{isOpen ? <IconDownArrow/> : <IconUpArrow/>}</button>
 				</div>
-				<div className = "flex flex-row gap-x-2">
+				<div className = "flex flex-row items-start gap-x-2">
 					{tabs.map((t, index) => {
 						return (
-							<button onClick={() => setTabIndex(index)} key={t}>{t}</button>
+							<FilterButton key={t} isActive={index === tabIndex} onClick={() => setTabIndex(index)}>
+								<span>{t}</span>
+							</FilterButton>
 						)		
 					})}
 				</div>
