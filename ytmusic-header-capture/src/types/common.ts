@@ -38,19 +38,25 @@ export interface Track {
 	title: string,
 	artists: Array<OptionType>
 	album: Array<OptionType>
-	duration: string
-	duration_seconds: number
-	setVideoId: string 
+	length?: string
+	duration?: string
+	duration_seconds?: number
+	setVideoId?: string 
 	likeStatus: string
 	thumbnails: Array<Thumbnail>
-	isAvailable: string
-	isExplicit: string
+	thumbnail?: Array<Thumbnail>
+	isAvailable?: boolean
+	isExplicit?: boolean 
 	videoType: string
-	feedbackTokens: {
-		add: string,
-		remove: string	
+	feedbackTokens?: {
+		add?: string,
+		remove?: string	
 	}	
 }
+
+export type QueueItem = Track & {
+	queueId: string
+} 
 
 export interface Playlist {
 	playlistId: string
@@ -142,8 +148,9 @@ export type WithAttribute = {
 
 export type ComponentWithDataProp<T extends WithAttribute, P = {}> = React.FC<{ data: T[] } & P>
 
-export type GenericPropType<T extends WithAttribute> = {
+export type GenericPropType<T extends WithAttribute, P={}> = {
 	data: Array<T>	
-	component: ComponentWithDataProp<T>
+	props?: P
+	component: ComponentWithDataProp<T, P>
 }
 

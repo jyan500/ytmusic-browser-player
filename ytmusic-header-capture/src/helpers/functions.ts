@@ -1,3 +1,6 @@
+import { QueueItem, Track, Thumbnail } from "../types/common"
+import { v4 as uuidv4 } from "uuid"
+
 /* Takes the current time in seconds and returns formatted time in hh:mm:ss */
 export const formatTime = (time: number | undefined): string => {
 	if (typeof time === "number" && !isNaN(time)){
@@ -33,4 +36,21 @@ export const shuffle = (elementList: Array<any>) => {
 	    array[j] = temp;
 	}
 	return array
+}
+
+/* get number between two ranges of numbers */
+export const randRange = (min: number, max: number) => {
+	return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+/* Takes an array of tracks and prepares them as queue items by removing unavailable tracks and setting a queue id */
+export const prepareQueueItems = (tracks: Array<Track>) => {
+	return tracks.filter((track) => track.isAvailable).map((track) => {
+		return (
+			{
+				...track,
+				queueId: uuidv4(),
+			}
+		)
+	})
 }

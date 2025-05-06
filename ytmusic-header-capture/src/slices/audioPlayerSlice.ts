@@ -1,13 +1,14 @@
 import { createSlice } from '@reduxjs/toolkit'
 import type { PayloadAction } from '@reduxjs/toolkit'
 import type { RootState } from '../store'
-import { PlaybackInfo, Track } from "../types/common"
+import { PlaybackInfo, Track, QueueItem} from "../types/common"
 
 type AudioPlayerState = {
    storedPlaybackInfo: PlaybackInfo | null
-   queuedTracks: Array<Track>
-   shuffledQueuedTracks: Array<Track>
-   currentTrack: Track | null
+   queuedTracks: Array<QueueItem>
+   shuffledQueuedTracks: Array<QueueItem>
+   suggestedTracks: Array<Track>
+   currentTrack: QueueItem | null
    showAudioPlayer: boolean
    isLoading: boolean
    isShuffling: boolean
@@ -15,11 +16,13 @@ type AudioPlayerState = {
    timeProgress: number
    duration: number
    index: number
+   isAutoPlay: boolean
 }
 
 const initialState: AudioPlayerState = {
     storedPlaybackInfo: null,
     queuedTracks: [],
+    suggestedTracks:[],
     shuffledQueuedTracks: [],
     index: 0,
     currentTrack: null,
@@ -28,7 +31,8 @@ const initialState: AudioPlayerState = {
     isPlaying: false,
     isShuffling: false,
     timeProgress: 0,
-    duration: 0
+    duration: 0,
+    isAutoPlay: true 
 }
 
 const audioPlayerSlice = createSlice({
@@ -38,10 +42,10 @@ const audioPlayerSlice = createSlice({
         setStoredPlaybackInfo: (state, action: PayloadAction<PlaybackInfo>) => {
             state.storedPlaybackInfo = action.payload
         },
-        setQueuedTracks: (state, action: PayloadAction<Array<Track>>) => {
+        setQueuedTracks: (state, action: PayloadAction<Array<QueueItem>>) => {
             state.queuedTracks = action.payload            
         },
-        setCurrentTrack: (state, action: PayloadAction<Track>) => {
+        setCurrentTrack: (state, action: PayloadAction<QueueItem>) => {
             state.currentTrack = action.payload
         },
         setShowAudioPlayer: (state, action: PayloadAction<boolean>) => {
@@ -65,8 +69,14 @@ const audioPlayerSlice = createSlice({
         setIsShuffling: (state, action: PayloadAction<boolean>) => {
             state.isShuffling = action.payload 
         },
-        setShuffledQueuedTracks: (state, action: PayloadAction<Array<Track>>) => {
+        setShuffledQueuedTracks: (state, action: PayloadAction<Array<QueueItem>>) => {
             state.shuffledQueuedTracks = action.payload
+        },
+        setSuggestedTracks: (state, action: PayloadAction<Array<Track>>) => {
+            state.suggestedTracks = action.payload
+        },
+        setIsAutoPlay: (state, action: PayloadAction<boolean>) => {
+            state.isAutoPlay = action.payload
         }
     },
 })
@@ -81,8 +91,10 @@ export const {
     setIsPlaying,
     setIsShuffling,
     setShuffledQueuedTracks,
+    setSuggestedTracks,
     setDuration,
     setIndex,
+    setIsAutoPlay,
 } = audioPlayerSlice.actions
 
 export const audioPlayerReducer = audioPlayerSlice.reducer

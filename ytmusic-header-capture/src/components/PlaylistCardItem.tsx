@@ -4,10 +4,11 @@ import { useAppDispatch, useAppSelector } from "../hooks/redux-hooks"
 import { Thumbnail, Playlist as TPlaylist } from "../types/common"
 import { Playlist } from "../pages/Playlist"
 import { Props as ImagePlayButtonProps, ImagePlayButton } from "./ImagePlayButton"
-import { setIsLoading, setIsPlaying, setCurrentTrack, setQueuedTracks, setStoredPlaybackInfo, setShowAudioPlayer } from "../slices/audioPlayerSlice"
+import { setSuggestedTracks, setIsLoading, setIsPlaying, setCurrentTrack, setQueuedTracks, setStoredPlaybackInfo, setShowAudioPlayer } from "../slices/audioPlayerSlice"
 import { setShowQueuedTrackList, setPlaylist } from "../slices/queuedTrackListSlice"
-import { useLazyGetPlaylistTracksQuery } from "../services/private/playlists"
+import { useLazyGetPlaylistTracksQuery, useLazyGetPlaylistRelatedTracksQuery } from "../services/private/playlists"
 import { useLazyGetSongPlaybackQuery } from "../services/private/songs"
+import { prepareQueueItems, randRange } from "../helpers/functions"
 
 interface Props {
 	playlist: TPlaylist | undefined
@@ -108,11 +109,12 @@ export const PlaylistCardItem = ({playlist, imageHeight, children, isHeader}: Pr
 	const thumbnail = playlist?.thumbnails?.find((thumbnail) => thumbnail.width === biggestWidth)
     const [ triggerGetTracks, { data: tracksData, error: tracksError, isFetching: isFetchingTracks }] = useLazyGetPlaylistTracksQuery();
     const [ triggerGetPlayback, { data: songData, error: songError, isFetching: isFetchingSong } ] = useLazyGetSongPlaybackQuery()
+    const [ triggerRelatedTracks, {data: relatedTracksData, error: relatedTracksError, isFetching: isRelatedTracksFetching}] = useLazyGetPlaylistRelatedTracksQuery()
 
 	const onPressPlay = () => {
 		// need to get all the tracks for the playlist first when the button is clicked
 		if (playlist){
-			triggerGetTracks({playlistId: playlist?.playlistId, params: {page: 1, perPage: 10}}, true)
+			triggerGetTracks({playlistId: playlist?.playlistId, params: {page: 1, perPage: 10}})
 		}
 	}
 
@@ -126,11 +128,14 @@ export const PlaylistCardItem = ({playlist, imageHeight, children, isHeader}: Pr
 		*/
 		if (playlist){
 			if (tracksData && tracksData.length){
-				const top = tracksData[0]
+				const queueItems = prepareQueueItems(tracksData)
+				const top = queueItems[0]
 				dispatch(setIsLoading(true))
 				dispatch(setCurrentTrack(top))
-				dispatch(setQueuedTracks(tracksData))
+				dispatch(setQueuedTracks(queueItems))
 	            triggerGetPlayback(top.videoId)
+	            const randIndex = randRange(0, queueItems.length-1)
+	            triggerRelatedTracks({playlistId: playlist.playlistId, videoId: queueItems[randIndex].videoId})
 			}
 			dispatch(setPlaylist(playlist))
 			if (!showAudioPlayer){
@@ -156,6 +161,11 @@ export const PlaylistCardItem = ({playlist, imageHeight, children, isHeader}: Pr
         }
     }, [songData, isFetchingSong])
 
+    useEffect(() => {
+    	if (!isRelatedTracksFetching && relatedTracksData){
+    		dispatch(setSuggestedTracks(relatedTracksData))
+    	}
+    }, [relatedTracksData, isRelatedTracksFetching])
 
 	return (
 		isHeader ? 
@@ -180,18 +190,16 @@ export const PlaylistCardItem = ({playlist, imageHeight, children, isHeader}: Pr
 					canPlay={true}
 					imagePlayButtonProps={{
 						onPress: () => {
-							if (isPlaying && queuedTracks?.length && storedPlaybackInfo && currentPlaylist?.playlistId === playlist?.playlistId){
-								dispatch(setIsPlaying(false))
-							}
-							else {
-								// if there's already currently a song playing but the playback has been paused, resume.
+							// if the playlist is the currently selected playlist
+							if (currentPlaylist?.playlistId === playlist?.playlistId){
+								// if there are queued tracks and a current song playing, toggle the playback
 								if (queuedTracks?.length && storedPlaybackInfo){
-									dispatch(setIsPlaying(true))
+									dispatch(setIsPlaying(!isPlaying))
 								}
-								// Otherwise, load the playlist tracks and the first song of the playlist.
-								else {
-									onPressPlay()
-								}
+							}
+							// Otherwise, load the playlist tracks and the first song of the playlist.
+							else {
+								onPressPlay()
 							}
 						},
 						imageHeight: imageHeight ?? "h-32", 

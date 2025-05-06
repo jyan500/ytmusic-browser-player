@@ -11,14 +11,14 @@ export const songsApi = privateApi.injectEndpoints({
 				url: `${SONG_URL}/${videoId}`,
 				method: "GET",
 			}),
-			providesTags: ["songs"],
+			providesTags: ["Songs"],
 		}),
 		getSongPlayback: builder.query<PlaybackInfo, string>({
 			query: (videoId) => ({
 				url: `${SONG_URL}/${videoId}/playback`,
 				method: "GET",
 			}),
-			providesTags: ["playbackInfo"],
+			providesTags: ["PlaybackInfo"],
 		})
 	}),
 })

@@ -17,6 +17,7 @@ import {
 	setQueuedTracks,
 	setCurrentTrack,
 	setShuffledQueuedTracks,
+	setSuggestedTracks,
 	setIsShuffling,
 	setStoredPlaybackInfo,
 	setIsPlaying,
@@ -26,8 +27,10 @@ import { setShowQueuedTrackList } from "../../slices/queuedTrackListSlice"
 import { useAudioPlayerContext } from "../../context/AudioPlayerProvider"
 import { PlayButton } from "../PlayButton"
 import { useLazyGetSongPlaybackQuery } from "../../services/private/songs"
+import { useLazyGetPlaylistRelatedTracksQuery } from "../../services/private/playlists"
 import { Track } from "../../types/common"
-import { formatTime, shuffle } from "../../helpers/functions"
+import { formatTime, shuffle, randRange } from "../../helpers/functions"
+import { v4 as uuidv4 } from "uuid"
 
 export const Controls = () => {
 	const { 
@@ -35,21 +38,26 @@ export const Controls = () => {
 		queuedTracks,
 		index,
 		timeProgress,
+		suggestedTracks,
 		currentTrack,
 		isLoading,
+		isAutoPlay,
 		shuffledQueuedTracks,
 		isShuffling,
 		isPlaying,
 		duration
 	} = useAppSelector((state) => state.audioPlayer)
-	const { showQueuedTrackList } = useAppSelector((state) => state.queuedTrackList)
+	const { showQueuedTrackList, playlist: currentPlaylist } = useAppSelector((state) => state.queuedTrackList)
 	const { audioRef, progressBarRef } = useAudioPlayerContext()
 	const dispatch = useAppDispatch()
 	const playAnimationRef = useRef<number | null>(null)
 	const [isRepeat, setIsRepeat] = useState<boolean>(false)
     const [trigger, { data: songData, error, isFetching }] = useLazyGetSongPlaybackQuery();
+    const [ triggerRelatedTracks, {data: relatedTracksData, error: relatedTracksError, isFetching: isRelatedTracksFetching}] = useLazyGetPlaylistRelatedTracksQuery()
+
     const playbackURL = storedPlaybackInfo ? storedPlaybackInfo.playbackURL : ""
 
+    /* Unused */
 	const skipForward = () => {
 		if (audioRef.current){
 			audioRef.current.currentTime += 15
@@ -76,22 +84,20 @@ export const Controls = () => {
 
 	const handleNext = useCallback(() => {
 		let queued = isShuffling ? shuffledQueuedTracks : queuedTracks
-		if (queued?.length && index + 1 < queued?.length){
-			dispatch(setIndex(index+1))
-			const track = queued[index+1]
-	        dispatch(setCurrentTrack(track))
-	        setPlayback(track)
+		if (queued?.length){
+			if (index + 1 < queued.length){
+				dispatch(setIndex(index+1))
+				const track = queued[index+1]
+		        dispatch(setCurrentTrack(track))
+		        setPlayback(track)
+		    }
 		}
-	}, [currentTrack, queuedTracks, shuffledQueuedTracks, index])
+	}, [currentTrack, queuedTracks, shuffledQueuedTracks, suggestedTracks, isAutoPlay, index])
 
 	const setPlayback = (track: Track) => {
 		// set to true to use the cached result if available
 		trigger(track.videoId, true)
 	}
-
-	// const getExistingPlayback = (videoId: string) => {
-	// 	return storedPlaybackInfo.find((playback) => playback.videoId === videoId) != null
-	// }
 
 	/* Handle animation for the progress bar once the audio playback begins */
 	const updateProgress = useCallback(() => {
@@ -158,6 +164,40 @@ export const Controls = () => {
 		}
 	}, [isRepeat, handleNext, audioRef])
 
+	// if the playlist is about to end, load in the suggested songs into the queue if autoplay is on
+	useEffect(() => {
+		if (index + 1 === queuedTracks?.length && isAutoPlay && currentTrack){
+			if (suggestedTracks?.length > 0){
+				// while the current track is the same as the top, use the next one
+				let suggestion = {} as Track
+				let suggestedIndex = 0 
+				for (let i = 0; i < suggestedTracks.length; ++i){
+					if (suggestedTracks[i].videoId !== currentTrack.videoId){
+						suggestion = suggestedTracks[i]
+						suggestedIndex = i
+						break
+					}
+				}
+				// add the suggested track onto the queue, including the queue id
+				dispatch(setQueuedTracks([...queuedTracks, {
+					queueId: uuidv4(),
+					...suggestion
+				}]))
+				// remove the suggestion from suggested tracks
+				const removedSuggestions = [...suggestedTracks]
+				removedSuggestions.splice(suggestedIndex, 1)
+				dispatch(setSuggestedTracks(removedSuggestions))
+			}
+			else {
+				// load more suggestions (if there's a playlist playing, pass it in)
+				// use a random video id from the queued tracks to pass in for variance on the suggestions
+				const randIndex = randRange(0, queuedTracks.length-1) 
+				triggerRelatedTracks({playlistId: currentPlaylist?.playlistId ?? "", videoId: queuedTracks[randIndex].videoId})
+			}
+		}
+
+	}, [index, currentTrack, queuedTracks, isAutoPlay, suggestedTracks])
+
 	/* Set the playback information once the song data is finished loading */
 	useEffect(() => {
         if (!isFetching && songData){
@@ -166,6 +206,12 @@ export const Controls = () => {
         	dispatch(setIsPlaying(true))
         }
     }, [songData, isFetching])
+
+    useEffect(() => {
+    	if (!isRelatedTracksFetching && relatedTracksData){
+    		dispatch(setSuggestedTracks(relatedTracksData))		
+    	}
+    }, [relatedTracksData, isRelatedTracksFetching])
 
 	const onLoadedMetadata = () => {
 		if (audioRef?.current){

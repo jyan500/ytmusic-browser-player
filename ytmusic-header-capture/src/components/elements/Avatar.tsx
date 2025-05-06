@@ -1,6 +1,5 @@
 import React from "react"
-import { CgProfile } from "react-icons/cg"
-import { useAppSelector } from "../hooks/redux-hooks"
+import { IconUser } from "../../icons/IconUser"
 
 type Props = {
 	size?: string 
@@ -17,7 +16,7 @@ export const Avatar = ({size="s", className, imageUrl}: Props) => {
 	const cName = `${size && size in sizes ? sizes[size] : sizes.s} ${className}` 
 	const defaultIcon = () => {
 		return (
-			<CgProfile className={cName}/>
+			<IconUser className={cName}/>
 		)
 	}
 	return ( 
