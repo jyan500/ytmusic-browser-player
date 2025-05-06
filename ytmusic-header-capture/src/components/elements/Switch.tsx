@@ -18,7 +18,7 @@ export const Switch = ({id, onChange, checked}: Props) => {
                 onChange={onChange}
             />
                 {/* switch body */}
-                <div className="w-10 h-5 bg-gray-300 peer-checked:bg-blue rounded-full transition-colors"></div>
+                <div className="w-10 h-5 bg-gray-300 peer-checked:bg-orange-secondary rounded-full transition-colors"></div>
                 {/* slider circle element */}
                 <div
                 className={`absolute left-1 top-1 w-3 h-3 bg-white rounded-full transition-transform ${

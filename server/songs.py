@@ -25,8 +25,3 @@ def get_song_playback(videoId):
     fallbackURL = getPlaybackURLFallback(videoId)
     return {"videoId": videoId, "playbackURL": fallbackURL }, 200
 
-@songs.route("/songs/<videoId>/related", endpoint="get_related_songs", methods=["GET"])
-@require_authentication
-def get_related_songs(videoId):
-    pass
-    

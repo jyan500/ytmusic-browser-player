@@ -23,13 +23,13 @@ export const QueuedTrackList = () => {
 
 	const upNextTab = () => {
 		return (
-			<div>
-				<div className = "flex flex-row items-center">
+			<div className = "flex flex-col gap-y-2">
+				<div className = "flex flex-row items-start gap-x-2">
 					<div className = "flex flex-col gap-y-2">
 						<p>Autoplay</p>	
 						<p>Add similar content to the end of the queue</p>	
 					</div>
-					<div>
+					<div className = "mt-1">
 						<Switch checked={isAutoPlay} onChange={() => {
 							dispatch(setIsAutoPlay(!isAutoPlay))	
 						}}/>
