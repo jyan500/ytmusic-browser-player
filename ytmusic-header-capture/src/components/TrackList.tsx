@@ -118,18 +118,28 @@ export const TrackList = ({ data, playlist, inQueueTrackList }: Props) => {
         <ul className="flex flex-col gap-y-2">
             {data?.map((track: Track) => (
                 <li 
-                onClick={() => onPress(track)}
-                onKeyDown={(e) => {
-                    if (e.key === "Enter" || e.key === " "){
-                        onPress(track)
+                    onClick={() => {
+                        const availability = track?.isAvailable ?? true
+                        if (availability){
+                            onPress(track)
+                        }
                     }
-                }} tabIndex={0} key={track.videoId} className={`hover:cursor-pointer group flex flex-row justify-between items-center ${currentTrack?.videoId === track.videoId ? "bg-orange-secondary" : ""}`}>
+                }
+                // onKeyDown={(e) => {
+                //     if (e.key === "Enter" || e.key === " "){
+                //         onPress(track)
+                //     }
+                // }} 
+                tabIndex={0} 
+                key={track.videoId} 
+                className={`hover:cursor-pointer group flex flex-row justify-between items-center ${currentTrack?.videoId === track.videoId ? "bg-orange-secondary" : ""}`}>
                     <div className = "flex flex-row gap-x-2">
                         <ImagePlayButton 
                             playButtonWidth={"w-6"}
                             playButtonHeight={"h-6"}
                             imageWidth={"w-24"}
                             imageHeight={"h-16"}
+                            isAvailable={track.isAvailable ?? true}
                             showPlayButton={isPlaying && currentTrack?.videoId === track.videoId}
                             onPress={() => onPress(track)}
                             imageURL={getThumbnailUrl(track)}

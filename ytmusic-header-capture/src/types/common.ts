@@ -45,8 +45,8 @@ export interface Track {
 	likeStatus: string
 	thumbnails: Array<Thumbnail>
 	thumbnail?: Array<Thumbnail>
-	isAvailable?: string
-	isExplicit?: string
+	isAvailable?: boolean
+	isExplicit?: boolean 
 	videoType: string
 	feedbackTokens?: {
 		add?: string,

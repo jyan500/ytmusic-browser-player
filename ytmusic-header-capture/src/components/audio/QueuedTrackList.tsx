@@ -23,7 +23,6 @@ export const QueuedTrackList = () => {
 	const upNextTab = () => {
 		return (
 			<div>
-				<p className = "text-lg font-semibold">Up Next: </p>
 				<div className = "flex flex-row items-center">
 					<div className = "flex flex-col gap-y-2">
 						<p>Autoplay</p>	
@@ -48,7 +47,6 @@ export const QueuedTrackList = () => {
 	const suggestionsTab = () => {
 		return (
 			<div>
-				<p>Suggestions</p>	
 				<div>
 					<InfiniteScrollList<Track, Omit<TrackListPropType, "data">> props={{
 						inQueueTrackList: false,

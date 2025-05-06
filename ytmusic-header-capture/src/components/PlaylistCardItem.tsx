@@ -131,7 +131,7 @@ export const PlaylistCardItem = ({playlist, imageHeight, children, isHeader}: Pr
 				const top = tracksData[0]
 				dispatch(setIsLoading(true))
 				dispatch(setCurrentTrack(top))
-				dispatch(setQueuedTracks(tracksData))
+				dispatch(setQueuedTracks(tracksData.filter((track) => track.isAvailable)))
 	            triggerGetPlayback(top.videoId)
 	            const randIndex = randRange(0, tracksData.length-1)
 	            triggerRelatedTracks({playlistId: playlist.playlistId, videoId: tracksData[randIndex].videoId})

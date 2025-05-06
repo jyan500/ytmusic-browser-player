@@ -72,7 +72,7 @@ export const Playlist = ({playlist}: Props) => {
 			const top = tracks[0]
 			dispatch(setIsLoading(true))
 			dispatch(setCurrentTrack(top))
-			dispatch(setQueuedTracks(tracks))
+			dispatch(setQueuedTracks(tracks.filter((track) => track.isAvailable)))
             trigger(top.videoId)
             // pick a random track for variance on the suggestions
             const randIndex = randRange(0, tracks.length-1)
