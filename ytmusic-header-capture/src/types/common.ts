@@ -54,6 +54,10 @@ export interface Track {
 	}	
 }
 
+export type QueueItem = Track & {
+	queueId: string
+} 
+
 export interface Playlist {
 	playlistId: string
     title: string

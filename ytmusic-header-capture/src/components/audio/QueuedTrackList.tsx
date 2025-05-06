@@ -3,7 +3,7 @@ import { setShowQueuedTrackList } from "../../slices/queuedTrackListSlice"
 import { setIsAutoPlay } from "../../slices/audioPlayerSlice"
 import { TrackList, Props as TrackListPropType } from "../TrackList"
 import { useAppSelector, useAppDispatch } from "../../hooks/redux-hooks"
-import { Track } from "../../types/common"
+import { Track, QueueItem } from "../../types/common"
 import { InfiniteScrollList } from "../InfiniteScrollList"
 import { TRANSITION_TRANSFORM, PADDING_AVOID_AUDIO_PLAYER_OVERLAP, OVERFLOW_MAX_HEIGHT } from "../../helpers/constants"
 import { IconDownArrow } from "../../icons/IconDownArrow"
@@ -35,8 +35,8 @@ export const QueuedTrackList = () => {
 					</div>
 				</div>
 				<div>
-					<InfiniteScrollList<Track, Omit<TrackListPropType, "data">> props={{
-						inQueueTrackList: false,
+					<InfiniteScrollList<QueueItem, Omit<TrackListPropType, "data">> props={{
+						inQueueTrackList: true,
 						playlist: playlist
 					}} data={isShuffling ? shuffledQueuedTracks : queuedTracks} component={TrackList}/>
 				</div>

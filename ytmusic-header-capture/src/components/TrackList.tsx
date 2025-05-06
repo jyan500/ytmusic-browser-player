@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { OptionType, Track, Thumbnail, Playlist } from "../types/common"
+import { OptionType, Track, QueueItem, Thumbnail, Playlist } from "../types/common"
 import { useAppDispatch, useAppSelector } from "../hooks/redux-hooks"
 import { setShowAudioPlayer, setSuggestedTracks, setIsPlaying, setCurrentTrack, setQueuedTracks, setIndex, setStoredPlaybackInfo, setIsLoading } from "../slices/audioPlayerSlice"
 import { setShowQueuedTrackList, setPlaylist } from "../slices/queuedTrackListSlice"
@@ -9,9 +9,11 @@ import { IconPlay } from "../icons/IconPlay"
 import { IconPause } from "../icons/IconPause"
 import { useAudioPlayerContext } from "../context/AudioPlayerProvider"
 import { ImagePlayButton } from "./ImagePlayButton"
+import { prepareQueueItems } from "../helpers/functions"
+import { isQueueItem } from "../helpers/type-guards"
 
 export interface Props {
-    data: Array<Track>;
+    data: Array<Track | QueueItem>;
     playlist: Playlist | undefined
     inQueueTrackList: boolean
 }
@@ -45,7 +47,7 @@ export const TrackList = ({ data, playlist, inQueueTrackList }: Props) => {
         trigger(videoId, showQueuedTrackList)
     }
 
-    const onPress = (track: Track) => {
+    const onPress = (track: Track | QueueItem) => {
         if (currentTrack?.videoId === track.videoId){
             dispatch(setIsPlaying(!isPlaying))
         }
@@ -72,9 +74,16 @@ export const TrackList = ({ data, playlist, inQueueTrackList }: Props) => {
                 //     dispatch(setIndex(0))
                 // }
                 if (playlist){
+                    if (playlist !== currentPlaylist){
+                        // also clear out the suggestions, this will trigger the Controls component
+                        // to automatically find new suggestions
+                        dispatch(setSuggestedTracks([]))
+                    }
                     dispatch(setPlaylist(playlist))
                 }
-                dispatch(setQueuedTracks([track]))
+                const queueItems = prepareQueueItems([track])
+                dispatch(setQueuedTracks(queueItems))
+                dispatch(setCurrentTrack(queueItems[0]))
                 dispatch(setIndex(0))
             }
             // if there are queued tracks and we're playing a song in the queue
@@ -82,8 +91,8 @@ export const TrackList = ({ data, playlist, inQueueTrackList }: Props) => {
             else {
                 const index = queuedTracks.indexOf(queuedTrack)
                 dispatch(setIndex(index))
+                dispatch(setCurrentTrack(queuedTracks[index]))
             }
-            dispatch(setCurrentTrack(track))
             if (!showAudioPlayer){
                 dispatch(setShowAudioPlayer(true))
             }
@@ -91,7 +100,7 @@ export const TrackList = ({ data, playlist, inQueueTrackList }: Props) => {
         }
     }
 
-    const rowContent = (track: Track) => {
+    const rowContent = (track: Track | QueueItem) => {
         return (
             <>
                 <p className = "font-bold">{track?.title ?? ""}</p>
@@ -108,15 +117,19 @@ export const TrackList = ({ data, playlist, inQueueTrackList }: Props) => {
         )
     }
 
-    const getThumbnailUrl = (track: Track) => {
+    const getThumbnailUrl = (track: Track | QueueItem) => {
         const widths = track?.thumbnails?.map((thumbnail: Thumbnail) => thumbnail.width) ?? []
         const biggestWidth = Math.max(...widths)
         return track?.thumbnails?.find((thumbnail: Thumbnail) => thumbnail.width === biggestWidth)?.url ?? ""
     }
 
+    const shouldHighlightRow = (track: Track | QueueItem) => {
+        return inQueueTrackList && isQueueItem(track) ? currentTrack?.queueId === track.queueId : currentTrack?.videoId === track.videoId
+    }
+
     return (
         <ul className="flex flex-col gap-y-2">
-            {data?.map((track: Track) => (
+            {data?.map((track: Track | QueueItem) => (
                 <li 
                     onClick={() => {
                         const availability = track?.isAvailable ?? true
@@ -131,8 +144,8 @@ export const TrackList = ({ data, playlist, inQueueTrackList }: Props) => {
                 //     }
                 // }} 
                 tabIndex={0} 
-                key={track.videoId} 
-                className={`hover:cursor-pointer group flex flex-row justify-between items-center ${currentTrack?.videoId === track.videoId ? "bg-orange-secondary" : ""}`}>
+                key={isQueueItem(track) ? track.queueId : track.videoId} 
+                className={`hover:cursor-pointer group flex flex-row justify-between items-center ${shouldHighlightRow(track) ? "bg-orange-secondary" : ""}`}>
                     <div className = "flex flex-row gap-x-2">
                         <ImagePlayButton 
                             playButtonWidth={"w-6"}

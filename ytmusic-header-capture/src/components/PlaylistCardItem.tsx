@@ -8,7 +8,7 @@ import { setSuggestedTracks, setIsLoading, setIsPlaying, setCurrentTrack, setQue
 import { setShowQueuedTrackList, setPlaylist } from "../slices/queuedTrackListSlice"
 import { useLazyGetPlaylistTracksQuery, useLazyGetPlaylistRelatedTracksQuery } from "../services/private/playlists"
 import { useLazyGetSongPlaybackQuery } from "../services/private/songs"
-import { randRange } from "../helpers/functions"
+import { prepareQueueItems, randRange } from "../helpers/functions"
 
 interface Props {
 	playlist: TPlaylist | undefined
@@ -128,13 +128,14 @@ export const PlaylistCardItem = ({playlist, imageHeight, children, isHeader}: Pr
 		*/
 		if (playlist){
 			if (tracksData && tracksData.length){
-				const top = tracksData[0]
+				const queueItems = prepareQueueItems(tracksData)
+				const top = queueItems[0]
 				dispatch(setIsLoading(true))
 				dispatch(setCurrentTrack(top))
-				dispatch(setQueuedTracks(tracksData.filter((track) => track.isAvailable)))
+				dispatch(setQueuedTracks(queueItems))
 	            triggerGetPlayback(top.videoId)
-	            const randIndex = randRange(0, tracksData.length-1)
-	            triggerRelatedTracks({playlistId: playlist.playlistId, videoId: tracksData[randIndex].videoId})
+	            const randIndex = randRange(0, queueItems.length-1)
+	            triggerRelatedTracks({playlistId: playlist.playlistId, videoId: queueItems[randIndex].videoId})
 			}
 			dispatch(setPlaylist(playlist))
 			if (!showAudioPlayer){

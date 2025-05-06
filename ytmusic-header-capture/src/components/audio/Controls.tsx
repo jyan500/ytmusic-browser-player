@@ -30,6 +30,7 @@ import { useLazyGetSongPlaybackQuery } from "../../services/private/songs"
 import { useLazyGetPlaylistRelatedTracksQuery } from "../../services/private/playlists"
 import { Track } from "../../types/common"
 import { formatTime, shuffle, randRange } from "../../helpers/functions"
+import { v4 as uuidv4 } from "uuid"
 
 export const Controls = () => {
 	const { 
@@ -56,6 +57,7 @@ export const Controls = () => {
 
     const playbackURL = storedPlaybackInfo ? storedPlaybackInfo.playbackURL : ""
 
+    /* Unused */
 	const skipForward = () => {
 		if (audioRef.current){
 			audioRef.current.currentTime += 15
@@ -96,10 +98,6 @@ export const Controls = () => {
 		// set to true to use the cached result if available
 		trigger(track.videoId, true)
 	}
-
-	// const getExistingPlayback = (videoId: string) => {
-	// 	return storedPlaybackInfo.find((playback) => playback.videoId === videoId) != null
-	// }
 
 	/* Handle animation for the progress bar once the audio playback begins */
 	const updateProgress = useCallback(() => {
@@ -180,7 +178,11 @@ export const Controls = () => {
 						break
 					}
 				}
-				dispatch(setQueuedTracks([...queuedTracks, suggestion]))
+				// add the suggested track onto the queue, including the queue id
+				dispatch(setQueuedTracks([...queuedTracks, {
+					queueId: uuidv4(),
+					...suggestion
+				}]))
 				// remove the suggestion from suggested tracks
 				const removedSuggestions = [...suggestedTracks]
 				removedSuggestions.splice(suggestedIndex, 1)
@@ -194,7 +196,7 @@ export const Controls = () => {
 			}
 		}
 
-	}, [index, currentTrack, queuedTracks, suggestedTracks])
+	}, [index, currentTrack, queuedTracks, isAutoPlay, suggestedTracks])
 
 	/* Set the playback information once the song data is finished loading */
 	useEffect(() => {
