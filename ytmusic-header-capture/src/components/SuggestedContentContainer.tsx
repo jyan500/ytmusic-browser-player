@@ -8,9 +8,8 @@ interface Props {
 
 export const SuggestedContentContainer = ({content}: Props) => {
 	return (
-		<div className = "flex flex-col gap-y-2">
-			<p className = "text-xl">{content.title}</p>
-			<SideScroller content={content?.contents ?? []}/>
+		<div className = "flex flex-col gap-y-4">
+			<SideScroller title={content?.title} content={content?.contents ?? []}/>
 		</div>
 	)
 }

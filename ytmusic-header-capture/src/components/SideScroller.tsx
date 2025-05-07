@@ -7,10 +7,11 @@ import { IconLeftArrow } from "../icons/IconLeftArrow"
 import { IconRightArrow } from "../icons/IconRightArrow"
 
 interface Props {
+	title: string
 	content: Array<SuggestedContent>
 }
 
-export const SideScroller = ({content}: Props) => {
+export const SideScroller = ({title, content}: Props) => {
 	const scrollRef = useRef<HTMLDivElement>(null)
     const SCROLL_STEP_PERCENT = .9 // 25% of 680px = 170px per click
     const MAX_WIDTH = 680 
@@ -95,8 +96,8 @@ export const SideScroller = ({content}: Props) => {
 
 	return (
 		<div className = "flex flex-col gap-y-4">
-			<div className = "flex flex-row justify-between items-center">
-				<div></div>
+			<div className = "flex flex-row justify-between items-start">
+				<div><p className="font-bold text-lg">{title}</p></div>
 				<div className = "mr-5 flex flex-row gap-x-2">
 					<CircleButton disabled={disabledButtons.left} onClick={() => onClickBackward()}><IconLeftArrow/></CircleButton>	
 					<CircleButton disabled={disabledButtons.right} onClick={() => onClickForward()}><IconRightArrow/></CircleButton>
