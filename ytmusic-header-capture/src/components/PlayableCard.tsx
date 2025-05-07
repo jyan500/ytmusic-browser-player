@@ -3,10 +3,10 @@ import { Props as ImagePlayButtonProps, ImagePlayButton } from "./ImagePlayButto
 import { Thumbnail } from "../types/common"
 
 interface PlayableCardProps {
-	thumbnail: Thumbnail | undefined
+	thumbnail?: Thumbnail | undefined
 	title: string,
 	description: string,
-	children: React.ReactNode
+	children?: React.ReactNode
 	isHeader?: boolean
 	imageHeight?: string
 	canPlay?: boolean
@@ -40,10 +40,10 @@ export const PlayableCard = ({
 				{
 					canPlay && imagePlayButtonProps ? 
 					<ImagePlayButton
-						imageHeight={"h-32"}
-						imageWidth={"w-32"}
-						playButtonWidth={"w-6"}
-						playButtonHeight={"h-6"}
+						imageHeight={imagePlayButtonProps?.imageHeight ?? "h-32"}
+						imageWidth={imagePlayButtonProps?.imageWidth ?? "w-32"}
+						playButtonWidth={imagePlayButtonProps?.playButtonWidth ?? "w-6"}
+						playButtonHeight={imagePlayButtonProps?.playButtonHeight ?? "h-6"}
 						onPress={imagePlayButtonProps?.onPress}
 						imageURL={imagePlayButtonProps?.imageURL}
 						showPlayButton={imagePlayButtonProps?.showPlayButton}

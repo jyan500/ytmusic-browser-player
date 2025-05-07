@@ -9,7 +9,7 @@ import { IconPlay } from "../icons/IconPlay"
 import { IconPause } from "../icons/IconPause"
 import { useAudioPlayerContext } from "../context/AudioPlayerProvider"
 import { ImagePlayButton } from "./ImagePlayButton"
-import { prepareQueueItems } from "../helpers/functions"
+import { getThumbnailUrl, prepareQueueItems } from "../helpers/functions"
 import { isQueueItem } from "../helpers/type-guards"
 
 export interface Props {
@@ -99,12 +99,6 @@ export const TrackList = ({ data, playlist, inQueueTrackList }: Props) => {
                 </div>
             </>
         )
-    }
-
-    const getThumbnailUrl = (track: Track | QueueItem) => {
-        const widths = track?.thumbnails?.map((thumbnail: Thumbnail) => thumbnail.width) ?? []
-        const biggestWidth = Math.max(...widths)
-        return track?.thumbnails?.find((thumbnail: Thumbnail) => thumbnail.width === biggestWidth)?.url ?? ""
     }
 
     const shouldHighlightRow = (track: Track | QueueItem) => {

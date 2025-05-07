@@ -18,67 +18,6 @@ interface Props {
 	isHeader?: boolean
 }
 
-interface CardContentProps {
-	playlist: TPlaylist | undefined
-	thumbnail: Thumbnail | undefined
-	children: React.ReactNode
-	isHeader?: boolean
-	imageHeight?: string
-	canPlay?: boolean
-	onPress?: () => void
-	imagePlayButtonProps?: ImagePlayButtonProps
-}
-
-const CardContent = ({
-	imageHeight, 
-	isHeader, 
-	playlist, 
-	thumbnail, 
-	canPlay, 
-	imagePlayButtonProps,
-	children
-}: CardContentProps) => {
-	const titleDescription = () => {
-		return (
-			<>
-				<p className = {`${isHeader ? "text-md" : ""} font-semibold`}>{playlist?.title}</p>
-				<p>{playlist?.description}</p>
-			</>
-		)
-	}
-	return (
-		<>
-			<div className={`${isHeader ? "items-center" : "items-start"} flex flex-col gap-y-2 group`}>
-				{
-					canPlay && imagePlayButtonProps ? 
-					<ImagePlayButton
-						imageHeight={"h-32"}
-						imageWidth={"w-32"}
-						playButtonWidth={"w-6"}
-						playButtonHeight={"h-6"}
-						onPress={imagePlayButtonProps?.onPress}
-						imageURL={imagePlayButtonProps?.imageURL}
-						showPlayButton={imagePlayButtonProps?.showPlayButton}
-
-					/> :
-					<img loading="lazy" className={`${imageHeight ?? "h-32"} object-fill`} src = {thumbnail?.url}/>
-				}
-				{
-					isHeader ? 
-					<div className = {`text-center text-lg break-words`}>
-						{titleDescription()}
-					</div> :
-					<button onClick={() => goTo(Playlist, {playlist})} className = {`text-left break-words`}>
-						{titleDescription()}
-					</button>
-
-				}
-			</div>
-			{children}	
-		</>
-	)
-}
-
 export const PlaylistCardItem = ({playlist, imageHeight, children, isHeader}: Props) => {
 	// find the largest thumbnail and compress to fit 
 	const dispatch = useAppDispatch()

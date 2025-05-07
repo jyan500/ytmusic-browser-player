@@ -56,12 +56,12 @@ export const Home = () => {
         <div>
 	        <BackendErrorMessage error={error}/>
         	{isLoading && !userProfile && !headers ? <p>Loading...</p> : 
-        	<div className = "text-xl flex flex-col gap-y-2">
+        	<div className = "flex flex-col gap-y-2">
 	        	<div className = "flex flex-row items-center gap-x-2">
 	        		<Avatar className = "w-6 h-6 rounded-full" imageUrl={userProfile?.accountPhotoUrl}/>
-		        	<p>{userProfile?.accountName}</p>
+		        	<p className = "text-xl">{userProfile?.accountName}</p>
 	        	</div>
-        		<Link component={Playlists}>
+        		<Link className = "text-xl" component={Playlists}>
         			See Playlists
 			    </Link>
 			    {

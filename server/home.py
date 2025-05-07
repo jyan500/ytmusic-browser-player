@@ -15,7 +15,7 @@ home = Blueprint('home', __name__)
 def get_home():
     ytmusic = initYTMusic(request)
     home = ytmusic.get_home(limit=10)
-    exclusionList = ["Shows for you", "From the community"]
-    parsed = list(filter(lambda content: content["title"] not in exclusionList, home))
+    includeList = ["Listen again", "Quick picks", "Mixed for you", "From your library", "New releases"]
+    parsed = list(filter(lambda content: content["title"] in includeList, home))
     return jsonify(parsed), 200
 

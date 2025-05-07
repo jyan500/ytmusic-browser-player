@@ -1,4 +1,4 @@
-import { QueueItem, Track, Thumbnail } from "../types/common"
+import { QueueItem, Track, Thumbnail, ContentWithThumbnail } from "../types/common"
 import { v4 as uuidv4 } from "uuid"
 
 /* Takes the current time in seconds and returns formatted time in hh:mm:ss */
@@ -53,4 +53,11 @@ export const prepareQueueItems = (tracks: Array<Track>) => {
 			}
 		)
 	})
+}
+
+/* Takes an object that contains a thumbnails attribute, and retrieves the largest thumbnail from the list */
+export const getThumbnailUrl = (obj: ContentWithThumbnail) => {
+    const widths = obj?.thumbnails?.map((thumbnail: Thumbnail) => thumbnail.width) ?? []
+    const biggestWidth = Math.max(...widths)
+    return obj?.thumbnails?.find((thumbnail: Thumbnail) => thumbnail.width === biggestWidth)?.url ?? ""
 }

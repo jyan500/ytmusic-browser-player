@@ -10,6 +10,12 @@ export interface Thumbnail {
 	height: number
 }
 
+export type ContentWithThumbnail = {
+	thumbnails?: Array<Thumbnail>
+} & {
+	[key: string]: any
+}
+
 export interface PlaybackInfo {
 	videoId: string
 	playbackURL: string
@@ -120,16 +126,18 @@ export interface Song {
 export interface HomeContent {
 	title: string
 	// explore content can contain album information, song information or playlist information
-	content: Array<SuggestedContent>
+	contents: Array<SuggestedContent>
 }
 
 export interface SuggestedContent {
 	title?: string	
 	thumbnails?: Array<Thumbnail>
 	browseId?: string
+	description?: string
 	playlistId?: string
 	year?: string
 	subscribers?: string
+	author?: Array<OptionType>
 	artists?: Array<OptionType>
 	album?: OptionType
 	views?: string
