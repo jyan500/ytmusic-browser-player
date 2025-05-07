@@ -10,9 +10,10 @@ import { useLazyGetPlaylistTracksQuery, useLazyGetPlaylistRelatedTracksQuery } f
 import { useLazyGetSongPlaybackQuery } from "../services/private/songs"
 import { prepareQueueItems, randRange } from "../helpers/functions"
 import { PlayableCard } from "./PlayableCard"
+import { useLoadPlaylist } from "../hooks/useLoadPlaylist"
 
 interface Props {
-	playlist: TPlaylist | undefined
+	playlist: TPlaylist
 	imageHeight?: string
 	children?: React.ReactNode
 	isHeader?: boolean
@@ -27,8 +28,7 @@ export const PlaylistCardItem = ({playlist, imageHeight, children, isHeader}: Pr
 	const biggestWidth = Math.max(...widths)
 	const thumbnail = playlist?.thumbnails?.find((thumbnail) => thumbnail.width === biggestWidth)
     const [ triggerGetTracks, { data: tracksData, error: tracksError, isFetching: isFetchingTracks }] = useLazyGetPlaylistTracksQuery();
-    const [ triggerGetPlayback, { data: songData, error: songError, isFetching: isFetchingSong } ] = useLazyGetSongPlaybackQuery()
-    const [ triggerRelatedTracks, {data: relatedTracksData, error: relatedTracksError, isFetching: isRelatedTracksFetching}] = useLazyGetPlaylistRelatedTracksQuery()
+	const { triggerLoadPlaylist } = useLoadPlaylist(playlist ?? {})
 
 	const onPressPlay = () => {
 		// need to get all the tracks for the playlist first when the button is clicked
@@ -37,54 +37,11 @@ export const PlaylistCardItem = ({playlist, imageHeight, children, isHeader}: Pr
 		}
 	}
 
-	const onQueuePlaylist = () => {
-		/* 
-			1) put all tracks onto the queue
-			2) set the current track
-				- request the playback URL for this track
-				if it's not already found	
-			3) set the audio player to isPlaying
-		*/
-		if (playlist){
-			if (tracksData && tracksData.length){
-				const queueItems = prepareQueueItems(tracksData)
-				const top = queueItems[0]
-				dispatch(setIsLoading(true))
-				dispatch(setCurrentTrack(top))
-				dispatch(setQueuedTracks(queueItems))
-	            triggerGetPlayback(top.videoId)
-	            const randIndex = randRange(0, queueItems.length-1)
-	            triggerRelatedTracks({playlistId: playlist.playlistId, videoId: queueItems[randIndex].videoId})
-			}
-			dispatch(setPlaylist(playlist))
-			if (!showAudioPlayer){
-				dispatch(setShowAudioPlayer(true))
-			}
-			if (!showQueuedTrackList){
-				dispatch(setShowQueuedTrackList(true))
-			}
-		}
-	}
-
 	useEffect(() => {
-    	if (!isFetchingTracks && tracksData){
-    		onQueuePlaylist()
-    	}
-    }, [isFetchingTracks, tracksData])
-
-    useEffect(() => {
-    	if (!isFetchingSong && songData){
-            dispatch(setStoredPlaybackInfo(songData))
-            dispatch(setIsLoading(false))
-            dispatch(setIsPlaying(true))
-        }
-    }, [songData, isFetchingSong])
-
-    useEffect(() => {
-    	if (!isRelatedTracksFetching && relatedTracksData){
-    		dispatch(setSuggestedTracks(relatedTracksData))
-    	}
-    }, [relatedTracksData, isRelatedTracksFetching])
+		if (!isFetchingTracks && tracksData && playlist){
+			triggerLoadPlaylist(tracksData)
+		}
+	}, [tracksData, isFetchingTracks])
 
 	return (
 		isHeader ? 

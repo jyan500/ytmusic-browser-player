@@ -23,6 +23,7 @@ import { PlaylistCardItem } from "../components/PlaylistCardItem"
 import { PlayButton } from "../components/PlayButton"
 import { setShowQueuedTrackList, setPlaylist } from "../slices/queuedTrackListSlice"
 import { prepareQueueItems, randRange } from "../helpers/functions"
+import { useLoadPlaylist } from "../hooks/useLoadPlaylist"
 
 interface Props {
 	playlist: TPlaylist
@@ -31,11 +32,10 @@ interface Props {
 export const Playlist = ({playlist}: Props) => {
 	const [page, setPage] = useState(1)
 	const dispatch = useAppDispatch()
+	const { triggerLoadPlaylist } = useLoadPlaylist(playlist)
 	const { isPlaying, queuedTracks, showAudioPlayer, storedPlaybackInfo } = useAppSelector((state) => state.audioPlayer)
 	const { showQueuedTrackList, playlist: currentPlaylist } = useAppSelector((state) => state.queuedTrackList)
 	const {data: tracks, isLoading: isTracksLoading, isError: isTracksError} = useGetPlaylistTracksQuery(playlist ? {playlistId: playlist.playlistId, params: {page: page, perPage: 10}} : skipToken)
-    const [ trigger, { data: songData, error, isFetching }] = useLazyGetSongPlaybackQuery();
-    const [ triggerRelatedTracks, {data: relatedTracksData, error: relatedTracksError, isFetching: isRelatedTracksFetching}] = useLazyGetPlaylistRelatedTracksQuery()
 	const divRef = useRef<HTMLDivElement | null>(null)
 
 	useEffect(() => {
@@ -45,48 +45,6 @@ export const Playlist = ({playlist}: Props) => {
 			behavior: "smooth"
 		})	
 	}, [playlist])
-
-	useEffect(() => {
-        if (!isFetching && songData){
-            dispatch(setStoredPlaybackInfo(songData))
-            dispatch(setIsLoading(false))
-            dispatch(setIsPlaying(true))
-        }
-    }, [songData, isFetching])
-
-    useEffect(() => {
-    	if (!isRelatedTracksFetching && relatedTracksData){
-    		dispatch(setSuggestedTracks(relatedTracksData))
-    	}
-    }, [relatedTracksData, isRelatedTracksFetching])
-
-	const onQueuePlaylist = () => {
-		/* 
-			1) put all tracks onto the queue
-			2) set the current track
-				- request the playback URL for this track
-				if it's not already found	
-			3) set the audio player to isPlaying
-		*/
-		if (tracks && tracks.length){
-			const queueItems = prepareQueueItems(tracks)
-			const top = queueItems[0]
-			dispatch(setIsLoading(true))
-			dispatch(setCurrentTrack(top))
-			dispatch(setQueuedTracks(queueItems))
-            trigger(top.videoId)
-            // pick a random track for variance on the suggestions
-            const randIndex = randRange(0, queueItems.length-1)
-            triggerRelatedTracks({playlistId: playlist.playlistId, videoId: queueItems[randIndex].videoId})
-		}
-		dispatch(setPlaylist(playlist))
-		if (!showAudioPlayer){
-			dispatch(setShowAudioPlayer(true))
-		}
-		if (!showQueuedTrackList){
-			dispatch(setShowQueuedTrackList(true))
-		}
-	}
 
 	const onPause = () => {
 		dispatch(setIsPlaying(false))		
@@ -110,7 +68,7 @@ export const Playlist = ({playlist}: Props) => {
 									}
 									// Otherwise, load the playlist tracks and the first song of the playlist.
 									else {
-										onQueuePlaylist()
+										triggerLoadPlaylist(tracks)
 									}
 								}} /> : null
 						}

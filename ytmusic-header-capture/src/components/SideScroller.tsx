@@ -1,8 +1,10 @@
 import React, {useRef, useState, useEffect} from "react"
-import { SuggestedContent, OptionType } from "../types/common"
+import { SuggestedContent, OptionType, Playlist as TPlaylist } from "../types/common"
 import { PlayableCard } from "./PlayableCard"
 import { getThumbnailUrl } from "../helpers/functions"
+import { Playlist } from "../pages/Playlist"
 import { CircleButton } from "./elements/CircleButton"
+import { goTo } from "react-chrome-extension-router"
 import { IconLeftArrow } from "../icons/IconLeftArrow"
 import { IconRightArrow } from "../icons/IconRightArrow"
 
@@ -33,6 +35,26 @@ export const SideScroller = ({title, content}: Props) => {
         	setDisabledButtons({left: !canScrollLeft, right: !canScrollRight})
         }
 
+    }
+
+    const playContent = (sContent: SuggestedContent) => {
+    	if ("videoId" in sContent){
+    		// pull the song information and queue up the track
+    		// pull suggested content
+    	}
+    	else if ("playlistId" in sContent){
+    		// pull the playlist tracks
+    		// pull the first song in the playlist
+    		// pull suggested content
+    	}
+    }
+
+    const cardClickAction = (sContent: SuggestedContent) => {
+    	// if it's a playlist, enter the playlist page
+    	if (!("videoId" in sContent) && "playlistId" in sContent){
+    		// not the exact same type, but it should share the playlistId which is necessary
+    		goTo(Playlist, {playlist: sContent as TPlaylist})
+    	}
     }
 
 	const getDescription = (sContent: SuggestedContent): string => {

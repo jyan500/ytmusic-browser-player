@@ -11,6 +11,7 @@ import { useAudioPlayerContext } from "../context/AudioPlayerProvider"
 import { ImagePlayButton } from "./ImagePlayButton"
 import { getThumbnailUrl, prepareQueueItems } from "../helpers/functions"
 import { isQueueItem } from "../helpers/type-guards"
+import { useLoadTrack } from "../hooks/useLoadTrack"
 
 export interface Props {
     data: Array<Track | QueueItem>;
@@ -22,9 +23,9 @@ export const TrackList = ({ data, playlist, inQueueTrackList }: Props) => {
     const dispatch = useAppDispatch()
     const { showAudioPlayer, suggestedTracks, queuedTracks, isPlaying, currentTrack, index, storedPlaybackInfo } = useAppSelector((state) => state.audioPlayer)
     const { showQueuedTrackList, playlist: currentPlaylist } = useAppSelector((state) => state.queuedTrackList)
+    const { triggerLoadTrack } = useLoadTrack()
     const [ trigger, { data: songData, error, isFetching }] = useLazyGetSongPlaybackQuery();
     const [ triggerRelatedTracks, {data: relatedTracksData, error: relatedTracksError, isFetching: isRelatedTracksFetching}] = useLazyGetPlaylistRelatedTracksQuery()
-    const { audioRef } = useAudioPlayerContext()
 
     useEffect(() => {
         if (!isFetching && songData){
