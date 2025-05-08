@@ -28,7 +28,7 @@ export const PlaylistCardItem = ({playlist, imageHeight, children, isHeader}: Pr
 	const biggestWidth = Math.max(...widths)
 	const thumbnail = playlist?.thumbnails?.find((thumbnail) => thumbnail.width === biggestWidth)
     const [ triggerGetTracks, { data: tracksData, error: tracksError, isFetching: isFetchingTracks }] = useLazyGetPlaylistTracksQuery();
-	const { triggerLoadPlaylist } = useLoadPlaylist(playlist ?? {})
+	const { triggerLoadPlaylist } = useLoadPlaylist()
 
 	const onPressPlay = () => {
 		// need to get all the tracks for the playlist first when the button is clicked
@@ -39,7 +39,8 @@ export const PlaylistCardItem = ({playlist, imageHeight, children, isHeader}: Pr
 
 	useEffect(() => {
 		if (!isFetchingTracks && tracksData && playlist){
-			triggerLoadPlaylist(tracksData)
+			console.log("trigger load playlist")
+			triggerLoadPlaylist(playlist, tracksData)
 		}
 	}, [tracksData, isFetchingTracks])
 

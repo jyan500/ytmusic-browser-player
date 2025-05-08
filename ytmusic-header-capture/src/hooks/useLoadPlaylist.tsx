@@ -2,19 +2,24 @@ import React, { useState, useEffect } from "react"
 import { Playlist, Track } from "../types/common"
 import { useAppDispatch, useAppSelector } from "./redux-hooks"
 import { setSuggestedTracks, setIndex, setIsLoading, setIsPlaying, setCurrentTrack, setQueuedTracks, setStoredPlaybackInfo, setShowAudioPlayer } from "../slices/audioPlayerSlice"
-import { setShowQueuedTrackList, setPlaylist } from "../slices/queuedTrackListSlice"
+import { setShowQueuedTrackList, setPlaylist as setCurrentPlaylist } from "../slices/queuedTrackListSlice"
 import { useLazyGetPlaylistTracksQuery, useLazyGetPlaylistRelatedTracksQuery } from "../services/private/playlists"
 import { useLazyGetSongPlaybackQuery } from "../services/private/songs"
 import { prepareQueueItems, randRange } from "../helpers/functions"
 
-export const useLoadPlaylist = (playlist: Playlist) => {
+/* 
+	Exposes a "triggerLoadPlaylist" function that takes in tracks data, and queues
+	up all tracks into queued tracks on the redux store. Also pulls playback for the first song
+	on the queue, and pulls related track information
+*/
+export const useLoadPlaylist = () => {
 	const dispatch = useAppDispatch()	
 	const { showAudioPlayer, suggestedTracks, queuedTracks, isPlaying, currentTrack, index, storedPlaybackInfo } = useAppSelector((state) => state.audioPlayer)
     const { showQueuedTrackList, playlist: currentPlaylist } = useAppSelector((state) => state.queuedTrackList)
     const [ triggerGetPlayback, { data: songData, error: songError, isFetching: isFetchingSong } ] = useLazyGetSongPlaybackQuery()
     const [ triggerRelatedTracks, {data: relatedTracksData, error: relatedTracksError, isFetching: isRelatedTracksFetching}] = useLazyGetPlaylistRelatedTracksQuery()
 
-	const onQueuePlaylist = (tracksData: Array<Track>) => {
+	const onQueuePlaylist = (playlist: Playlist, tracksData: Array<Track>) => {
 		/* 
 			1) put all tracks onto the queue
 			2) set the current track
@@ -33,7 +38,7 @@ export const useLoadPlaylist = (playlist: Playlist) => {
 	            const randIndex = randRange(0, queueItems.length-1)
 	            triggerRelatedTracks({playlistId: playlist.playlistId, videoId: queueItems[randIndex].videoId})
 			}
-			dispatch(setPlaylist(playlist))
+			dispatch(setCurrentPlaylist(playlist))
 			if (!showAudioPlayer){
 				dispatch(setShowAudioPlayer(true))
 			}
@@ -58,8 +63,8 @@ export const useLoadPlaylist = (playlist: Playlist) => {
     }, [relatedTracksData, isRelatedTracksFetching])
 
 
-    const triggerLoadPlaylist = (tracksData: Array<Track>) => {
-		onQueuePlaylist(tracksData)
+    const triggerLoadPlaylist = (playlistParam: Playlist, tracksParam: Array<Track>) => {
+		onQueuePlaylist(playlistParam, tracksParam)
 	}
 
 	return {

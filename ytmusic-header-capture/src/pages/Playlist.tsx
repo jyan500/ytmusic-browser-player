@@ -32,7 +32,7 @@ interface Props {
 export const Playlist = ({playlist}: Props) => {
 	const [page, setPage] = useState(1)
 	const dispatch = useAppDispatch()
-	const { triggerLoadPlaylist } = useLoadPlaylist(playlist)
+	const { triggerLoadPlaylist } = useLoadPlaylist()
 	const { isPlaying, queuedTracks, showAudioPlayer, storedPlaybackInfo } = useAppSelector((state) => state.audioPlayer)
 	const { showQueuedTrackList, playlist: currentPlaylist } = useAppSelector((state) => state.queuedTrackList)
 	const {data: tracks, isLoading: isTracksLoading, isError: isTracksError} = useGetPlaylistTracksQuery(playlist ? {playlistId: playlist.playlistId, params: {page: page, perPage: 10}} : skipToken)
@@ -68,7 +68,7 @@ export const Playlist = ({playlist}: Props) => {
 									}
 									// Otherwise, load the playlist tracks and the first song of the playlist.
 									else {
-										triggerLoadPlaylist(tracks)
+										triggerLoadPlaylist(playlist, tracks)
 									}
 								}} /> : null
 						}

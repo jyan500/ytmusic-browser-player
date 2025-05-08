@@ -2,12 +2,18 @@ import React, { useState, useEffect } from "react"
 import { Playlist, Track } from "../types/common"
 import { useAppDispatch, useAppSelector } from "./redux-hooks"
 import { setSuggestedTracks, setIndex, setIsLoading, setIsPlaying, setCurrentTrack, setQueuedTracks, setStoredPlaybackInfo, setShowAudioPlayer } from "../slices/audioPlayerSlice"
-import { setShowQueuedTrackList, setPlaylist } from "../slices/queuedTrackListSlice"
+import { setShowQueuedTrackList, setPlaylist as setCurrentPlaylist } from "../slices/queuedTrackListSlice"
 import { useLazyGetPlaylistTracksQuery, useLazyGetPlaylistRelatedTracksQuery } from "../services/private/playlists"
 import { useLazyGetSongPlaybackQuery } from "../services/private/songs"
 import { prepareQueueItems, randRange } from "../helpers/functions"
 
-export const useLoadTrack = (playlist?: Playlist) => {
+/* 
+	Exposes a "triggerLoadTrack" function that takes in track data, and 
+	loads in song data and related songs for the track. It also takes in the playlist
+	to determine whether the song that's currently playing is from the playlist or not.
+*/
+
+export const useLoadTrack = () => {
 	const dispatch = useAppDispatch()
 	const { showAudioPlayer, suggestedTracks, queuedTracks, isPlaying, currentTrack, index, storedPlaybackInfo } = useAppSelector((state) => state.audioPlayer)
     const { showQueuedTrackList, playlist: currentPlaylist } = useAppSelector((state) => state.queuedTrackList)
@@ -35,7 +41,7 @@ export const useLoadTrack = (playlist?: Playlist) => {
         trigger(videoId, showQueuedTrackList)
     }
 
-    const onPress = (track: Track) => {
+    const onPress = (track: Track, playlist: Playlist | undefined) => {
         if (currentTrack?.videoId === track.videoId){
             dispatch(setIsPlaying(!isPlaying))
         }
@@ -51,7 +57,7 @@ export const useLoadTrack = (playlist?: Playlist) => {
                     if (playlist !== currentPlaylist){
                         dispatch(setSuggestedTracks([]))
                     }
-                    dispatch(setPlaylist(playlist))
+                    dispatch(setCurrentPlaylist(playlist))
                 }
                 const queueItems = prepareQueueItems([track])
                 dispatch(setQueuedTracks(queueItems))
@@ -72,8 +78,8 @@ export const useLoadTrack = (playlist?: Playlist) => {
         }
     }
 
-    const triggerLoadTrack = (track: Track) => {
-		onPress(track)
+    const triggerLoadTrack = (playlist: Playlist, trackParam: Track) => {
+		onPress(trackParam, playlist)
 	}
 
 	return {

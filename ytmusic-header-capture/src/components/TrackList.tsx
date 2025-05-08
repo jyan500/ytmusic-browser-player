@@ -113,7 +113,8 @@ export const TrackList = ({ data, playlist, inQueueTrackList }: Props) => {
                     onClick={() => {
                         const availability = track?.isAvailable ?? true
                         if (availability){
-                            onPress(track)
+                            // onPress(track)
+                            triggerLoadTrack(playlist ?? {} as Playlist, track)
                         }
                     }
                 }

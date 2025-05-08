@@ -1,4 +1,5 @@
 import React, {useRef, useState, useEffect} from "react"
+import { useAppDispatch, useAppSelector } from "../hooks/redux-hooks"
 import { SuggestedContent, OptionType, Playlist as TPlaylist } from "../types/common"
 import { PlayableCard } from "./PlayableCard"
 import { getThumbnailUrl } from "../helpers/functions"
@@ -7,6 +8,7 @@ import { CircleButton } from "./elements/CircleButton"
 import { goTo } from "react-chrome-extension-router"
 import { IconLeftArrow } from "../icons/IconLeftArrow"
 import { IconRightArrow } from "../icons/IconRightArrow"
+import { useLazyGetPlaylistTracksQuery } from "../services/private/playlists"
 
 interface Props {
 	title: string
@@ -14,12 +16,15 @@ interface Props {
 }
 
 export const SideScroller = ({title, content}: Props) => {
+	const dispatch = useAppDispatch()
 	const scrollRef = useRef<HTMLDivElement>(null)
     const SCROLL_STEP_PERCENT = .9 // 25% of 680px = 170px per click
     const MAX_WIDTH = 680 
 
     const scrollState = useRef({ left: true, right: false })
     const [disabledButtons, setDisabledButtons] = useState({ left: true, right: false })
+
+    const [ triggerGetTracks, { data: tracksData, error: tracksError, isFetching: isFetchingTracks }] = useLazyGetPlaylistTracksQuery();
 
     const checkScrollBounds = () => {
         const container = scrollRef.current
@@ -43,9 +48,6 @@ export const SideScroller = ({title, content}: Props) => {
     		// pull suggested content
     	}
     	else if ("playlistId" in sContent){
-    		// pull the playlist tracks
-    		// pull the first song in the playlist
-    		// pull suggested content
     	}
     }
 
@@ -135,8 +137,7 @@ export const SideScroller = ({title, content}: Props) => {
 								description={getDescription(sContent)}
 								isHeader={false}
 								canPlay={true}
-								cardOnClick={() => {}}
-								onPress={() => {}}
+								cardOnClick={() => cardClickAction(sContent)}
 								imagePlayButtonProps={{
 									onPress: () => {
 									},
