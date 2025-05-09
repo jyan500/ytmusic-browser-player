@@ -2,43 +2,32 @@ import React from "react"
 import { Props as ImagePlayButtonProps, ImagePlayButton } from "./ImagePlayButton"
 import { Thumbnail } from "../types/common"
 
-interface PlayableCardProps {
-	thumbnail?: Thumbnail | undefined
-	title: string,
-	description: string,
-	children?: React.ReactNode
-	isHeader?: boolean
-	imageHeight?: string
-	canPlay?: boolean
+interface HorizontalPlayableCardProps {
+	title: string
+	description: string
 	cardOnClick?: () => void
-	onPress?: () => void
 	imagePlayButtonProps?: ImagePlayButtonProps
 }
 
-export const PlayableCard = ({
-	imageHeight, 
-	isHeader, 
+export const HorizontalPlayableCard = ({
 	title,
 	description,
-	thumbnail, 
-	canPlay, 
 	cardOnClick, 
 	imagePlayButtonProps,
-	children
-}: PlayableCardProps) => {
+}: HorizontalPlayableCardProps) => {
 	const titleDescription = () => {
 		return (
 			<>
-				<p className = {`${isHeader ? "text-md" : ""} font-semibold`}>{title}</p>
+				<p className = {`font-semibold`}>{title}</p>
 				<p>{description}</p>
 			</>
 		)
 	}
 	return (
 		<>
-			<div className={`${isHeader ? "items-center" : "items-start"} flex flex-col gap-y-2 group`}>
+			<div className={`flex flex-row gap-x-2 items-start group`}>
 				{
-					canPlay && imagePlayButtonProps ? 
+					imagePlayButtonProps ? 
 					<ImagePlayButton
 						imageHeight={imagePlayButtonProps?.imageHeight ?? "h-32"}
 						imageWidth={imagePlayButtonProps?.imageWidth ?? "w-32"}
@@ -48,20 +37,14 @@ export const PlayableCard = ({
 						imageURL={imagePlayButtonProps?.imageURL}
 						showPauseButton={imagePlayButtonProps?.showPauseButton}
 
-					/> :
-					<img loading="lazy" className={`${imageHeight ?? "h-32"} object-fill`} src = {thumbnail?.url}/>
+					/> : null
 				}
 				{
-					isHeader ? 
-					<div className = {`text-center text-lg break-words`}>
-						{titleDescription()}
-					</div> :
-					<button onClick={cardOnClick} className = {`text-left break-words`}>
+					<button onClick={cardOnClick} className = {`flex flex-col text-left break-words`}>
 						{titleDescription()}
 					</button>
 				}
 			</div>
-			{children}	
 		</>
 	)
 }

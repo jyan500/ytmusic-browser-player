@@ -12,8 +12,6 @@ playlists = Blueprint('playlists', __name__)
 @playlists.route("/playlists", endpoint="get_playlists", methods=["GET"])
 @require_authentication
 def get_playlists():
-    perPage = int(request.args.get("perPage")) if request.args.get("perPage") != "" else 10
-    page = int(request.args.get("page")) if request.args.get("page") != "" else 1
     ytmusic = initYTMusic(request)
     playlists = ytmusic.get_library_playlists(limit=None)
     return jsonify(playlists), 200
@@ -29,8 +27,6 @@ def get_playlist(playlistId):
 @playlists.route("/playlists/<playlistId>/tracks", endpoint="get_playlist_tracks", methods=["GET"])
 @require_authentication
 def get_playlist_tracks(playlistId):
-    perPage = int(request.args.get("perPage")) if request.args.get("perPage") != "" else 10
-    page = int(request.args.get("page")) if request.args.get("page") != "" else 1
     ytmusic = initYTMusic(request)
     playlistInfo = ytmusic.get_playlist(playlistId=playlistId, limit=None)
     tracks = playlistInfo["tracks"]

@@ -1,6 +1,6 @@
 import { BaseQueryFn, FetchArgs, createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react"
 import { BACKEND_BASE_URL, SONG_URL } from "../../helpers/urls" 
-import { CustomError, Song, PlaybackInfo } from "../../types/common" 
+import { CustomError, Song, PlaybackInfo, Track, Thumbnail } from "../../types/common" 
 import { privateApi } from "../private" 
 
 export const songsApi = privateApi.injectEndpoints({
@@ -19,6 +19,19 @@ export const songsApi = privateApi.injectEndpoints({
 				method: "GET",
 			}),
 			providesTags: ["PlaybackInfo"],
+		}),
+		getRelatedTracks: builder.query<Array<Track>, string>({
+			query: (videoId) => ({
+				url: `${SONG_URL}/${videoId}/related-tracks`,
+				method: "GET",
+			}),
+			transformResponse: (response: Array<Track>) => {
+				// convert "length" to "duration" and "thumbnail" to thumbnails
+				return response.map((track: Track) => {
+					return {...track, thumbnails: track.thumbnail ?? [] as Thumbnail[], duration: track.length}
+				})
+			},
+			providesTags: ["RelatedTracks"]
 		})
 	}),
 })
@@ -28,4 +41,5 @@ export const {
 	useLazyGetSongQuery,
 	useGetSongPlaybackQuery,
 	useLazyGetSongPlaybackQuery,
+	useLazyGetRelatedTracksQuery,
 } = songsApi 

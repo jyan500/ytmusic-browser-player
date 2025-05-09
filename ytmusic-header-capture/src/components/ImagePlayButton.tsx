@@ -11,7 +11,7 @@ export interface Props {
     playButtonHeight: string
     imageURL: string
     onPress: () => void
-    showPlayButton: boolean
+    showPauseButton: boolean
 }
 
 export const ImagePlayButton = ({
@@ -22,7 +22,7 @@ export const ImagePlayButton = ({
     playButtonHeight, 
     imageURL, 
     onPress, 
-    showPlayButton
+    showPauseButton
 }: Props) => {
     return (
         <div className = {`${imageWidth} ${imageHeight} overflow-hidden relative`}>
@@ -41,7 +41,7 @@ export const ImagePlayButton = ({
                 <div className = "absolute flex justify-center items-center inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-in-out">
                     <button onClick={onPress}>
                     {
-                        showPlayButton ? 
+                        showPauseButton ? 
                         <IconPause className={`${playButtonWidth} ${playButtonHeight} text-white`}/> :
                         <IconPlay className={`${playButtonWidth} ${playButtonHeight} text-white`}/>
                     }

@@ -45,7 +45,7 @@ export const randRange = (min: number, max: number) => {
 
 /* Takes an array of tracks and prepares them as queue items by removing unavailable tracks and setting a queue id */
 export const prepareQueueItems = (tracks: Array<Track>) => {
-	return tracks.filter((track) => track.isAvailable).map((track) => {
+	return tracks.filter((track) => "isAvailable" in track ? track.isAvailable : true).map((track) => {
 		return (
 			{
 				...track,

@@ -18,7 +18,6 @@ export const useLoadTrack = () => {
 	const { showAudioPlayer, suggestedTracks, queuedTracks, isPlaying, currentTrack, index, storedPlaybackInfo } = useAppSelector((state) => state.audioPlayer)
     const { showQueuedTrackList, playlist: currentPlaylist } = useAppSelector((state) => state.queuedTrackList)
     const [ trigger, { data: songData, error, isFetching }] = useLazyGetSongPlaybackQuery();
-    const [ triggerRelatedTracks, {data: relatedTracksData, error: relatedTracksError, isFetching: isRelatedTracksFetching}] = useLazyGetPlaylistRelatedTracksQuery()
 	
 	useEffect(() => {
         if (!isFetching && songData){
@@ -27,12 +26,6 @@ export const useLoadTrack = () => {
             dispatch(setStoredPlaybackInfo(songData))
         }
     }, [songData, isFetching])
-
-    useEffect(() => {
-        if (!isRelatedTracksFetching && relatedTracksData){
-            dispatch(setSuggestedTracks(relatedTracksData))
-        }
-    }, [relatedTracksData, isRelatedTracksFetching])
 
     const search = (videoId: string) => {
         // if we're inside the queued tracklist, use the cached results
@@ -54,7 +47,7 @@ export const useLoadTrack = () => {
                     // if we're in playlist, but its not the current playlist that's playing, 
                     // also clear out the suggestions, this will trigger the Controls component
                     // to automatically find new suggestions
-                    if (playlist !== currentPlaylist){
+                    if (playlist.playlistId !== currentPlaylist?.playlistId){
                         dispatch(setSuggestedTracks([]))
                     }
                     dispatch(setCurrentPlaylist(playlist))
@@ -78,7 +71,7 @@ export const useLoadTrack = () => {
         }
     }
 
-    const triggerLoadTrack = (playlist: Playlist, trackParam: Track) => {
+    const triggerLoadTrack = (playlist: Playlist | undefined, trackParam: Track) => {
 		onPress(trackParam, playlist)
 	}
 

@@ -33,7 +33,7 @@ export const PlaylistCardItem = ({playlist, imageHeight, children, isHeader}: Pr
 	const onPressPlay = () => {
 		// need to get all the tracks for the playlist first when the button is clicked
 		if (playlist){
-			triggerGetTracks({playlistId: playlist?.playlistId, params: {page: 1, perPage: 10}})
+			triggerGetTracks({playlistId: playlist?.playlistId, params: {}})
 		}
 	}
 
@@ -87,7 +87,7 @@ export const PlaylistCardItem = ({playlist, imageHeight, children, isHeader}: Pr
 					    playButtonWidth: "w-6", 
 					    playButtonHeight: "h-6",
 					    imageURL: thumbnail?.url ?? "", 
-					    showPlayButton: isPlaying && currentPlaylist?.playlistId === playlist?.playlistId
+					    showPauseButton: isPlaying && currentPlaylist?.playlistId === playlist?.playlistId
 					}}
 				>
 					{children}

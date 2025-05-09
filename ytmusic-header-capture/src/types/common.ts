@@ -135,6 +135,7 @@ export interface SuggestedContent {
 	browseId?: string
 	description?: string
 	playlistId?: string
+	videoId?: string
 	year?: string
 	subscribers?: string
 	author?: Array<OptionType>

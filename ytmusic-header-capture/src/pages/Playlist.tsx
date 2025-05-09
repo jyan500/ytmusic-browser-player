@@ -35,7 +35,7 @@ export const Playlist = ({playlist}: Props) => {
 	const { triggerLoadPlaylist } = useLoadPlaylist()
 	const { isPlaying, queuedTracks, showAudioPlayer, storedPlaybackInfo } = useAppSelector((state) => state.audioPlayer)
 	const { showQueuedTrackList, playlist: currentPlaylist } = useAppSelector((state) => state.queuedTrackList)
-	const {data: tracks, isLoading: isTracksLoading, isError: isTracksError} = useGetPlaylistTracksQuery(playlist ? {playlistId: playlist.playlistId, params: {page: page, perPage: 10}} : skipToken)
+	const {data: tracks, isLoading: isTracksLoading, isError: isTracksError} = useGetPlaylistTracksQuery(playlist ? {playlistId: playlist.playlistId, params: {}} : skipToken)
 	const divRef = useRef<HTMLDivElement | null>(null)
 
 	useEffect(() => {

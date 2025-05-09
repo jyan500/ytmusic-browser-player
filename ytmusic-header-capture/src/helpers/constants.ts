@@ -6,7 +6,7 @@ export const TAG_TYPES = [
 	"PlaylistTracks",
 	"Songs",
 	"PlaybackInfo",
-	"PlaylistRelatedTracks",
+	"RelatedTracks",
 	"Home",
 ]
 

@@ -1,14 +1,12 @@
 import React, {useRef, useState, useEffect} from "react"
 import { useAppDispatch, useAppSelector } from "../hooks/redux-hooks"
 import { SuggestedContent, OptionType, Playlist as TPlaylist } from "../types/common"
-import { PlayableCard } from "./PlayableCard"
-import { getThumbnailUrl } from "../helpers/functions"
-import { Playlist } from "../pages/Playlist"
 import { CircleButton } from "./elements/CircleButton"
 import { goTo } from "react-chrome-extension-router"
 import { IconLeftArrow } from "../icons/IconLeftArrow"
 import { IconRightArrow } from "../icons/IconRightArrow"
-import { useLazyGetPlaylistTracksQuery } from "../services/private/playlists"
+import { SideScrollContent } from "./SideScrollContent"
+import { SuggestedContentGrid } from "./SuggestedContentGrid"
 
 interface Props {
 	title: string
@@ -16,15 +14,12 @@ interface Props {
 }
 
 export const SideScroller = ({title, content}: Props) => {
-	const dispatch = useAppDispatch()
 	const scrollRef = useRef<HTMLDivElement>(null)
     const SCROLL_STEP_PERCENT = .9 // 25% of 680px = 170px per click
     const MAX_WIDTH = 680 
 
     const scrollState = useRef({ left: true, right: false })
     const [disabledButtons, setDisabledButtons] = useState({ left: true, right: false })
-
-    const [ triggerGetTracks, { data: tracksData, error: tracksError, isFetching: isFetchingTracks }] = useLazyGetPlaylistTracksQuery();
 
     const checkScrollBounds = () => {
         const container = scrollRef.current
@@ -41,41 +36,7 @@ export const SideScroller = ({title, content}: Props) => {
         }
 
     }
-
-    const playContent = (sContent: SuggestedContent) => {
-    	if ("videoId" in sContent){
-    		// pull the song information and queue up the track
-    		// pull suggested content
-    	}
-    	else if ("playlistId" in sContent){
-    	}
-    }
-
-    const cardClickAction = (sContent: SuggestedContent) => {
-    	// if it's a playlist, enter the playlist page
-    	if (!("videoId" in sContent) && "playlistId" in sContent){
-    		// not the exact same type, but it should share the playlistId which is necessary
-    		goTo(Playlist, {playlist: sContent as TPlaylist})
-    	}
-    }
-
-	const getDescription = (sContent: SuggestedContent): string => {
-		if ("playlistId" in sContent){
-			if ("description" in sContent){
-				return sContent?.description ?? ""
-			}
-		}
-		if ("artists" in sContent){
-			const artistNames = sContent?.artists?.map((artist: OptionType) => {
-				return artist.name
-			})
-			if (artistNames){
-				return artistNames.join(" - ")
-			}
-		}
-		return ""
-	}
-
+   
 	const handleScroll = (isForward: boolean) => {
 		const container = scrollRef.current	
 		if (!container){
@@ -110,6 +71,7 @@ export const SideScroller = ({title, content}: Props) => {
         return () => container.removeEventListener("scroll", onScroll)
 	}, [])
 
+
 	const onClickForward = () => {
 		handleScroll(true)
 	}
@@ -127,31 +89,15 @@ export const SideScroller = ({title, content}: Props) => {
 					<CircleButton disabled={disabledButtons.right} onClick={() => onClickForward()}><IconRightArrow/></CircleButton>
 				</div>
 			</div>
-			<div ref={scrollRef} className = "flex flex-row gap-x-2 max-w-[680px] overflow-x-auto">
+			<div ref={scrollRef} className = {`${title !== "Quick picks" ? "flex flex-row gap-x-2" : "max-h-84"} max-w-[680px] overflow-x-auto`}>
 				{
-					content.map((sContent: SuggestedContent) => {
-						return (
-							<PlayableCard 
-								imageHeight={"h-32"}
-								title={sContent.title ?? ""}
-								description={getDescription(sContent)}
-								isHeader={false}
-								canPlay={true}
-								cardOnClick={() => cardClickAction(sContent)}
-								imagePlayButtonProps={{
-									onPress: () => {
-									},
-									imageHeight: "h-32", 
-								    imageWidth: "w-32",
-								    playButtonWidth: "w-6", 
-								    playButtonHeight: "h-6",
-								    imageURL: getThumbnailUrl(sContent), 
-								    showPlayButton: false,
-								}}
-							>
-							</PlayableCard>
-						)
-					})
+					title === "Quick picks" ? (
+						<SuggestedContentGrid content={content}/>
+					) : (
+						content.map((sContent: SuggestedContent) => {
+							return <SideScrollContent content={sContent}/>
+						})
+					)
 				}				
 			</div>
 		</div>

@@ -14,7 +14,7 @@ import { PlaylistGrid } from "../components/PlaylistGrid"
 export const Playlists = () => {
 	const { headers } = useAppSelector((state) => state.auth)
 	const [page, setPage] = useState(1)	
-	const {data, isLoading, isError} = useGetPlaylistsQuery(headers ? {perPage: 10, page:page} : skipToken)
+	const {data, isLoading, isError} = useGetPlaylistsQuery(headers ? {} : skipToken)
 	return (
 		<div className="w-full">
 			<div className = "flex flex-col gap-y-2 text-lg">
