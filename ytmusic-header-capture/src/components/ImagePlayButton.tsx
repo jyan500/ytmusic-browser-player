@@ -28,7 +28,7 @@ export const ImagePlayButton = ({
         <div className = {`${imageWidth} ${imageHeight} overflow-hidden relative`}>
             {
                 isAvailable ? 
-                    <img loading="lazy" className = {`${imageWidth} ${imageHeight} object-cover`} src = {imageURL}/> :
+                    <img loading="lazy" className = {`${imageWidth} ${imageHeight} object-fill`} src = {imageURL}/> :
                     <div className = {`flex flex-col items-center justify-center ${imageHeight} ${imageHeight} bg-gray-300`}>
                         <span className="text-xl text-dark">
                             <IconAlert/>

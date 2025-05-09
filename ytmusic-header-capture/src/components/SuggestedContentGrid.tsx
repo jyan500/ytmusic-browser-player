@@ -26,7 +26,7 @@ export const SuggestedContentGrid = ({content}: Props) => {
 	}
 
 	return (
-		<div className="grid grid-flow-col auto-cols-[200px] grid-rows-3 gap-1">
+		<div className="grid grid-flow-col auto-cols-[300px] grid-rows-4 gap-2">
 		{
 			content.map((sContent: SuggestedContent, index: number) => {
 				return (
@@ -42,7 +42,7 @@ export const SuggestedContentGrid = ({content}: Props) => {
 								playButtonHeight: "h-6",
 								onPress: () => onPress(sContent),
 								imageURL: getThumbnailUrl(sContent),
-								showPauseButton: isPlaying && currentTrack?.videoId === sContent.videoId  ,
+								showPauseButton: isPlaying && currentTrack?.videoId === sContent.videoId
 							}
 						}
 					/>

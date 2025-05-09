@@ -1,6 +1,7 @@
 import React from "react"
 import { Track } from "../../types/common"
 import { IconMusicNote } from "../../icons/IconMusicNote"
+import { getThumbnailUrl } from "../../helpers/functions"
 
 interface Props {
 	track: Track | null | undefined
@@ -11,7 +12,7 @@ export const TrackImage = ({track}: Props) => {
 		<>	
 			{
 				track?.thumbnails ? (
-					<img alt={"audio avatar"} className = "w-full h-full object-cover" src={track?.thumbnails?.[0]?.url} />
+					<img alt={"audio avatar"} className = "w-full h-full object-cover" src={getThumbnailUrl(track)} />
 				) : 
 				<div className = "flex items-center justify-center w-full h-full">
 					<span className="text-xl text-gray-600">
