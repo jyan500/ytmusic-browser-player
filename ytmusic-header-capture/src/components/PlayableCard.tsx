@@ -30,7 +30,7 @@ export const PlayableCard = ({
 		return (
 			<>
 				<p className = {`${isHeader ? "text-md" : ""} font-semibold`}>{title}</p>
-				<p>{description}</p>
+				<p className = "text-gray-300">{description}</p>
 			</>
 		)
 	}

@@ -79,6 +79,7 @@ export const Controls = () => {
 			const track = queued[index-1]
 	        dispatch(setCurrentTrack(track))
 	        setPlayback(track)
+	        dispatch(setIsLoading(true))
 		}
 	}, [currentTrack, queuedTracks, shuffledQueuedTracks, index])
 
@@ -90,6 +91,7 @@ export const Controls = () => {
 				const track = queued[index+1]
 		        dispatch(setCurrentTrack(track))
 		        setPlayback(track)
+		        dispatch(setIsLoading(true))
 		    }
 		}
 	}, [currentTrack, queuedTracks, shuffledQueuedTracks, suggestedTracks, isAutoPlay, index])
@@ -201,7 +203,6 @@ export const Controls = () => {
 	/* Set the playback information once the song data is finished loading */
 	useEffect(() => {
         if (!isFetching && songData){
-            dispatch(setIsLoading(false))
             dispatch(setStoredPlaybackInfo(songData))
         	dispatch(setIsPlaying(true))
         }
@@ -217,6 +218,7 @@ export const Controls = () => {
 		if (audioRef?.current){
 			const seconds = audioRef.current.duration
 			if (seconds !== undefined){
+				dispatch(setIsLoading(false))
 				dispatch(setDuration(seconds))
 				if (progressBarRef?.current){
 					progressBarRef.current.max = seconds.toString()

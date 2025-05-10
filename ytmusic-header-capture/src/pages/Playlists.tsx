@@ -10,6 +10,7 @@ import { Playlist } from "../pages/Playlist"
 import { PaginationRow } from "../components/PaginationRow"
 import { InfiniteScrollList } from "../components/InfiniteScrollList"
 import { PlaylistGrid } from "../components/PlaylistGrid"
+import { LoadingSpinner } from "../components/elements/LoadingSpinner"
 
 export const Playlists = () => {
 	const { headers } = useAppSelector((state) => state.auth)
@@ -27,7 +28,7 @@ export const Playlists = () => {
 				{
 					data && !isLoading ? <>
 						<InfiniteScrollList data={data} component={PlaylistGrid}/>
-					</> : <p>Loading Playlists...</p>
+					</> : <LoadingSpinner/>
 				}
 			</div>
 		</div>

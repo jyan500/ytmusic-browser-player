@@ -51,7 +51,6 @@ export const useLoadPlaylist = () => {
     useEffect(() => {
     	if (!isFetchingSong && songData){
             dispatch(setStoredPlaybackInfo(songData))
-            dispatch(setIsLoading(false))
             dispatch(setIsPlaying(true))
         }
     }, [songData, isFetchingSong])

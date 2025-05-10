@@ -19,7 +19,7 @@ export const HorizontalPlayableCard = ({
 		return (
 			<>
 				<p className = {`font-semibold overflow-hidden truncate`}>{title}</p>
-				<p className = "overflow-hidden truncate">{description}</p>
+				<p className = "text-gray-300 overflow-hidden truncate">{description}</p>
 			</>
 		)
 	}

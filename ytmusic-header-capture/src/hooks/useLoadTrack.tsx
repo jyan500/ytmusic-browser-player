@@ -21,7 +21,6 @@ export const useLoadTrack = () => {
 	
 	useEffect(() => {
         if (!isFetching && songData){
-            dispatch(setIsLoading(false))
             dispatch(setIsPlaying(true))
             dispatch(setStoredPlaybackInfo(songData))
         }

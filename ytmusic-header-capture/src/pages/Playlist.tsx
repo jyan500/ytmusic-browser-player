@@ -24,6 +24,7 @@ import { PlayButton } from "../components/PlayButton"
 import { setShowQueuedTrackList, setPlaylist } from "../slices/queuedTrackListSlice"
 import { prepareQueueItems, randRange } from "../helpers/functions"
 import { useLoadPlaylist } from "../hooks/useLoadPlaylist"
+import { LoadingSpinner } from "../components/elements/LoadingSpinner"
 
 interface Props {
 	playlist: TPlaylist
@@ -70,14 +71,14 @@ export const Playlist = ({playlist}: Props) => {
 									else {
 										triggerLoadPlaylist(playlist, tracks)
 									}
-								}} /> : null
+								}} /> : <LoadingSpinner/>
 						}
 					</div>
 				</PlaylistCardItem>
 			</div>
 			<div>
 				{
-					isTracksLoading && !tracks ? <p>Tracks loading... </p> : (
+					isTracksLoading && !tracks ? <LoadingSpinner/> : (
 						<InfiniteScrollList<Track, Omit<TrackListPropType, "data">> data={tracks ?? []} props={{
 							playlist: playlist,
 							inQueueTrackList: false

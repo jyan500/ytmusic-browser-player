@@ -13,6 +13,7 @@ import {
 } from 'react-chrome-extension-router';
 import { Avatar } from "../components/elements/Avatar"
 import { SuggestedContentContainer } from "../components/SuggestedContentContainer"
+import { LoadingSpinner } from "../components/elements/LoadingSpinner"
 
 export const Home = () => {
 	const [login, {isLoading, error}] = useLoginMutation()
@@ -73,7 +74,7 @@ export const Home = () => {
 			    				))
 			    			}
 			    		</div>
-			    	) : null
+			    	) : <LoadingSpinner/> 
 			    }
         	</div>
 		    }
