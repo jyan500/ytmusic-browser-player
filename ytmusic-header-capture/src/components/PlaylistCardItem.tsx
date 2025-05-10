@@ -39,7 +39,6 @@ export const PlaylistCardItem = ({playlist, imageHeight, children, isHeader}: Pr
 
 	useEffect(() => {
 		if (!isFetchingTracks && tracksData && playlist){
-			console.log("trigger load playlist")
 			triggerLoadPlaylist(playlist, tracksData)
 		}
 	}, [tracksData, isFetchingTracks])
