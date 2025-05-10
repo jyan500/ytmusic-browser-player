@@ -10,11 +10,12 @@ import { Playlist } from "../pages/Playlist"
 import { PaginationRow } from "../components/PaginationRow"
 import { InfiniteScrollList } from "../components/InfiniteScrollList"
 import { PlaylistGrid } from "../components/PlaylistGrid"
+import { LoadingSpinner } from "../components/elements/LoadingSpinner"
 
 export const Playlists = () => {
 	const { headers } = useAppSelector((state) => state.auth)
 	const [page, setPage] = useState(1)	
-	const {data, isLoading, isError} = useGetPlaylistsQuery(headers ? {perPage: 10, page:page} : skipToken)
+	const {data, isLoading, isError} = useGetPlaylistsQuery(headers ? {} : skipToken)
 	return (
 		<div className="w-full">
 			<div className = "flex flex-col gap-y-2 text-lg">
@@ -27,7 +28,7 @@ export const Playlists = () => {
 				{
 					data && !isLoading ? <>
 						<InfiniteScrollList data={data} component={PlaylistGrid}/>
-					</> : <p>Loading Playlists...</p>
+					</> : <LoadingSpinner/>
 				}
 			</div>
 		</div>

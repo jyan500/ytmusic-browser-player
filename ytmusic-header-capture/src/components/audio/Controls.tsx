@@ -26,7 +26,7 @@ import {
 import { setShowQueuedTrackList } from "../../slices/queuedTrackListSlice" 
 import { useAudioPlayerContext } from "../../context/AudioPlayerProvider"
 import { PlayButton } from "../PlayButton"
-import { useLazyGetSongPlaybackQuery } from "../../services/private/songs"
+import { useLazyGetSongPlaybackQuery, useLazyGetRelatedTracksQuery } from "../../services/private/songs"
 import { useLazyGetPlaylistRelatedTracksQuery } from "../../services/private/playlists"
 import { Track } from "../../types/common"
 import { formatTime, shuffle, randRange } from "../../helpers/functions"
@@ -53,7 +53,7 @@ export const Controls = () => {
 	const playAnimationRef = useRef<number | null>(null)
 	const [isRepeat, setIsRepeat] = useState<boolean>(false)
     const [trigger, { data: songData, error, isFetching }] = useLazyGetSongPlaybackQuery();
-    const [ triggerRelatedTracks, {data: relatedTracksData, error: relatedTracksError, isFetching: isRelatedTracksFetching}] = useLazyGetPlaylistRelatedTracksQuery()
+    const [ triggerRelatedTracks, {data: relatedTracksData, error: relatedTracksError, isFetching: isRelatedTracksFetching}] = useLazyGetRelatedTracksQuery()
 
     const playbackURL = storedPlaybackInfo ? storedPlaybackInfo.playbackURL : ""
 
@@ -79,6 +79,7 @@ export const Controls = () => {
 			const track = queued[index-1]
 	        dispatch(setCurrentTrack(track))
 	        setPlayback(track)
+	        dispatch(setIsLoading(true))
 		}
 	}, [currentTrack, queuedTracks, shuffledQueuedTracks, index])
 
@@ -90,6 +91,7 @@ export const Controls = () => {
 				const track = queued[index+1]
 		        dispatch(setCurrentTrack(track))
 		        setPlayback(track)
+		        dispatch(setIsLoading(true))
 		    }
 		}
 	}, [currentTrack, queuedTracks, shuffledQueuedTracks, suggestedTracks, isAutoPlay, index])
@@ -192,7 +194,7 @@ export const Controls = () => {
 				// load more suggestions (if there's a playlist playing, pass it in)
 				// use a random video id from the queued tracks to pass in for variance on the suggestions
 				const randIndex = randRange(0, queuedTracks.length-1) 
-				triggerRelatedTracks({playlistId: currentPlaylist?.playlistId ?? "", videoId: queuedTracks[randIndex].videoId})
+				triggerRelatedTracks(queuedTracks[randIndex].videoId)
 			}
 		}
 
@@ -201,7 +203,6 @@ export const Controls = () => {
 	/* Set the playback information once the song data is finished loading */
 	useEffect(() => {
         if (!isFetching && songData){
-            dispatch(setIsLoading(false))
             dispatch(setStoredPlaybackInfo(songData))
         	dispatch(setIsPlaying(true))
         }
@@ -217,6 +218,7 @@ export const Controls = () => {
 		if (audioRef?.current){
 			const seconds = audioRef.current.duration
 			if (seconds !== undefined){
+				dispatch(setIsLoading(false))
 				dispatch(setDuration(seconds))
 				if (progressBarRef?.current){
 					progressBarRef.current.max = seconds.toString()

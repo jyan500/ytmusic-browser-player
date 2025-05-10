@@ -38,14 +38,13 @@ export const playlistsApi = privateApi.injectEndpoints({
 					videoId: videoId
 				}
 			}),
-			// sort by ticket name
 			transformResponse: (response: Array<Track>) => {
 				// convert "length" to "duration" and "thumbnail" to thumbnails
 				return response.map((track: Track) => {
 					return {...track, thumbnails: track.thumbnail ?? [] as Thumbnail[], duration: track.length}
 				})
 			},
-			providesTags: ["PlaylistRelatedTracks"]
+			providesTags: ["PlaylistTracks"]
 		})
 	}),
 })

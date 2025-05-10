@@ -1,4 +1,4 @@
-import { QueueItem, Track, Thumbnail } from "../types/common"
+import { QueueItem, Track, Thumbnail, ContentWithThumbnail } from "../types/common"
 import { v4 as uuidv4 } from "uuid"
 
 /* Takes the current time in seconds and returns formatted time in hh:mm:ss */
@@ -45,7 +45,7 @@ export const randRange = (min: number, max: number) => {
 
 /* Takes an array of tracks and prepares them as queue items by removing unavailable tracks and setting a queue id */
 export const prepareQueueItems = (tracks: Array<Track>) => {
-	return tracks.filter((track) => track.isAvailable).map((track) => {
+	return tracks.filter((track) => "isAvailable" in track ? track.isAvailable : true).map((track) => {
 		return (
 			{
 				...track,
@@ -53,4 +53,11 @@ export const prepareQueueItems = (tracks: Array<Track>) => {
 			}
 		)
 	})
+}
+
+/* Takes an object that contains a thumbnails attribute, and retrieves the largest thumbnail from the list */
+export const getThumbnailUrl = (obj: ContentWithThumbnail) => {
+    const widths = obj?.thumbnails?.map((thumbnail: Thumbnail) => thumbnail.width) ?? []
+    const biggestWidth = Math.max(...widths)
+    return obj?.thumbnails?.find((thumbnail: Thumbnail) => thumbnail.width === biggestWidth)?.url ?? ""
 }

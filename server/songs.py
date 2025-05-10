@@ -25,3 +25,13 @@ def get_song_playback(videoId):
     fallbackURL = getPlaybackURLFallback(videoId)
     return {"videoId": videoId, "playbackURL": fallbackURL }, 200
 
+@songs.route("/songs/<videoId>/related-tracks", endpoint="get_song_related_tracks", methods=["GET"])
+@require_authentication
+def get_song_related_tracks(videoId):
+    ytmusic = initYTMusic(request)
+    relatedTracks = ytmusic.get_watch_playlist(limit=25, videoId=videoId, radio=True)
+    tracks = []
+    if (len(relatedTracks) and "tracks" in relatedTracks):
+        tracks = relatedTracks["tracks"]
+    return jsonify(tracks), 200
+

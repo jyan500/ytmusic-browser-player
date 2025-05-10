@@ -9,94 +9,14 @@ import { setShowQueuedTrackList, setPlaylist } from "../slices/queuedTrackListSl
 import { useLazyGetPlaylistTracksQuery, useLazyGetPlaylistRelatedTracksQuery } from "../services/private/playlists"
 import { useLazyGetSongPlaybackQuery } from "../services/private/songs"
 import { prepareQueueItems, randRange } from "../helpers/functions"
+import { PlayableCard } from "./PlayableCard"
+import { useLoadPlaylist } from "../hooks/useLoadPlaylist"
 
 interface Props {
-	playlist: TPlaylist | undefined
+	playlist: TPlaylist
 	imageHeight?: string
 	children?: React.ReactNode
 	isHeader?: boolean
-}
-
-interface PlaylistWrapperProps {
-	playlist?: TPlaylist | undefined
-	children: React.ReactNode
-}
-
-const HeaderPlaylistCardItem = ({children}: PlaylistWrapperProps) => {
-	return (
-		<div className = "flex flex-col gap-y-2">
-			{children}
-		</div>
-	)
-}
-
-const GridPlaylistCardItem = ({playlist, children}: PlaylistWrapperProps) => {
-	return (
-		<button className = "flex flex-col gap-y-2" onClick={() => goTo(Playlist, {playlist})}>
-			{children}
-		</button>	
-	)
-}
-
-interface CardContentProps {
-	playlist: TPlaylist | undefined
-	thumbnail: Thumbnail | undefined
-	children: React.ReactNode
-	isHeader?: boolean
-	imageHeight?: string
-	canPlay?: boolean
-	onPress?: () => void
-	imagePlayButtonProps?: ImagePlayButtonProps
-}
-
-const CardContent = ({
-	imageHeight, 
-	isHeader, 
-	playlist, 
-	thumbnail, 
-	canPlay, 
-	imagePlayButtonProps,
-	children
-}: CardContentProps) => {
-	const titleDescription = () => {
-		return (
-			<>
-				<p className = {`${isHeader ? "text-md" : ""} font-semibold`}>{playlist?.title}</p>
-				<p>{playlist?.description}</p>
-			</>
-		)
-	}
-	return (
-		<>
-			<div className={`${isHeader ? "items-center" : "items-start"} flex flex-col gap-y-2 group`}>
-				{
-					canPlay && imagePlayButtonProps ? 
-					<ImagePlayButton
-						imageHeight={"h-32"}
-						imageWidth={"w-32"}
-						playButtonWidth={"w-6"}
-						playButtonHeight={"h-6"}
-						onPress={imagePlayButtonProps?.onPress}
-						imageURL={imagePlayButtonProps?.imageURL}
-						showPlayButton={imagePlayButtonProps?.showPlayButton}
-
-					/> :
-					<img loading="lazy" className={`${imageHeight ?? "h-32"} object-fill`} src = {thumbnail?.url}/>
-				}
-				{
-					isHeader ? 
-					<div className = {`text-center text-lg break-words`}>
-						{titleDescription()}
-					</div> :
-					<button onClick={() => goTo(Playlist, {playlist})} className = {`text-left break-words`}>
-						{titleDescription()}
-					</button>
-
-				}
-			</div>
-			{children}	
-		</>
-	)
 }
 
 export const PlaylistCardItem = ({playlist, imageHeight, children, isHeader}: Props) => {
@@ -108,86 +28,45 @@ export const PlaylistCardItem = ({playlist, imageHeight, children, isHeader}: Pr
 	const biggestWidth = Math.max(...widths)
 	const thumbnail = playlist?.thumbnails?.find((thumbnail) => thumbnail.width === biggestWidth)
     const [ triggerGetTracks, { data: tracksData, error: tracksError, isFetching: isFetchingTracks }] = useLazyGetPlaylistTracksQuery();
-    const [ triggerGetPlayback, { data: songData, error: songError, isFetching: isFetchingSong } ] = useLazyGetSongPlaybackQuery()
-    const [ triggerRelatedTracks, {data: relatedTracksData, error: relatedTracksError, isFetching: isRelatedTracksFetching}] = useLazyGetPlaylistRelatedTracksQuery()
+	const { triggerLoadPlaylist } = useLoadPlaylist()
 
 	const onPressPlay = () => {
 		// need to get all the tracks for the playlist first when the button is clicked
 		if (playlist){
-			triggerGetTracks({playlistId: playlist?.playlistId, params: {page: 1, perPage: 10}})
-		}
-	}
-
-	const onQueuePlaylist = () => {
-		/* 
-			1) put all tracks onto the queue
-			2) set the current track
-				- request the playback URL for this track
-				if it's not already found	
-			3) set the audio player to isPlaying
-		*/
-		if (playlist){
-			if (tracksData && tracksData.length){
-				const queueItems = prepareQueueItems(tracksData)
-				const top = queueItems[0]
-				dispatch(setIsLoading(true))
-				dispatch(setCurrentTrack(top))
-				dispatch(setQueuedTracks(queueItems))
-	            triggerGetPlayback(top.videoId)
-	            const randIndex = randRange(0, queueItems.length-1)
-	            triggerRelatedTracks({playlistId: playlist.playlistId, videoId: queueItems[randIndex].videoId})
-			}
-			dispatch(setPlaylist(playlist))
-			if (!showAudioPlayer){
-				dispatch(setShowAudioPlayer(true))
-			}
-			if (!showQueuedTrackList){
-				dispatch(setShowQueuedTrackList(true))
-			}
+			triggerGetTracks({playlistId: playlist?.playlistId, params: {}})
 		}
 	}
 
 	useEffect(() => {
-    	if (!isFetchingTracks && tracksData){
-    		onQueuePlaylist()
-    	}
-    }, [isFetchingTracks, tracksData])
-
-    useEffect(() => {
-    	if (!isFetchingSong && songData){
-            dispatch(setStoredPlaybackInfo(songData))
-            dispatch(setIsLoading(false))
-            dispatch(setIsPlaying(true))
-        }
-    }, [songData, isFetchingSong])
-
-    useEffect(() => {
-    	if (!isRelatedTracksFetching && relatedTracksData){
-    		dispatch(setSuggestedTracks(relatedTracksData))
-    	}
-    }, [relatedTracksData, isRelatedTracksFetching])
+		if (!isFetchingTracks && tracksData && playlist){
+			triggerLoadPlaylist(playlist, tracksData)
+		}
+	}, [tracksData, isFetchingTracks])
 
 	return (
 		isHeader ? 
 			<div className = "flex flex-col gap-y-2">
-				<CardContent 
+				<PlayableCard 
 					imageHeight={imageHeight} 
-					playlist={playlist} 
+					title={playlist?.title ?? ""}
+					description={playlist?.description ?? ""}
 					thumbnail={thumbnail} 
 					isHeader={isHeader}
 					canPlay={false}
 				>
 					{children}
-				</CardContent>
+				</PlayableCard>
 			</div>
 			:
 			<div className = "flex flex-col gap-y-2">
-				<CardContent 
+				<PlayableCard 
 					imageHeight={imageHeight} 
-					playlist={playlist} 
+					title={playlist?.title ?? ""}
+					description={playlist?.description ?? ""}
 					thumbnail={thumbnail} 
 					isHeader={isHeader}
 					canPlay={true}
+					cardOnClick={() => goTo(Playlist, {playlist})}
 					imagePlayButtonProps={{
 						onPress: () => {
 							// if the playlist is the currently selected playlist
@@ -207,11 +86,11 @@ export const PlaylistCardItem = ({playlist, imageHeight, children, isHeader}: Pr
 					    playButtonWidth: "w-6", 
 					    playButtonHeight: "h-6",
 					    imageURL: thumbnail?.url ?? "", 
-					    showPlayButton: isPlaying && currentPlaylist?.playlistId === playlist?.playlistId
+					    showPauseButton: isPlaying && currentPlaylist?.playlistId === playlist?.playlistId
 					}}
 				>
 					{children}
-				</CardContent>
+				</PlayableCard>
 			</div>
 	)
 }

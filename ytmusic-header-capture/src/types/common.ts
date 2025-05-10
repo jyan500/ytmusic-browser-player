@@ -10,6 +10,12 @@ export interface Thumbnail {
 	height: number
 }
 
+export type ContentWithThumbnail = {
+	thumbnails?: Array<Thumbnail>
+} & {
+	[key: string]: any
+}
+
 export interface PlaybackInfo {
 	videoId: string
 	playbackURL: string
@@ -37,7 +43,7 @@ export interface Track {
 	videoId: string,
 	title: string,
 	artists: Array<OptionType>
-	album: Array<OptionType>
+	album: OptionType
 	length?: string
 	duration?: string
 	duration_seconds?: number
@@ -115,6 +121,27 @@ export interface Song {
         musicVideoType: string 
         isLiveContent: boolean
     }
+}
+
+export interface HomeContent {
+	title: string
+	// explore content can contain album information, song information or playlist information
+	contents: Array<SuggestedContent>
+}
+
+export interface SuggestedContent {
+	title?: string	
+	thumbnails?: Array<Thumbnail>
+	browseId?: string
+	description?: string
+	playlistId?: string
+	videoId?: string
+	year?: string
+	subscribers?: string
+	author?: Array<OptionType>
+	artists?: Array<OptionType>
+	album?: OptionType
+	views?: string
 }
 
 export interface CustomError {
