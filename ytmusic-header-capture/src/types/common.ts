@@ -140,6 +140,7 @@ export interface SuggestedContent {
 	subscribers?: string
 	author?: Array<OptionType>
 	artists?: Array<OptionType>
+	audioPlaylistId?: string
 	album?: OptionType
 	views?: string
 }
