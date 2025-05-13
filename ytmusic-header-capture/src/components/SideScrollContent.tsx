@@ -27,16 +27,8 @@ export const SideScrollContent = ({content}: Props) => {
     		// pull suggested content
     		triggerLoadTrack(undefined, content as Track)
     	}
-    	else if ("playlistId" in content){
-			triggerGetTracks({playlistId: content.playlistId ?? "", params: {}})
-    	}
-    }
-
-	const cardClickAction = () => {
-    	// if it's a playlist, enter the playlist page
-    	if (!("videoId" in content) && "playlistId" in content){
-    		// not the exact same type, but it should share the playlistId which is necessary
-    		goTo(Playlist, {playlist: content as TPlaylist})
+    	else if ("playlistId" in content || "audioPlaylistId" in content){
+			triggerGetTracks({playlistId: "playlistId" in content ? (content.playlistId ?? "") : (content.audioPlaylistId ?? ""), params: {}})
     	}
     }
 
@@ -58,14 +50,32 @@ export const SideScrollContent = ({content}: Props) => {
 	}
 
 	const shouldShowPauseButton = () => {
-		if ("playlistId" in content){
-			return isPlaying && currentPlaylist?.playlistId === content?.playlistId
+		if ("playlistId" in content || "audioPlaylistId" in content){
+			return isPlaying && (currentPlaylist?.playlistId === content?.playlistId || currentPlaylist?.playlistId === content?.audioPlaylistId)
 		}
 		else if ("videoId" in content){
 			return isPlaying && currentTrack?.videoId !== content?.videoId
 		}
 		return false 
 	}
+
+	const cardClickAction = () => {
+    	// if it's a playlist, enter the playlist page
+    	if (!("videoId" in content) && ("playlistId" in content || "audioPlaylistId" in content)){
+    		// slight hack:
+    		// not the exact same type, but it should share the playlistId which is necessary
+    		// add playlistId since we only process playlistId
+    		const playlistParam = {
+    			...content, 
+    			...("audioPlaylistId" in content && "type" in content ? {
+	    			description: getDescription(), 
+	    			playlistId: content.audioPlaylistId,
+    			} : {})
+    		}
+    		goTo(Playlist, {playlist: playlistParam as TPlaylist})
+    	}
+    }
+
 
 	useEffect(() => {
 		if (!isFetchingTracks && tracksData){
