@@ -2,6 +2,7 @@ from auth import auth
 from playlists import playlists
 from songs import songs
 from home import home
+from albums import albums
 
 class Router:
     def __init__(self, app):
@@ -10,3 +11,4 @@ class Router:
         self.app.register_blueprint(playlists)
         self.app.register_blueprint(songs)
         self.app.register_blueprint(home)
+        self.app.register_blueprint(albums)

@@ -30,7 +30,8 @@ export const PlayableCard = ({
 		return (
 			<>
 				<p className = {`${isHeader ? "text-md" : ""} font-semibold`}>{title}</p>
-				<p className = "text-gray-300">{description}</p>
+				{/* whitespace prewrap allows /n to show for displaying multiline descriptions in strings */}
+				<p className = "whitespace-pre-wrap text-gray-300">{description}</p>
 			</>
 		)
 	}

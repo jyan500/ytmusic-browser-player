@@ -69,7 +69,8 @@ export const QueuedTrackList = () => {
 	}
 
 	return (
-		<div className = {`${isOpen ? `translate-y-0`: "translate-y-full"} ${TRANSITION_TRANSFORM} fixed bottom-0 left-0 bg-dark w-full ${PADDING_AVOID_AUDIO_PLAYER_OVERLAP} ${OVERFLOW_MAX_HEIGHT}`}>
+		<div className = {`${isOpen ? `translate-y-0`: "translate-y-full"} ${TRANSITION_TRANSFORM} fixed bottom-0 left-0 bg-dark w-full overscroll-contain ${PADDING_AVOID_AUDIO_PLAYER_OVERLAP} ${OVERFLOW_MAX_HEIGHT}`}>
+			{/* width 95% is to prevent the scrollbar from showing*/}
 			<div className = "p-2 space-y-2">
 				<div className = "justify-between flex flex-row items-center">
 					<p className = "text-lg">Playing from: <span className = "text-gray-300">{playlist?.title ?? ""}</span></p>

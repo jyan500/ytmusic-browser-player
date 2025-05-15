@@ -16,7 +16,7 @@ export const SuggestedContentGrid = ({content}: Props) => {
 		const artistNames = sContent?.artists?.map((artist: OptionType) => artist.name)
 		let res = ""
 		if (artistNames?.length){
-			res = artistNames.join(" - ")
+			res = artistNames.join(" • ")
 		}
 		return res
 	}

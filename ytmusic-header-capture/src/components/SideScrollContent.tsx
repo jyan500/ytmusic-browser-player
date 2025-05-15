@@ -7,6 +7,7 @@ import { useLazyGetPlaylistTracksQuery } from "../services/private/playlists"
 import { useLoadTrack } from "../hooks/useLoadTrack"
 import { useLoadPlaylist } from "../hooks/useLoadPlaylist"
 import { Playlist } from "../pages/Playlist"
+import { Album } from "../pages/Album"
 import { getThumbnailUrl } from "../helpers/functions"
 
 interface Props {
@@ -43,7 +44,7 @@ export const SideScrollContent = ({content}: Props) => {
 				return artist.name
 			})
 			if (artistNames){
-				return artistNames.join(" - ")
+				return artistNames.join(" • ")
 			}
 		}
 		return ""
@@ -51,6 +52,9 @@ export const SideScrollContent = ({content}: Props) => {
 
 	const shouldShowPauseButton = () => {
 		if ("playlistId" in content || "audioPlaylistId" in content){
+			console.log("currentPlaylist: ", currentPlaylist)
+			console.log("content.playlistId: ", content.playlistId)
+			console.log("content.audioPlaylistId: ", content.audioPlaylistId)
 			return isPlaying && (currentPlaylist?.playlistId === content?.playlistId || currentPlaylist?.playlistId === content?.audioPlaylistId)
 		}
 		else if ("videoId" in content){
@@ -61,25 +65,24 @@ export const SideScrollContent = ({content}: Props) => {
 
 	const cardClickAction = () => {
     	// if it's a playlist, enter the playlist page
-    	if (!("videoId" in content) && ("playlistId" in content || "audioPlaylistId" in content)){
-    		// slight hack:
-    		// not the exact same type, but it should share the playlistId which is necessary
-    		// add playlistId since we only process playlistId
-    		const playlistParam = {
-    			...content, 
-    			...("audioPlaylistId" in content && "type" in content ? {
-	    			description: getDescription(), 
-	    			playlistId: content.audioPlaylistId,
-    			} : {})
+    	if (!("videoId" in content)){
+    		if ("playlistId" in content){
+    			goTo(Playlist, {playlist: content})
     		}
-    		goTo(Playlist, {playlist: playlistParam as TPlaylist})
+    		else if ("audioPlaylistId" in content && "browseId" in content){
+    			goTo(Album, {browseId: content.browseId, audioPlaylistId: content.audioPlaylistId})
+    		}
     	}
     }
 
 
 	useEffect(() => {
 		if (!isFetchingTracks && tracksData){
-			triggerLoadPlaylist(content as TPlaylist, tracksData)
+			// include the playlistId as audioPlaylistId for album playlists
+			triggerLoadPlaylist({
+				...content,
+				playlistId: "audioPlaylistId" in content ? content.audioPlaylistId : content.playlistId,
+			} as TPlaylist, tracksData)
 		}
 	}, [tracksData, isFetchingTracks])
 

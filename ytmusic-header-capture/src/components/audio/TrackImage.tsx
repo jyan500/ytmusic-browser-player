@@ -1,7 +1,7 @@
 import React from "react"
 import { Track } from "../../types/common"
 import { useAppSelector } from "../../hooks/redux-hooks"
-import { IconMusicNote } from "../../icons/IconMusicNote"
+import { PlaceholderThumbnail } from "../elements/PlaceholderThumbnail"
 import { getThumbnailUrl } from "../../helpers/functions"
 import { LoadingSpinner } from "../elements/LoadingSpinner"
 
@@ -22,11 +22,7 @@ export const TrackImage = ({track}: Props) => {
 						</div>
 					</div>
 				) : 
-				<div className = "flex items-center justify-center w-full h-full">
-					<span className="text-xl text-gray-600">
-						<IconMusicNote/>
-					</span>
-				</div>
+				<PlaceholderThumbnail/>
 			}
 		</>
 	)
