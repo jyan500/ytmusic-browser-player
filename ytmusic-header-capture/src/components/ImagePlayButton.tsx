@@ -2,6 +2,7 @@ import React from "react"
 import { IconPause } from "../icons/IconPause"
 import { IconPlay } from "../icons/IconPlay"
 import { IconAlert } from "../icons/IconAlert"
+import { PlaceholderThumbnail } from "./elements/PlaceholderThumbnail"
 
 export interface Props {
     imageHeight: string
@@ -28,7 +29,11 @@ export const ImagePlayButton = ({
         <div className = {`${imageWidth} ${imageHeight} overflow-hidden relative`}>
             {
                 isAvailable ? 
-                    <img loading="lazy" className = {`${imageWidth} ${imageHeight} object-fill`} src = {imageURL}/> :
+                    (
+                        imageURL ? 
+                            <img loading="lazy" className = {`${imageWidth} ${imageHeight} object-fill`} src = {imageURL}/> :
+                            <PlaceholderThumbnail className = {`${imageWidth} ${imageHeight}`}/>
+                    ) :
                     <div className = {`flex flex-col items-center justify-center ${imageHeight} ${imageHeight} bg-gray-300`}>
                         <span className="text-xl text-dark">
                             <IconAlert/>

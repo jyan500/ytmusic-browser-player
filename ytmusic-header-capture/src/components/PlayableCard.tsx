@@ -30,7 +30,8 @@ export const PlayableCard = ({
 		return (
 			<>
 				<p className = {`${isHeader ? "text-md" : ""} font-semibold`}>{title}</p>
-				<p className = "text-gray-300">{description}</p>
+				{/* whitespace prewrap allows /n to show for displaying multiline descriptions in strings */}
+				<p className = "whitespace-pre-wrap text-gray-300">{description}</p>
 			</>
 		)
 	}
@@ -52,8 +53,8 @@ export const PlayableCard = ({
 					<img loading="lazy" className={`${imageHeight ?? "h-32"} object-fill`} src = {thumbnail?.url}/>
 				}
 				{
-					isHeader ? 
-					<div className = {`text-center text-lg break-words`}>
+					isHeader || !cardOnClick ? 
+					<div className = {`${isHeader ? "text-lg text-center" : "text-left" } break-words`}>
 						{titleDescription()}
 					</div> :
 					<button onClick={cardOnClick} className = {`text-left break-words`}>

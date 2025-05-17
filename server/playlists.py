@@ -43,4 +43,14 @@ def get_playlist_related_tracks(playlistId):
         tracks = relatedTracks["tracks"]
     return jsonify(tracks), 200
 
+@playlists.route("/playlists/watch-playlist", endpoint="get_watch_playlist", methods=["GET"])
+@require_authentication
+def get_watch_playlist():
+    ytmusic = initYTMusic(request)
+    videoId = request.args.get("videoId") if request.args.get("videoId") != "" else ""
+    watchPlaylist = ytmusic.get_watch_playlist(limit=25, videoId=videoId, radio=True)
+    # add the title "Radio" to the playlist
+    watchPlaylist["title"] = "Radio"
+    return jsonify(watchPlaylist), 200
+
 

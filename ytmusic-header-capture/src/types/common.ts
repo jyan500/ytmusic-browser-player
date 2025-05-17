@@ -72,6 +72,28 @@ export interface Playlist {
     count: number
 }
 
+export type WatchPlaylist = {
+	playlistId: string
+	related: string
+	tracks: Array<Track>
+	title: string
+}
+
+export interface Album {
+	title: string
+	type: string
+	thumbnails: Array<Thumbnail>
+	description?: string 
+	artists: Array<OptionType>
+	year?: string
+	trackCount?: number 
+	duration?: string
+	audioPlaylistId: string
+	tracks: Array<Track>
+    other_versions?: Array<Track>
+	duration_seconds?: string
+}
+
 export interface Song {
     streamingData: {
         expiresInSeconds: string

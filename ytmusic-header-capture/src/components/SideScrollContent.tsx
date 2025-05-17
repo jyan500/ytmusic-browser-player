@@ -3,10 +3,12 @@ import { useAppDispatch, useAppSelector } from "../hooks/redux-hooks"
 import { SuggestedContent, OptionType, Playlist as TPlaylist, Track } from "../types/common"
 import { PlayableCard } from "./PlayableCard"
 import { goTo } from "react-chrome-extension-router"
-import { useLazyGetPlaylistTracksQuery } from "../services/private/playlists"
+import { useLazyGetWatchPlaylistQuery, useLazyGetPlaylistTracksQuery } from "../services/private/playlists"
+import { useLazyGetRelatedTracksQuery } from "../services/private/songs"
 import { useLoadTrack } from "../hooks/useLoadTrack"
 import { useLoadPlaylist } from "../hooks/useLoadPlaylist"
 import { Playlist } from "../pages/Playlist"
+import { Album } from "../pages/Album"
 import { getThumbnailUrl } from "../helpers/functions"
 
 interface Props {
@@ -18,14 +20,15 @@ export const SideScrollContent = ({content}: Props) => {
 	const { isPlaying, currentTrack } = useAppSelector((state) => state.audioPlayer)
 	const { playlist: currentPlaylist } = useAppSelector((state) => state.queuedTrackList)
     const [ triggerGetTracks, { data: tracksData, error: tracksError, isFetching: isFetchingTracks }] = useLazyGetPlaylistTracksQuery();
-    const { triggerLoadTrack } = useLoadTrack()
+    const [ triggerGetRelatedTracks, { data: relatedTracksData, error: relatedTracksError, isFetching: isFetchingRelatedTracks }] = useLazyGetRelatedTracksQuery();
+    const [ triggerGetWatchPlaylist, {data: watchPlaylistData, error: watchPlaylistError, isFetching: isWatchPlaylistFetching}] = useLazyGetWatchPlaylistQuery()
+    // const { triggerLoadTrack } = useLoadTrack()
     const { triggerLoadPlaylist } = useLoadPlaylist()
 
 	const playContent = () => {
     	if ("videoId" in content){
-    		// pull the song information and queue up the track
-    		// pull suggested content
-    		triggerLoadTrack(undefined, content as Track)
+    		// get the watch playlist for this video and load as playlist
+    		triggerGetWatchPlaylist({videoId: content?.videoId ?? ""})
     	}
     	else if ("playlistId" in content || "audioPlaylistId" in content){
 			triggerGetTracks({playlistId: "playlistId" in content ? (content.playlistId ?? "") : (content.audioPlaylistId ?? ""), params: {}})
@@ -43,7 +46,7 @@ export const SideScrollContent = ({content}: Props) => {
 				return artist.name
 			})
 			if (artistNames){
-				return artistNames.join(" - ")
+				return artistNames.join(" • ")
 			}
 		}
 		return ""
@@ -54,34 +57,46 @@ export const SideScrollContent = ({content}: Props) => {
 			return isPlaying && (currentPlaylist?.playlistId === content?.playlistId || currentPlaylist?.playlistId === content?.audioPlaylistId)
 		}
 		else if ("videoId" in content){
-			return isPlaying && currentTrack?.videoId !== content?.videoId
+			return isPlaying && currentTrack?.videoId === content?.videoId
 		}
 		return false 
 	}
 
 	const cardClickAction = () => {
     	// if it's a playlist, enter the playlist page
-    	if (!("videoId" in content) && ("playlistId" in content || "audioPlaylistId" in content)){
-    		// slight hack:
-    		// not the exact same type, but it should share the playlistId which is necessary
-    		// add playlistId since we only process playlistId
-    		const playlistParam = {
-    			...content, 
-    			...("audioPlaylistId" in content && "type" in content ? {
-	    			description: getDescription(), 
-	    			playlistId: content.audioPlaylistId,
-    			} : {})
+    	if (!("videoId" in content)){
+    		if ("playlistId" in content){
+    			goTo(Playlist, {playlist: content})
     		}
-    		goTo(Playlist, {playlist: playlistParam as TPlaylist})
+    		else if ("audioPlaylistId" in content && "browseId" in content){
+    			goTo(Album, {browseId: content.browseId, audioPlaylistId: content.audioPlaylistId})
+    		}
     	}
     }
 
 
 	useEffect(() => {
 		if (!isFetchingTracks && tracksData){
-			triggerLoadPlaylist(content as TPlaylist, tracksData)
+			// include the playlistId as audioPlaylistId for album playlists
+			triggerLoadPlaylist({
+				...content,
+				playlistId: "audioPlaylistId" in content ? content.audioPlaylistId : content.playlistId,
+			} as TPlaylist, tracksData)
 		}
 	}, [tracksData, isFetchingTracks])
+
+	useEffect(() => {
+		if (!isWatchPlaylistFetching && watchPlaylistData){
+			// don't need to load further suggested tracks
+			triggerLoadPlaylist({
+				playlistId: watchPlaylistData.playlistId,	
+				thumbnails: [],
+				title: watchPlaylistData.title,
+				count: watchPlaylistData.tracks.length,
+				description: ""
+			} as TPlaylist, watchPlaylistData.tracks, false)
+		}
+	}, [watchPlaylistData, isWatchPlaylistFetching])
 
 	return (
 		<PlayableCard 
@@ -90,7 +105,7 @@ export const SideScrollContent = ({content}: Props) => {
 			description={getDescription()}
 			isHeader={false}
 			canPlay={true}
-			cardOnClick={() => cardClickAction()}
+			cardOnClick={!("videoId" in content) ? () => cardClickAction() : undefined}
 			imagePlayButtonProps={{
 				onPress: () => {
 					playContent()

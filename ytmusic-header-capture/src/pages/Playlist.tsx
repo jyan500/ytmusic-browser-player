@@ -25,19 +25,15 @@ import { setShowQueuedTrackList, setPlaylist } from "../slices/queuedTrackListSl
 import { prepareQueueItems, randRange } from "../helpers/functions"
 import { useLoadPlaylist } from "../hooks/useLoadPlaylist"
 import { LoadingSpinner } from "../components/elements/LoadingSpinner"
+import { PlaylistPageContainer } from "../components/PlaylistPageContainer"
 
 interface Props {
 	playlist: TPlaylist
 }
 
 export const Playlist = ({playlist}: Props) => {
-	const [page, setPage] = useState(1)
 	const dispatch = useAppDispatch()
-	const { triggerLoadPlaylist } = useLoadPlaylist()
-	const { isPlaying, queuedTracks, showAudioPlayer, storedPlaybackInfo } = useAppSelector((state) => state.audioPlayer)
-	const { showQueuedTrackList, playlist: currentPlaylist } = useAppSelector((state) => state.queuedTrackList)
 	const {data: tracks, isLoading: isTracksLoading, isError: isTracksError} = useGetPlaylistTracksQuery(playlist ? {playlistId: playlist.playlistId, params: {}} : skipToken)
-	const divRef = useRef<HTMLDivElement | null>(null)
 
 	useEffect(() => {
 		window.scrollTo({
@@ -47,45 +43,7 @@ export const Playlist = ({playlist}: Props) => {
 		})	
 	}, [playlist])
 
-	const onPause = () => {
-		dispatch(setIsPlaying(false))		
-	}
-
 	return (
-		<div className = "space-y-2">
-			<NavButton onClick={(e) => {goTo(Playlists)}} message={"Go Back"}/>
-			<div className = "flex flex-col justify-center items-center">
-				<PlaylistCardItem isHeader={true} imageHeight={"h-64"} playlist={playlist}>	
-					<div className = "w-full flex flex-row justify-center items-center">
-						{
-							!isTracksLoading && tracks ? 
-								<PlayButton isPlaying={isPlaying && currentPlaylist?.playlistId === playlist?.playlistId} onClick={() => {
-									// if the playlist is the currently selected playlist
-									if (currentPlaylist?.playlistId === playlist?.playlistId){
-										// if there are queued tracks and a current song playing, toggle the playback
-										if (queuedTracks?.length && storedPlaybackInfo){
-											dispatch(setIsPlaying(!isPlaying))
-										}
-									}
-									// Otherwise, load the playlist tracks and the first song of the playlist.
-									else {
-										triggerLoadPlaylist(playlist, tracks)
-									}
-								}} /> : <LoadingSpinner/>
-						}
-					</div>
-				</PlaylistCardItem>
-			</div>
-			<div>
-				{
-					isTracksLoading && !tracks ? <LoadingSpinner/> : (
-						<InfiniteScrollList<Track, Omit<TrackListPropType, "data">> data={tracks ?? []} props={{
-							playlist: playlist,
-							inQueueTrackList: false
-						}} component={TrackList}/>
-					)
-				}
-			</div>
-		</div>
+		playlist && tracks ? <PlaylistPageContainer playlist={playlist} tracks={tracks}/> : <LoadingSpinner/>
 	)
 }
