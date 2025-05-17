@@ -72,6 +72,13 @@ export interface Playlist {
     count: number
 }
 
+export type WatchPlaylist = {
+	playlistId: string
+	related: string
+	tracks: Array<Track>
+	title: string
+}
+
 export interface Album {
 	title: string
 	type: string

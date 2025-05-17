@@ -3,7 +3,8 @@ import { useAppDispatch, useAppSelector } from "../hooks/redux-hooks"
 import { SuggestedContent, OptionType, Playlist as TPlaylist, Track } from "../types/common"
 import { PlayableCard } from "./PlayableCard"
 import { goTo } from "react-chrome-extension-router"
-import { useLazyGetPlaylistTracksQuery } from "../services/private/playlists"
+import { useLazyGetWatchPlaylistQuery, useLazyGetPlaylistTracksQuery } from "../services/private/playlists"
+import { useLazyGetRelatedTracksQuery } from "../services/private/songs"
 import { useLoadTrack } from "../hooks/useLoadTrack"
 import { useLoadPlaylist } from "../hooks/useLoadPlaylist"
 import { Playlist } from "../pages/Playlist"
@@ -19,14 +20,15 @@ export const SideScrollContent = ({content}: Props) => {
 	const { isPlaying, currentTrack } = useAppSelector((state) => state.audioPlayer)
 	const { playlist: currentPlaylist } = useAppSelector((state) => state.queuedTrackList)
     const [ triggerGetTracks, { data: tracksData, error: tracksError, isFetching: isFetchingTracks }] = useLazyGetPlaylistTracksQuery();
-    const { triggerLoadTrack } = useLoadTrack()
+    const [ triggerGetRelatedTracks, { data: relatedTracksData, error: relatedTracksError, isFetching: isFetchingRelatedTracks }] = useLazyGetRelatedTracksQuery();
+    const [ triggerGetWatchPlaylist, {data: watchPlaylistData, error: watchPlaylistError, isFetching: isWatchPlaylistFetching}] = useLazyGetWatchPlaylistQuery()
+    // const { triggerLoadTrack } = useLoadTrack()
     const { triggerLoadPlaylist } = useLoadPlaylist()
 
 	const playContent = () => {
     	if ("videoId" in content){
-    		// pull the song information and queue up the track
-    		// pull suggested content
-    		triggerLoadTrack(undefined, content as Track)
+    		// get the watch playlist for this video and load as playlist
+    		triggerGetWatchPlaylist({videoId: content?.videoId ?? ""})
     	}
     	else if ("playlistId" in content || "audioPlaylistId" in content){
 			triggerGetTracks({playlistId: "playlistId" in content ? (content.playlistId ?? "") : (content.audioPlaylistId ?? ""), params: {}})
@@ -52,13 +54,10 @@ export const SideScrollContent = ({content}: Props) => {
 
 	const shouldShowPauseButton = () => {
 		if ("playlistId" in content || "audioPlaylistId" in content){
-			console.log("currentPlaylist: ", currentPlaylist)
-			console.log("content.playlistId: ", content.playlistId)
-			console.log("content.audioPlaylistId: ", content.audioPlaylistId)
 			return isPlaying && (currentPlaylist?.playlistId === content?.playlistId || currentPlaylist?.playlistId === content?.audioPlaylistId)
 		}
 		else if ("videoId" in content){
-			return isPlaying && currentTrack?.videoId !== content?.videoId
+			return isPlaying && currentTrack?.videoId === content?.videoId
 		}
 		return false 
 	}
@@ -86,6 +85,19 @@ export const SideScrollContent = ({content}: Props) => {
 		}
 	}, [tracksData, isFetchingTracks])
 
+	useEffect(() => {
+		if (!isWatchPlaylistFetching && watchPlaylistData){
+			// don't need to load further suggested tracks
+			triggerLoadPlaylist({
+				playlistId: watchPlaylistData.playlistId,	
+				thumbnails: [],
+				title: watchPlaylistData.title,
+				count: watchPlaylistData.tracks.length,
+				description: ""
+			} as TPlaylist, watchPlaylistData.tracks, false)
+		}
+	}, [watchPlaylistData, isWatchPlaylistFetching])
+
 	return (
 		<PlayableCard 
 			imageHeight={"h-32"}
@@ -93,7 +105,7 @@ export const SideScrollContent = ({content}: Props) => {
 			description={getDescription()}
 			isHeader={false}
 			canPlay={true}
-			cardOnClick={() => cardClickAction()}
+			cardOnClick={!("videoId" in content) ? () => cardClickAction() : undefined}
 			imagePlayButtonProps={{
 				onPress: () => {
 					playContent()

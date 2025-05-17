@@ -1,6 +1,6 @@
 import { BaseQueryFn, FetchArgs, createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react"
 import { BACKEND_BASE_URL, PLAYLIST_URL } from "../../helpers/urls" 
-import { CustomError, Playlist, Thumbnail, PlaylistInfo, Track, ListResponse } from "../../types/common" 
+import { CustomError, WatchPlaylist, Playlist, Thumbnail, PlaylistInfo, Track, ListResponse } from "../../types/common" 
 import { privateApi } from "../private" 
 
 export const playlistsApi = privateApi.injectEndpoints({
@@ -45,7 +45,25 @@ export const playlistsApi = privateApi.injectEndpoints({
 				})
 			},
 			providesTags: ["PlaylistTracks"]
-		})
+		}),
+		getWatchPlaylist: builder.query<WatchPlaylist, {videoId: string}>({
+			query: ({videoId}) => ({
+				url: `${PLAYLIST_URL}/watch-playlist`,
+				method: "GET",
+				params: {
+					videoId: videoId
+				}
+			}),
+			transformResponse: (response: WatchPlaylist) => {
+				// convert "length" to "duration" and "thumbnail" to thumbnails
+				return {
+					...response,
+					tracks: response.tracks.map((track: Track) => {
+						return {...track, thumbnails: track.thumbnail ?? [] as Thumbnail[], duration: track.length}
+					})
+				}
+			},
+		}),
 	}),
 })
 
@@ -55,4 +73,5 @@ export const {
 	useGetPlaylistTracksQuery,
 	useLazyGetPlaylistTracksQuery,
 	useLazyGetPlaylistRelatedTracksQuery,
+	useLazyGetWatchPlaylistQuery,
 } = playlistsApi 

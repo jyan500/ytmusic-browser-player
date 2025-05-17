@@ -53,8 +53,8 @@ export const PlayableCard = ({
 					<img loading="lazy" className={`${imageHeight ?? "h-32"} object-fill`} src = {thumbnail?.url}/>
 				}
 				{
-					isHeader ? 
-					<div className = {`text-center text-lg break-words`}>
+					isHeader || !cardOnClick ? 
+					<div className = {`${isHeader ? "text-lg text-center" : "text-left" } break-words`}>
 						{titleDescription()}
 					</div> :
 					<button onClick={cardOnClick} className = {`text-left break-words`}>
