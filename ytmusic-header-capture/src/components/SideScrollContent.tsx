@@ -9,7 +9,7 @@ import { useLoadTrack } from "../hooks/useLoadTrack"
 import { useLoadPlaylist } from "../hooks/useLoadPlaylist"
 import { Playlist } from "../pages/Playlist"
 import { Album } from "../pages/Album"
-import { getThumbnailUrl } from "../helpers/functions"
+import { getThumbnail } from "../helpers/functions"
 
 interface Props {
 	content: SuggestedContent
@@ -40,6 +40,9 @@ export const SideScrollContent = ({content}: Props) => {
 			if ("description" in content){
 				return content?.description ?? ""
 			}
+		}
+		if ("subscribers" in content){
+			return content?.subscribers ?? ""
 		}
 		if ("artists" in content){
 			const artistNames = content?.artists?.map((artist: OptionType) => {
@@ -101,12 +104,15 @@ export const SideScrollContent = ({content}: Props) => {
 	return (
 		<PlayableCard 
 			imageHeight={"h-32"}
+			imageWidth={"w-32"}
 			title={content.title ?? ""}
+			thumbnail={getThumbnail(content)}
 			description={getDescription()}
 			isHeader={false}
-			canPlay={true}
+			// if the subscribers key is present, this is an artist, which isn't a playable entity
+			canPlay={!("subscribers" in content)}
 			cardOnClick={!("videoId" in content) ? () => cardClickAction() : undefined}
-			imagePlayButtonProps={{
+			imagePlayButtonProps={!("subscribers" in content) ? {
 				onPress: () => {
 					playContent()
 				},
@@ -114,9 +120,9 @@ export const SideScrollContent = ({content}: Props) => {
 			    imageWidth: "w-32",
 			    playButtonWidth: "w-6", 
 			    playButtonHeight: "h-6",
-			    imageURL: getThumbnailUrl(content), 
+			    imageURL: getThumbnail(content)?.url ?? "", 
 			    showPauseButton: shouldShowPauseButton(),
-			}}
+			} : undefined}
 		>
 		</PlayableCard>
 	)

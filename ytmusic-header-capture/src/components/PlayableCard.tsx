@@ -9,6 +9,7 @@ interface PlayableCardProps {
 	children?: React.ReactNode
 	isHeader?: boolean
 	imageHeight?: string
+	imageWidth?: string
 	canPlay?: boolean
 	cardOnClick?: () => void
 	onPress?: () => void
@@ -17,6 +18,7 @@ interface PlayableCardProps {
 
 export const PlayableCard = ({
 	imageHeight, 
+	imageWidth,
 	isHeader, 
 	title,
 	description,
@@ -50,7 +52,9 @@ export const PlayableCard = ({
 						showPauseButton={imagePlayButtonProps?.showPauseButton}
 
 					/> :
-					<img loading="lazy" className={`${imageHeight ?? "h-32"} object-fill`} src = {thumbnail?.url}/>
+					<div className = {`${imageWidth ?? ""} ${imageHeight ?? ""}`}>
+						<img loading="lazy" className={`${imageHeight ?? "h-32"} object-fill`} src = {thumbnail?.url}/>
+					</div>
 				}
 				{
 					isHeader || !cardOnClick ? 

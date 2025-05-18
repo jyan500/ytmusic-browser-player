@@ -55,9 +55,9 @@ export const prepareQueueItems = (tracks: Array<Track>) => {
 	})
 }
 
-/* Takes an object that contains a thumbnails attribute, and retrieves the largest thumbnail from the list */
-export const getThumbnailUrl = (obj: ContentWithThumbnail) => {
-    const widths = obj?.thumbnails?.map((thumbnail: Thumbnail) => thumbnail.width) ?? []
-    const biggestWidth = Math.max(...widths)
-    return obj?.thumbnails?.find((thumbnail: Thumbnail) => thumbnail.width === biggestWidth)?.url ?? ""
+export const getThumbnail = (obj: ContentWithThumbnail) => {
+	const widths = obj?.thumbnails?.map((thumbnail) => thumbnail.width) ?? []
+	const biggestWidth = Math.max(...widths)
+	const thumbnail = obj?.thumbnails?.find((thumbnail) => thumbnail.width === biggestWidth)
+	return thumbnail
 }

@@ -4,7 +4,7 @@ import { OptionType, Track, Playlist, SuggestedContent } from "../types/common"
 import { HorizontalPlayableCard } from "./HorizontalPlayableCard"
 import { useLazyGetWatchPlaylistQuery } from "../services/private/playlists"
 import { useLoadPlaylist } from "../hooks/useLoadPlaylist"
-import { getThumbnailUrl } from "../helpers/functions"
+import { getThumbnail } from "../helpers/functions"
 
 interface Props {
 	content: Array<SuggestedContent>
@@ -63,7 +63,7 @@ export const SuggestedContentGrid = ({content}: Props) => {
 								playButtonWidth: "w-6",
 								playButtonHeight: "h-6",
 								onPress: () => onPress(sContent),
-								imageURL: getThumbnailUrl(sContent),
+								imageURL: getThumbnail(sContent)?.url ?? "",
 								showPauseButton: isPlaying && currentTrack?.videoId === sContent.videoId
 							}
 						}
