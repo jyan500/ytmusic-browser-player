@@ -145,6 +145,52 @@ export interface Song {
     }
 }
 
+export interface ArtistContent {
+	title: string
+	thumbnails: Array<Thumbnail>
+	year?: string
+	videoId?: string	
+	artist?: string
+	album?: string
+	browseId?: string
+	views?: string
+	subscribers?: string
+	playlistId?: string
+}
+
+export interface Artist {
+	description: string
+    views: string
+    name: string
+    channelId: string
+    shuffleId: string
+    radioId: string
+    subscribers: string
+    subscribed: boolean
+    thumbnails: Array<Thumbnail>
+    songs: {
+    	browseId: string
+    	results: Array<ArtistContent>
+    }
+    albums: {
+        results: Array<ArtistContent>
+        browseId: string 
+        params: string
+    }
+    singles: {
+        results: Array<ArtistContent>
+        browseId: string
+        params: string
+    }
+    videos: {
+    	browseId: string
+    	results: Array<ArtistContent>
+    }
+    related: {
+    	results: Array<ArtistContent>
+    }
+}
+
 export interface HomeContent {
 	title: string
 	// explore content can contain album information, song information or playlist information

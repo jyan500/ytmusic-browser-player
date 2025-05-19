@@ -89,7 +89,7 @@ export const SideScroller = ({title, content}: Props) => {
 					<CircleButton disabled={disabledButtons.right} onClick={() => onClickForward()}><IconRightArrow/></CircleButton>
 				</div>
 			</div>
-			<div ref={scrollRef} className = {`${title !== "Quick picks" ? "h-64 flex flex-row gap-x-2" : "h-84"} max-w-[680px] hover:overflow-x-auto overflow-hidden`}>
+			<div ref={scrollRef} className = {`${title !== "Quick picks" ? "h-64 flex flex-row gap-x-2" : "h-84"} hover:overflow-x-auto overflow-hidden`}>
 				{
 					title === "Quick picks" ? (
 						<SuggestedContentGrid content={content}/>

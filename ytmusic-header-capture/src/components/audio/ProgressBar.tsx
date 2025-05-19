@@ -5,7 +5,7 @@ import { formatTime } from "../../helpers/functions"
 import { useAudioPlayerContext } from "../../context/AudioPlayerProvider"
 
 export const ProgressBar = () => {
-	const { duration, timeProgress } = useAppSelector((state) => state.audioPlayer)
+	const { queuedTracks, duration, timeProgress } = useAppSelector((state) => state.audioPlayer)
 	const { progressBarRef, audioRef } = useAudioPlayerContext()
 	const dispatch = useAppDispatch()
 	const [hoverValue, setHoverValue] = useState<number|null>(null)
@@ -112,7 +112,7 @@ export const ProgressBar = () => {
 	}
 
 	return (
-		<div className="relative flex items-center justify-center w-full">
+		<div className={`${queuedTracks?.length > 0 ? "visible" : "invisible"} relative flex items-center justify-center w-full`}>
 			{
 				<div 
 					ref={tooltipRef}

@@ -8,6 +8,7 @@ import { useLazyGetRelatedTracksQuery } from "../services/private/songs"
 import { useLoadTrack } from "../hooks/useLoadTrack"
 import { useLoadPlaylist } from "../hooks/useLoadPlaylist"
 import { Playlist } from "../pages/Playlist"
+import { Artist } from "../pages/Artist"
 import { Album } from "../pages/Album"
 import { getThumbnail } from "../helpers/functions"
 
@@ -75,6 +76,9 @@ export const SideScrollContent = ({content}: Props) => {
     			goTo(Album, {browseId: content.browseId, audioPlaylistId: content.audioPlaylistId})
     		}
     	}
+    	if ("subscribers" in content && "browseId" in content){
+    		goTo(Artist, {browseId: content.browseId ?? ""})
+    	}
     }
 
 
@@ -111,7 +115,7 @@ export const SideScrollContent = ({content}: Props) => {
 			isHeader={false}
 			// if the subscribers key is present, this is an artist, which isn't a playable entity
 			canPlay={!("subscribers" in content)}
-			cardOnClick={!("videoId" in content) ? () => cardClickAction() : undefined}
+			cardOnClick={() => cardClickAction()}
 			imagePlayButtonProps={!("subscribers" in content) ? {
 				onPress: () => {
 					playContent()

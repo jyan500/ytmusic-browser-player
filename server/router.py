@@ -3,6 +3,7 @@ from playlists import playlists
 from songs import songs
 from home import home
 from albums import albums
+from artists import artists
 
 class Router:
     def __init__(self, app):
@@ -12,3 +13,4 @@ class Router:
         self.app.register_blueprint(songs)
         self.app.register_blueprint(home)
         self.app.register_blueprint(albums)
+        self.app.register_blueprint(artists)
