@@ -39,7 +39,7 @@ export const PlayableCard = ({
 	}
 	return (
 		<>
-			<div className={`${isHeader ? "items-center" : "items-start"} flex flex-col gap-y-2 group`}>
+			<div className={`${isHeader ? "items-center" : "items-start"} ${!isHeader ? (imageWidth ?? "w-32") : ""} flex flex-col gap-y-2 group`}>
 				{
 					canPlay && imagePlayButtonProps ? 
 					<ImagePlayButton

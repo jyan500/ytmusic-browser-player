@@ -10,10 +10,11 @@ import { SuggestedContentGrid } from "./SuggestedContentGrid"
 
 interface Props {
 	title: string
-	content: Array<SuggestedContent>
+	children?: React.ReactNode
+	height?: string
 }
 
-export const SideScroller = ({title, content}: Props) => {
+export const SideScroller = ({title, children, height="h-64"}: Props) => {
 	const scrollRef = useRef<HTMLDivElement>(null)
     const SCROLL_STEP_PERCENT = .9 // 25% of 680px = 170px per click
     const MAX_WIDTH = 680 
@@ -89,16 +90,8 @@ export const SideScroller = ({title, content}: Props) => {
 					<CircleButton disabled={disabledButtons.right} onClick={() => onClickForward()}><IconRightArrow/></CircleButton>
 				</div>
 			</div>
-			<div ref={scrollRef} className = {`${title !== "Quick picks" ? "h-64 flex flex-row gap-x-2" : "h-84"} hover:overflow-x-auto overflow-hidden`}>
-				{
-					title === "Quick picks" ? (
-						<SuggestedContentGrid content={content}/>
-					) : (
-						content.map((sContent: SuggestedContent) => {
-							return <SideScrollContent content={sContent}/>
-						})
-					)
-				}				
+			<div ref={scrollRef} className = {`${height} hover:overflow-x-auto overflow-hidden`}>
+				{children}
 			</div>
 		</div>
 	)
