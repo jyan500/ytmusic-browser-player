@@ -71,6 +71,7 @@ export const {
 	useGetPlaylistsQuery, 
 	useGetPlaylistQuery,
 	useGetPlaylistTracksQuery,
+	useLazyGetPlaylistQuery,
 	useLazyGetPlaylistTracksQuery,
 	useLazyGetPlaylistRelatedTracksQuery,
 	useLazyGetWatchPlaylistQuery,

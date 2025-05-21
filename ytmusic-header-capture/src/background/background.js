@@ -15,3 +15,12 @@ chrome.webRequest.onBeforeSendHeaders.addListener(
     { urls: ["https://music.youtube.com/youtubei/v1/browse*"] },
     ["requestHeaders", "extraHeaders"]
 );
+
+chrome.action.onClicked.addListener((tab) => {
+    chrome.windows.create({
+        url: chrome.runtime.getURL("popup.html"),
+        type: 'popup',
+        width: 700,
+        height: 800,
+    });
+});

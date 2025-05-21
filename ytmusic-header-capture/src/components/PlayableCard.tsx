@@ -7,8 +7,10 @@ interface PlayableCardProps {
 	title: string,
 	description: string,
 	children?: React.ReactNode
+	isCircular?: boolean
 	isHeader?: boolean
 	imageHeight?: string
+	imageWidth?: string
 	canPlay?: boolean
 	cardOnClick?: () => void
 	onPress?: () => void
@@ -17,6 +19,7 @@ interface PlayableCardProps {
 
 export const PlayableCard = ({
 	imageHeight, 
+	imageWidth,
 	isHeader, 
 	title,
 	description,
@@ -24,20 +27,21 @@ export const PlayableCard = ({
 	canPlay, 
 	cardOnClick, 
 	imagePlayButtonProps,
+	isCircular=false,
 	children
 }: PlayableCardProps) => {
 	const titleDescription = () => {
 		return (
 			<>
-				<p className = {`${isHeader ? "text-md" : ""} font-semibold`}>{title}</p>
+				<p className = {`${isHeader ? "text-md" : ""} font-semibold word-break`}>{title}</p>
 				{/* whitespace prewrap allows /n to show for displaying multiline descriptions in strings */}
-				<p className = "whitespace-pre-wrap text-gray-300">{description}</p>
+				<p className = "whitespace-pre-wrap word-break text-gray-300">{description}</p>
 			</>
 		)
 	}
 	return (
 		<>
-			<div className={`${isHeader ? "items-center" : "items-start"} flex flex-col gap-y-2 group`}>
+			<div className={`${isHeader ? "items-center" : "items-start"} ${!isHeader ? (imageWidth ?? "w-32") : ""} flex flex-col gap-y-2 group`}>
 				{
 					canPlay && imagePlayButtonProps ? 
 					<ImagePlayButton
@@ -50,7 +54,9 @@ export const PlayableCard = ({
 						showPauseButton={imagePlayButtonProps?.showPauseButton}
 
 					/> :
-					<img loading="lazy" className={`${imageHeight ?? "h-32"} object-fill`} src = {thumbnail?.url}/>
+					<div className = {`${isCircular ? "rounded-full" : ""} ${imageWidth ?? ""} ${imageHeight ?? ""}`}>
+						<img loading="lazy" className={`${imageHeight ?? "h-32"} ${isCircular ? "rounded-full" : ""} object-fill`} src = {thumbnail?.url}/>
+					</div>
 				}
 				{
 					isHeader || !cardOnClick ? 

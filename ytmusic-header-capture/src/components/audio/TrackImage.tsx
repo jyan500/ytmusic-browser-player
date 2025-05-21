@@ -2,7 +2,7 @@ import React from "react"
 import { Track } from "../../types/common"
 import { useAppSelector } from "../../hooks/redux-hooks"
 import { PlaceholderThumbnail } from "../elements/PlaceholderThumbnail"
-import { getThumbnailUrl } from "../../helpers/functions"
+import { getThumbnail } from "../../helpers/functions"
 import { LoadingSpinner } from "../elements/LoadingSpinner"
 
 interface Props {
@@ -16,7 +16,7 @@ export const TrackImage = ({track}: Props) => {
 			{
 				track?.thumbnails ? (
 					<div className = "w-full h-full relative group">
-						<img alt={"audio avatar"} className = "w-full h-full object-fill" src={getThumbnailUrl(track)} />
+						<img alt={"audio avatar"} className = "w-full h-full object-fill" src={getThumbnail(track)?.url ?? ""} />
 						<div className = {`${isLoading ? "visible": "invisible"} absolute flex justify-center items-center inset-0 bg-black/50`}>
 							<LoadingSpinner/>	
 						</div>

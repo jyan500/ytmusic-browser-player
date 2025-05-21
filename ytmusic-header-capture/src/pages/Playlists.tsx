@@ -13,9 +13,7 @@ import { PlaylistGrid } from "../components/PlaylistGrid"
 import { LoadingSpinner } from "../components/elements/LoadingSpinner"
 
 export const Playlists = () => {
-	const { headers } = useAppSelector((state) => state.auth)
-	const [page, setPage] = useState(1)	
-	const {data, isLoading, isError} = useGetPlaylistsQuery(headers ? {} : skipToken)
+	const {data, isLoading, isError} = useGetPlaylistsQuery({})
 	return (
 		<div className="w-full">
 			<div className = "flex flex-col gap-y-2 text-lg">

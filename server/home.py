@@ -14,7 +14,7 @@ home = Blueprint('home', __name__)
 @require_authentication
 def get_home():
     ytmusic = initYTMusic(request)
-    home = ytmusic.get_home(limit=10)
+    home = ytmusic.get_home(limit=20)
     includeList = ["Listen again", "Quick picks", "Mixed for you", "From your library", "New releases"]
     parsed = list(filter(lambda content: content["title"] in includeList, home))
     return jsonify(parsed), 200

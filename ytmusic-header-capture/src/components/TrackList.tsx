@@ -9,7 +9,7 @@ import { IconPlay } from "../icons/IconPlay"
 import { IconPause } from "../icons/IconPause"
 import { useAudioPlayerContext } from "../context/AudioPlayerProvider"
 import { ImagePlayButton } from "./ImagePlayButton"
-import { getThumbnailUrl, prepareQueueItems } from "../helpers/functions"
+import { getThumbnail, prepareQueueItems } from "../helpers/functions"
 import { isQueueItem } from "../helpers/type-guards"
 import { useLoadTrack } from "../hooks/useLoadTrack"
 
@@ -74,7 +74,7 @@ export const TrackList = ({ data, playlist, inQueueTrackList }: Props) => {
                             isAvailable={track.isAvailable ?? true}
                             showPauseButton={isPlaying && currentTrack?.videoId === track.videoId}
                             onPress={() => triggerLoadTrack(playlist ?? {} as Playlist, track)}
-                            imageURL={getThumbnailUrl(track)}
+                            imageURL={getThumbnail(track)?.url ?? ""}
                         />
                         <div className = "py-1 flex flex-col gap-y-2">
                             {rowContent(track)}

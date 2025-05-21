@@ -45,7 +45,7 @@ export const PlaylistPageContainer = ({playlist, tracks}: Props) => {
 		<div className = "space-y-2">
 			<NavButton onClick={() => {goBack()}} message={"Go Back"}/>
 			<div className = "flex flex-col justify-center items-center">
-				<PlaylistCardItem isHeader={true} imageHeight={"h-64"} playlist={playlist}>	
+				<PlaylistCardItem isHeader={true} imageWidth={"w-64"} imageHeight={"h-64"} playlist={playlist}>	
 					<div className = "w-full flex flex-row justify-center items-center">
 						<PlayButton isPlaying={isPlaying && currentPlaylist?.playlistId === playlist.playlistId} onClick={() => {
 							// if the playlist is the currently selected playlist
