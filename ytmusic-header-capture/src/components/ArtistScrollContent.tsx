@@ -70,18 +70,22 @@ export const ArtistScrollContent = ({content}: Props) => {
 	}
 
 	const cardClickAction = () => {
+		if ("subscribers" in content && "browseId" in content){
+			goTo(Artist, {browseId: content.browseId ?? ""})
+			return
+    	}
     	// if it's a playlist, enter the playlist page
     	if (!("videoId" in content)){
     		if ("playlistId" in content){
     			goTo(Playlist, {playlist: content})
+    			return
     		}
-    		else if ("audioPlaylistId" in content && "browseId" in content){
-    			goTo(Album, {browseId: content.browseId, audioPlaylistId: content.audioPlaylistId})
+    		else if ("browseId" in content){
+    			goTo(Album, {browseId: content.browseId})
+    			return
     		}
     	}
-    	if ("subscribers" in content && "browseId" in content){
-    		goTo(Artist, {browseId: content.browseId ?? ""})
-    	}
+
     }
 
 	useEffect(() => {
