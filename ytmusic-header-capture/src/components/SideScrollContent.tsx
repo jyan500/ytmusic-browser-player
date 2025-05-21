@@ -20,6 +20,7 @@ interface Props {
 	cardClickAction: () => void
 	playContent: () => void
 	showPauseButton: boolean
+	isCircular?: boolean
 }
 
 export const SideScrollContent = ({
@@ -29,6 +30,7 @@ export const SideScrollContent = ({
 	description, 
 	cardClickAction,
 	playContent,
+	isCircular=false,
 	showPauseButton,
 }: Props) => {
 	return (
@@ -38,6 +40,7 @@ export const SideScrollContent = ({
 			title={title}
 			thumbnail={thumbnail}
 			description={description}
+			isCircular={isCircular}
 			isHeader={false}
 			canPlay={canPlay}
 			cardOnClick={cardClickAction}

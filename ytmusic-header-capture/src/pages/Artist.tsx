@@ -1,8 +1,9 @@
-import React from "react"
+import React, { useEffect } from "react"
 import { useGetArtistQuery } from "../services/private/artists"
 import { skipToken } from '@reduxjs/toolkit/query/react'
-import { ArtistContent } from "../types/common"
-import { goBack } from "react-chrome-extension-router"
+import { ArtistContent, Playlist as TPlaylist } from "../types/common"
+import { goBack, goTo } from "react-chrome-extension-router"
+import { Playlist } from "../pages/Playlist"
 import { LoadingSpinner } from "../components/elements/LoadingSpinner"
 import { getThumbnail } from "../helpers/functions"
 import { CollapseText } from "../components/elements/CollapseText"
@@ -10,6 +11,7 @@ import { ArtistContentTable } from "../components/ArtistContentTable"
 import { ActionButton } from "../components/elements/ActionButton"
 import { SideScroller } from "../components/SideScroller"
 import { ArtistScrollContent } from "../components/ArtistScrollContent"
+import { useLazyGetPlaylistQuery } from "../services/private/playlists"
 
 interface Props {
 	browseId: string
@@ -17,13 +19,27 @@ interface Props {
 
 export const Artist = ({browseId}: Props) => {
 	const {data, isFetching, isError} = useGetArtistQuery(browseId ?? skipToken)
+	const [ triggerGetPlaylist, { data: playlist, isError: isPlaylistError, isFetching: isPlaylistFetching}] = useLazyGetPlaylistQuery()
+
+	useEffect(() => {
+		if (!isPlaylistFetching && playlist && data){
+			goTo(Playlist, {playlist: {
+				playlistId: playlist.id,
+				count: playlist.trackCount,
+				thumbnails: [getThumbnail(data)],
+				description: playlist.description,
+				title: "All Songs",
+			} as TPlaylist})
+		}
+	}, [ playlist, isPlaylistFetching ])
+
 	return (
 		!isFetching && data ? (
 			<div className = "w-full">
 				<button onClick={() => goBack()}>Go Back</button>
 				<div className = "flex flex-col gap-y-2">
-					<div className = "w-full flex flex-row gap-x-2 items-start">
-						<img className = "h-48 w-48 object-cover" src={getThumbnail(data)?.url ?? ""}/>
+					<div className = "w-full flex flex-row gap-x-4 items-start">
+						<img className = "rounded-full h-48 w-48 object-fill" src={getThumbnail(data)?.url ?? ""}/>
 						<div className = "flex flex-col gap-y-2">
 							<p className = "text-xl font-bold">{data.name}</p>	
 							<CollapseText lineClamp={"line-clamp-3"} className={"space-y-2 w-96 text-sm overflow-y-auto"} text={data.description}/>
@@ -36,7 +52,9 @@ export const Artist = ({browseId}: Props) => {
 					<div className = "space-y-2">
 						<p className="text-lg font-bold">Songs</p>
 						<ArtistContentTable content={data.songs.results}/>
-						<ActionButton onClick={() => console.log("test")} text={"Show More"}/>
+						<ActionButton isLoading={isPlaylistFetching} onClick={() => {
+							triggerGetPlaylist({playlistId: data.songs.browseId, params: {}}, true)
+						}} text={"Show More"}/>
 					</div>
 					<div>
 						<SideScroller height={"h-48"} title={"Albums"}>

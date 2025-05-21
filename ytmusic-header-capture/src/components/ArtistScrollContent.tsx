@@ -125,6 +125,7 @@ export const ArtistScrollContent = ({content}: Props) => {
 			// if the subscribers key is present, this is an artist, which isn't a playable entity
 			canPlay={!("subscribers" in content)}
 			cardClickAction={() => cardClickAction()}
+			isCircular={"subscribers" in content}
 			playContent={() => playContent()}
 			showPauseButton={shouldShowPauseButton()}
 		>

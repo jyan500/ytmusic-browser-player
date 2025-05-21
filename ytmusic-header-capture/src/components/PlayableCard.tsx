@@ -7,6 +7,7 @@ interface PlayableCardProps {
 	title: string,
 	description: string,
 	children?: React.ReactNode
+	isCircular?: boolean
 	isHeader?: boolean
 	imageHeight?: string
 	imageWidth?: string
@@ -26,6 +27,7 @@ export const PlayableCard = ({
 	canPlay, 
 	cardOnClick, 
 	imagePlayButtonProps,
+	isCircular=false,
 	children
 }: PlayableCardProps) => {
 	const titleDescription = () => {
@@ -52,8 +54,8 @@ export const PlayableCard = ({
 						showPauseButton={imagePlayButtonProps?.showPauseButton}
 
 					/> :
-					<div className = {`${imageWidth ?? ""} ${imageHeight ?? ""}`}>
-						<img loading="lazy" className={`${imageHeight ?? "h-32"} object-fill`} src = {thumbnail?.url}/>
+					<div className = {`${isCircular ? "rounded-full" : ""} ${imageWidth ?? ""} ${imageHeight ?? ""}`}>
+						<img loading="lazy" className={`${imageHeight ?? "h-32"} ${isCircular ? "rounded-full" : ""} object-fill`} src = {thumbnail?.url}/>
 					</div>
 				}
 				{

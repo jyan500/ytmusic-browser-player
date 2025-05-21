@@ -15,11 +15,12 @@ import { useLoadPlaylist } from "../hooks/useLoadPlaylist"
 interface Props {
 	playlist: TPlaylist
 	imageHeight?: string
+	imageWidth?: string
 	children?: React.ReactNode
 	isHeader?: boolean
 }
 
-export const PlaylistCardItem = ({playlist, imageHeight, children, isHeader}: Props) => {
+export const PlaylistCardItem = ({playlist, imageHeight, imageWidth, children, isHeader}: Props) => {
 	// find the largest thumbnail and compress to fit 
 	const dispatch = useAppDispatch()
 	const { queuedTracks, isPlaying, showAudioPlayer, storedPlaybackInfo } = useAppSelector((state) => state.audioPlayer)
@@ -48,6 +49,7 @@ export const PlaylistCardItem = ({playlist, imageHeight, children, isHeader}: Pr
 			<div className = "flex flex-col gap-y-2">
 				<PlayableCard 
 					imageHeight={imageHeight} 
+					imageWidth={imageWidth}
 					title={playlist?.title ?? ""}
 					description={playlist?.description ?? ""}
 					thumbnail={thumbnail} 

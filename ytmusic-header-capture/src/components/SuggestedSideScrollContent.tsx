@@ -72,7 +72,8 @@ export const SuggestedSideScrollContent = ({content}: Props) => {
     	if ("subscribers" in content && "browseId" in content){
     		goTo(Artist, {browseId: content.browseId ?? ""})
     		return
-    		
+    	}
+
     	if (!("videoId" in content)){
     		if ("playlistId" in content){
     			goTo(Playlist, {playlist: content})
@@ -82,7 +83,6 @@ export const SuggestedSideScrollContent = ({content}: Props) => {
     			goTo(Album, {browseId: content.browseId})
     			return
     		}
-    	}
     	}
     }
 
@@ -117,6 +117,7 @@ export const SuggestedSideScrollContent = ({content}: Props) => {
 			description={getDescription()}
 			// if the subscribers key is present, this is an artist, which isn't a playable entity
 			canPlay={!("subscribers" in content)}
+			isCircular={"subscribers" in content}
 			cardClickAction={() => cardClickAction()}
 			playContent={() => playContent()}
 		    showPauseButton={shouldShowPauseButton()}
