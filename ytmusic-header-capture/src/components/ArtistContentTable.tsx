@@ -16,10 +16,6 @@ export const ArtistContentTable = ({content}: Props) => {
 	const { isPlaying, currentTrack } = useAppSelector((state) => state.audioPlayer)
 	const { triggerLoadPlaylist } = useLoadPlaylist()
 
-	const shouldShowPauseButton = () => {
-		return currentTrack && currentTrack?.videoId === content?.videoId	
-	}
-
 	const onPress = (artistContent: ArtistContent) => {
 		triggerGetWatchPlaylist({videoId: artistContent?.videoId ?? ""})
 	}
@@ -43,16 +39,16 @@ export const ArtistContentTable = ({content}: Props) => {
 				content.map((c: ArtistContent, index: number) => {
 					return (
 						<tr className = {`${index < content.length - 1 ? "border-b border-zinc-400" : ""} mb-2`}>
-							<td className="py-1 align-middle">
+							<td className="py-1 align-middle group">
 								<ImagePlayButton
 									imageHeight={"w-12"}
 								    imageWidth={"h-12"} 
-								    playButtonWidth={"w-6"} 
+								    playButtonWidth={"w-4"} 
 								    isAvailable={c.isAvailable}
-								    playButtonHeight={"h-6"}
+								    playButtonHeight={"h-4"}
 								    imageURL={getThumbnail(c)?.url ?? ""}
 								    onPress={() => onPress(c)}
-								    showPauseButton={shouldShowPauseButton()}	
+								    showPauseButton={currentTrack != null && "videoId" in c && currentTrack.videoId === c.videoId}	
 								>
 								</ImagePlayButton>
 							</td>	

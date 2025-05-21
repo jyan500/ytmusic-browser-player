@@ -44,7 +44,7 @@ export const SuggestedSideScrollContent = ({content}: Props) => {
 			}
 		}
 		if ("subscribers" in content){
-			return content?.subscribers ?? ""
+			return content?.subscribers ? `${content?.subscribers} subscribers` : "" 
 		}
 		if ("artists" in content){
 			const artistNames = content?.artists?.map((artist: OptionType) => {

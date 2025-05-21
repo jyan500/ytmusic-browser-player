@@ -5,6 +5,7 @@ import { PlayableCard } from "./PlayableCard"
 import { goTo } from "react-chrome-extension-router"
 import { useLazyGetWatchPlaylistQuery, useLazyGetPlaylistTracksQuery } from "../services/private/playlists"
 import { useLazyGetRelatedTracksQuery } from "../services/private/songs"
+import { useLazyGetAlbumQuery } from "../services/private/albums"
 import { useLoadTrack } from "../hooks/useLoadTrack"
 import { useLoadPlaylist } from "../hooks/useLoadPlaylist"
 import { Playlist } from "../pages/Playlist"
@@ -24,10 +25,14 @@ export const ArtistScrollContent = ({content}: Props) => {
     const [ triggerGetTracks, { data: tracksData, error: tracksError, isFetching: isFetchingTracks }] = useLazyGetPlaylistTracksQuery();
     const [ triggerGetRelatedTracks, { data: relatedTracksData, error: relatedTracksError, isFetching: isFetchingRelatedTracks }] = useLazyGetRelatedTracksQuery();
     const [ triggerGetWatchPlaylist, {data: watchPlaylistData, error: watchPlaylistError, isFetching: isWatchPlaylistFetching}] = useLazyGetWatchPlaylistQuery()
+    const [ triggerGetAlbum, {data: albumData, error: albumError, isFetching: isAlbumFetching } ] = useLazyGetAlbumQuery()
     const { triggerLoadPlaylist } = useLoadPlaylist()
 
 	const playContent = () => {
-    	if ("videoId" in content){
+		if ("browseId" in content){
+			triggerGetAlbum(content?.browseId ?? "")
+		}
+    	else if ("videoId" in content){
     		// get the watch playlist for this video and load as playlist
     		triggerGetWatchPlaylist({videoId: content?.videoId ?? ""})
     	}
@@ -37,8 +42,11 @@ export const ArtistScrollContent = ({content}: Props) => {
     }
 
 	const getDescription = (): string => {
+		if ("browseId" in content && "year" in content){
+			return content?.year ?? ""
+		}
 		if ("subscribers" in content){
-			return content?.subscribers ?? ""
+			return content?.subscribers ? `${content?.subscribers} subscribers` : "" 
 		}
 		if ("artists" in content){
 			const artistNames = content?.artists?.map((artist: OptionType) => {
@@ -98,6 +106,12 @@ export const ArtistScrollContent = ({content}: Props) => {
 			} as TPlaylist, watchPlaylistData.tracks, false)
 		}
 	}, [watchPlaylistData, isWatchPlaylistFetching])
+
+	useEffect(() => {
+		if (albumData && !isAlbumFetching){
+			triggerGetTracks({playlistId: albumData.audioPlaylistId, params: {}})
+		}
+	}, [albumData, isAlbumFetching])
 
 	return (
 		<SideScrollContent 

@@ -15,3 +15,11 @@ def get_artist(browseId):
     artist = ytmusic.get_artist(browseId)
     return jsonify(artist), 200
 
+@artists.route("/artists/albums/<browseId>", endpoint="get_artist_album", methods=["GET"])
+@require_authentication
+def get_artist_album(browseId):
+    browseParams = request.args.get("params") if request.args.get("params") != "" else ""
+    ytmusic = initYTMusic(request)
+    artistAlbums = ytmusic.get_artist_albums(channelId=browseId, params=browseParams)
+    return jsonify([]), 200
+

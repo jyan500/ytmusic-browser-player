@@ -28,7 +28,7 @@ export const Artist = ({browseId}: Props) => {
 							<p className = "text-xl font-bold">{data.name}</p>	
 							<CollapseText lineClamp={"line-clamp-3"} className={"space-y-2 w-96 text-sm overflow-y-auto"} text={data.description}/>
 							<div className = "flex flex-row gap-x-2">
-								<p className = "text-lg">{data.subscribers}</p>								
+								<p className = "text-lg text-orange">{data.subscribers} subscribers</p>								
 								<p className = "text-lg">{data.views}</p>								
 							</div>
 						</div>
@@ -39,10 +39,28 @@ export const Artist = ({browseId}: Props) => {
 						<ActionButton onClick={() => console.log("test")} text={"Show More"}/>
 					</div>
 					<div>
-						<SideScroller title={"Albums"}>
+						<SideScroller height={"h-48"} title={"Albums"}>
 							<div className = "flex flex-row gap-x-2">
 								{data.albums.results.map((album: ArtistContent) => {
-									return (<ArtistScrollContent content={album}/>)
+									return <ArtistScrollContent content={album}/>
+								})}
+							</div>
+						</SideScroller>
+					</div>
+					<div>
+						<SideScroller height={"h-48"} title={"Singles & EPs"}>	
+							<div className = "flex flex-row gap-x-2">
+								{data.singles.results.map((single: ArtistContent) => {
+									return <ArtistScrollContent content={single}/>
+								})}
+							</div>
+						</SideScroller>
+					</div>
+					<div>
+						<SideScroller height={"h-48"} title="Related Artists">
+							<div className = "flex flex-row gap-x-2">
+								{data.related.results.map((relatedArtist: ArtistContent) => {
+									return <ArtistScrollContent content={relatedArtist}/>
 								})}
 							</div>
 						</SideScroller>

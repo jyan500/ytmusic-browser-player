@@ -1,6 +1,6 @@
 import { BaseQueryFn, FetchArgs, createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react"
 import { BACKEND_BASE_URL, ARTIST_URL } from "../../helpers/urls" 
-import { CustomError, Artist } from "../../types/common" 
+import { CustomError, Artist, Album } from "../../types/common" 
 import { privateApi } from "../private" 
 
 export const artistsApi = privateApi.injectEndpoints({
@@ -13,9 +13,17 @@ export const artistsApi = privateApi.injectEndpoints({
 			}),
 			providesTags: ["Artists"],
 		}),
+		getArtistAlbum: builder.query<Album, {browseId: string, params: string}>({
+			query: ({browseId, params}) => ({
+				url: `${ARTIST_URL}/albums/${browseId}`,
+				method: "GET",
+				params: {params: params}
+			}),
+		}),
 	}),
 })
 
 export const { 
 	useGetArtistQuery,
+	useGetArtistAlbumQuery,
 } = artistsApi 
