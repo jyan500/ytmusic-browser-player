@@ -151,9 +151,12 @@ export interface ArtistContent {
 	year?: string
 	videoId?: string	
 	artist?: string
-	album?: string
+	artists?: Array<OptionType>
+	album?: OptionType 
+	audioPlaylistId?: string
 	browseId?: string
 	views?: string
+	isAvailable?: boolean
 	subscribers?: string
 	playlistId?: string
 }

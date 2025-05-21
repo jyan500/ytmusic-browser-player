@@ -2,7 +2,7 @@ import React from "react"
 import { HomeContent, SuggestedContent } from "../types/common"
 import { SideScroller } from "./SideScroller"
 import { SuggestedContentGrid } from "./SuggestedContentGrid"
-import { SideScrollContent } from "./SideScrollContent"
+import { SuggestedSideScrollContent } from "./SuggestedSideScrollContent"
 
 interface Props {
 	content: HomeContent
@@ -18,7 +18,7 @@ export const SuggestedContentContainer = ({content}: Props) => {
 							<SuggestedContentGrid content={content.contents}/>
 						) : (
 							content.contents.map((sContent: SuggestedContent) => {
-								return <SideScrollContent content={sContent}/>
+								return <SuggestedSideScrollContent content={sContent}/>
 							})
 						)
 					}				

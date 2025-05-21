@@ -1,4 +1,4 @@
-import { QueueItem, Track, Thumbnail, ContentWithThumbnail } from "../types/common"
+import { OptionType, QueueItem, Track, Thumbnail, ContentWithThumbnail } from "../types/common"
 import { v4 as uuidv4 } from "uuid"
 
 /* Takes the current time in seconds and returns formatted time in hh:mm:ss */
@@ -55,9 +55,20 @@ export const prepareQueueItems = (tracks: Array<Track>) => {
 	})
 }
 
+/* Takes the largest thumbnail from an array of thumbnails */
 export const getThumbnail = (obj: ContentWithThumbnail) => {
 	const widths = obj?.thumbnails?.map((thumbnail) => thumbnail.width) ?? []
 	const biggestWidth = Math.max(...widths)
 	const thumbnail = obj?.thumbnails?.find((thumbnail) => thumbnail.width === biggestWidth)
 	return thumbnail
+}
+
+/* Used to convert array of option types (like albums, artists, etc) into a string separated by • or other delimiter*/
+export const convertOptionTypesToString = (optionTypes: Array<OptionType>, delimiter=" • ") => {
+	const names = optionTypes.map((option: OptionType) => option.name)
+	let res = ""
+	if (names?.length){
+		res = names.join(delimiter)
+	}
+	return res
 }

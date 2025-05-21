@@ -253,7 +253,7 @@ export const Controls = () => {
 
 	return (
 		<div className = "flex gap-4 items-center">
-			<audio onLoadedMetadata={onLoadedMetadata} ref={audioRef} src={playbackURL}/>	
+			<audio autoPlay onLoadedMetadata={onLoadedMetadata} ref={audioRef} src={playbackURL}/>	
 			<button onClick={handlePrevious}>
 				<IconSkipStart/>
 			</button>

@@ -1,4 +1,5 @@
 import React, {useState} from "react"
+import { ActionButton } from "./ActionButton"
 
 interface Props {
 	text: string
@@ -20,7 +21,7 @@ export const CollapseText = ({text, className, lineClamp}: Props) => {
 					<p>{text}</p>
 				</div>
 			}
-			<button onClick={() => setShowFull(!showFull)}>{!showFull ? "More" : "Less"}</button>
+			<ActionButton onClick={() => setShowFull(!showFull)} text={!showFull ? "More" : "Less"}/>
 		</div>
 	)
 }
