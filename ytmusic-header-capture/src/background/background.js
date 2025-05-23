@@ -61,7 +61,6 @@ chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
         })
 
     }
-    console.warn('Unhandled message type:', message.type)
     sendResponse({ success: true })
     return true
 })
