@@ -24,3 +24,29 @@ chrome.action.onClicked.addListener((tab) => {
         height: 800,
     });
 });
+
+async function ensureOffscreenDocument() {
+    if (await chrome.offscreen.hasDocument()) return
+    await chrome.offscreen.createDocument({
+        url: 'offscreen.html',
+        reasons: ['AUDIO_PLAYBACK'],
+        justification: 'Keep audio playing while UI is closed or minimized.'
+    })
+}
+
+chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
+    if (message.type === "ENSURE_OFFSCREEN_AND_PLAY") {
+        await ensureOffscreenDocument()
+
+        // Now forward the audio command to the offscreen page
+        chrome.runtime.sendMessage({
+            type: "AUDIO_COMMAND",
+            payload: {
+                action: "play",
+                url: message.payload.url
+            }
+        })
+
+        sendResponse({ success: true })
+    }
+})
