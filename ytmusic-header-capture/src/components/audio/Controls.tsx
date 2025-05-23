@@ -134,26 +134,6 @@ export const Controls = () => {
 	}, [updateProgress, duration, progressBarRef])
 
 	useEffect(() => {
-		// if (audioRef?.current){
-		// 	if (isPlaying){
-		// 		audioRef.current.play()
-		// 		startAnimation()
-		// 	}
-		// 	else {
-		// 		audioRef.current.pause()
-		// 		if (playAnimationRef.current != null){
-		// 			cancelAnimationFrame(playAnimationRef.current)
-		// 			playAnimationRef.current = null
-		// 		}
-		// 		updateProgress()
-		// 	}
-		// }
-		// // return callback to clean up and cancel animation frame
-		// return () => {
-		// 	if (playAnimationRef.current != null){
-		// 		cancelAnimationFrame(playAnimationRef.current)
-		// 	}
-		// }
 		if (isPlaying){
 			// send command to play audio and start progress bar animation
 			chrome.runtime.sendMessage({
@@ -269,6 +249,7 @@ export const Controls = () => {
 	useEffect(() => {
 		const listener = (message: any, sender: any, sendResponse: any) => {
 			if (message.type === "AUDIO_LOADED"){
+				console.log("AUDIO_LOADED")
 				const seconds = message.payload.duration
 				if (seconds !== undefined){
 					dispatch(setIsLoading(false))

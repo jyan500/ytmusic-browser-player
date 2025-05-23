@@ -11,7 +11,9 @@ const OffscreenAudio = () => {
 	            if (!audioRef.current) return
 
 	            if (action === "play") {
-	                audioRef.current.src = msg.payload.url
+	            	if (audioRef.current.src != msg.payload.url){
+		                audioRef.current.src = msg.payload.url
+	            	}
 	                audioRef.current.play()
 	            } 
 	            else if (action === "resume"){
