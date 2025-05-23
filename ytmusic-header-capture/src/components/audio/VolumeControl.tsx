@@ -10,11 +10,16 @@ export const VolumeControl = () => {
 	const [muteVolume, setMuteVolume] = useState(false)
 
 	useEffect(() => {
-		if (audioRef.current) {
-			audioRef.current.volume = volume/100
-			audioRef.current.muted = muteVolume
-		}
-	}, [volume, audioRef, muteVolume])
+		chrome.runtime.sendMessage({
+			type: "AUDIO_COMMAND",
+			ensureOffscreenExists: true,
+			payload: {
+				action: "setVolume",
+				volume: volume/100,
+				muted: muteVolume,
+			}
+		})
+	}, [volume, muteVolume])
 
 	const handleVolumeChange = (e: ChangeEvent<HTMLInputElement>) => {
 		setVolume(Number(e.target.value))

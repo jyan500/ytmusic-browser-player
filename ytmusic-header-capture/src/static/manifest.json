@@ -5,6 +5,7 @@
   "description": "Collects request headers for music.youtube.com",
   "permissions": [
     "webRequest",
+    "offscreen",
     "storage",
     "scripting",
     "unlimitedStorage"

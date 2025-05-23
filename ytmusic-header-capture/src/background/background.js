@@ -25,28 +25,37 @@ chrome.action.onClicked.addListener((tab) => {
     });
 });
 
+// ensure that the ensureOffscreenDocument() only is called one time
+let isCreatingOffscreen = false
 async function ensureOffscreenDocument() {
-    if (await chrome.offscreen.hasDocument()) return
-    await chrome.offscreen.createDocument({
-        url: 'offscreen.html',
-        reasons: ['AUDIO_PLAYBACK'],
-        justification: 'Keep audio playing while UI is closed or minimized.'
-    })
+    if (isCreatingOffscreen) return
+    isCreatingOffscreen = true
+
+    const exists = await chrome.offscreen.hasDocument()
+    if (!exists) {
+        await chrome.offscreen.createDocument({
+            url: 'offscreen.html',
+            reasons: ['AUDIO_PLAYBACK'],
+            justification: 'Keep audio playing while extension UI is closed or minimized'
+        })
+    }
+    isCreatingOffscreen = false
 }
 
+/* 
+    In order to ensure the offscreen document's existence, any messages from the main popup 
+    must be sent through the background service to the offscreen document 
+*/
 chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
-    if (message.type === "ENSURE_OFFSCREEN_AND_PLAY") {
+    if (message.ensureOffscreenExists) {
         await ensureOffscreenDocument()
-
         // Now forward the audio command to the offscreen page
         chrome.runtime.sendMessage({
-            type: "AUDIO_COMMAND",
-            payload: {
-                action: "play",
-                url: message.payload.url
-            }
+            type: message.type + "_CONFIRMED",
+            payload: message.payload,
         })
 
         sendResponse({ success: true })
+        return true
     }
 })

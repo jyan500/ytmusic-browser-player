@@ -26,15 +26,22 @@ export const ProgressBar = () => {
 		the range
 	*/
 	const handleProgressBarChange = () => {
-		if (audioRef?.current && progressBarRef?.current){
-			const newTime = Number(progressBarRef.current.value)
-			audioRef.current.currentTime = newTime
-			dispatch(setTimeProgress(newTime))
-			// if progress bar changes while audio is on pause
-			progressBarRef.current.style.setProperty(
-				"--range-progress",
-				`${(newTime/duration) * 100}%`
-			)
+		if (progressBarRef?.current){
+			const newTime = Number(progressBarRef.current.value)	
+			chrome.runtime.sendMessage({
+				type: "AUDIO_COMMAND",
+				ensureOffscreenExists: true,
+				payload: {
+					action: "setTime",
+					currentTime: newTime
+				}
+			}, () => {
+				dispatch(setTimeProgress(newTime))	
+				progressBarRef?.current?.style.setProperty(
+					"--range-progress",
+					`${(newTime/duration) * 100}%`
+				)
+			})
 		}
 	}
 
@@ -100,15 +107,23 @@ export const ProgressBar = () => {
 	}
 
 	const handleMouseDown = () => {
-		if (audioRef?.current){
-			audioRef?.current.pause()
-		}
+		chrome.runtime.sendMessage({
+			type: "AUDIO_COMMAND",
+			ensureOffscreenExists: true,
+			payload: {
+				action: "pause"	
+			}
+		})
 	}
 
 	const handleMouseUp = () => {
-		if (audioRef?.current){
-			audioRef?.current.play()
-		}
+		chrome.runtime.sendMessage({
+			type: "AUDIO_COMMAND",
+			ensureOffscreenExists: true,
+			payload: {
+				action: "resume"
+			}
+		})
 	}
 
 	return (
