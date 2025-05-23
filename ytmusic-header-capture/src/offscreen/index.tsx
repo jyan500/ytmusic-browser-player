@@ -34,6 +34,10 @@ const OffscreenAudio = () => {
 	            	audioRef.current.volume = msg.payload.volume
 	            	audioRef.current.muted = msg.payload.muted
 	            }
+	            else if (action === "stop"){
+	            	audioRef.current.pause()
+	            	audioRef.current.src = ""
+	            }
 	        }
 	        sendResponse({success: true}) 
 	        return true

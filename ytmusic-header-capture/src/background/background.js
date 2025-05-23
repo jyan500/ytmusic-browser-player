@@ -16,12 +16,16 @@ chrome.webRequest.onBeforeSendHeaders.addListener(
     ["requestHeaders", "extraHeaders"]
 );
 
+// store the id so that when the window closes, we can stop the background audio
+let extensionWindowId = null
 chrome.action.onClicked.addListener((tab) => {
     chrome.windows.create({
         url: chrome.runtime.getURL("popup.html"),
         type: 'popup',
         width: 700,
         height: 800,
+    }, (newWindow) => {
+        extensionWindowId = newWindow.id
     });
 });
 
@@ -47,15 +51,37 @@ async function ensureOffscreenDocument() {
     must be sent through the background service to the offscreen document 
 */
 chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
-    if (message.ensureOffscreenExists) {
+    if (message.ensureOffscreenExists && message.type === "AUDIO_COMMAND") {
         await ensureOffscreenDocument()
-        // Now forward the audio command to the offscreen page
+        // Now forward the audio command to the offscreen page after we've confirmed
+        // the offscreen document exists
         chrome.runtime.sendMessage({
             type: message.type + "_CONFIRMED",
             payload: message.payload,
         })
 
-        sendResponse({ success: true })
-        return true
+    }
+    console.warn('Unhandled message type:', message.type)
+    sendResponse({ success: true })
+    return true
+})
+
+chrome.windows.onRemoved.addListener(async (closedWindowId) => {
+    if (closedWindowId === extensionWindowId) {
+        // Stop audio by messaging the offscreen document
+        chrome.runtime.sendMessage({
+            type: 'AUDIO_COMMAND_CONFIRMED',
+            payload: {
+                action: 'stop'
+            }
+        })
+
+        // close offscreen document
+        const hasDoc = await chrome.offscreen.hasDocument()
+        if (hasDoc) {
+            await chrome.offscreen.closeDocument()
+        }
+
+        extensionWindowId = null
     }
 })

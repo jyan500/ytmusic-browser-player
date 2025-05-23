@@ -343,7 +343,7 @@ export const Controls = () => {
 			</button>
 			{/*<button onClick={skipBackward}>
 				<IconRewind/>
-			</button>
+			</button>*/}
 			<PlayButton isPlaying={isPlaying} iconWidthHeight={"w-4"} width={"w-8"} height={"h-8"} onClick={() => dispatch(setIsPlaying(!isPlaying))}/>
 			{/*	<button onClick={skipForward}>
 				<IconFastForward/>
