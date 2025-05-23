@@ -116,6 +116,7 @@ export const Controls = () => {
 				}
 			}
 			sendResponse({success: true})
+			return true
 		}
 		chrome.runtime.onMessage.addListener(listener)
 		return () => chrome.runtime.onMessage.removeListener(listener)
@@ -224,6 +225,7 @@ export const Controls = () => {
 				}
 			}
 			sendResponse({success: true})
+			return true
 		}
 
 		chrome.runtime.onMessage.addListener(listener)

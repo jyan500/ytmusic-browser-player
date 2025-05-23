@@ -45,7 +45,7 @@ const OffscreenAudio = () => {
 
 		const intervalId = setInterval(() => {
 			if (audioRef.current){
-				if (!audioRef.current.paused) {
+				if (audioRef.current.src !== "" && !audioRef.current.paused) {
 					chrome.runtime.sendMessage({
 						type: 'AUDIO_PROGRESS',
 						payload: {

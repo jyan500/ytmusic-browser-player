@@ -32,7 +32,8 @@ chrome.action.onClicked.addListener((tab) => {
 // ensure that the ensureOffscreenDocument() only is called one time
 let isCreatingOffscreen = false
 async function ensureOffscreenDocument() {
-    if (isCreatingOffscreen) return
+    // if we're already created the offscreen document, return true
+    if (isCreatingOffscreen) return true
     isCreatingOffscreen = true
 
     const exists = await chrome.offscreen.hasDocument()
@@ -44,22 +45,30 @@ async function ensureOffscreenDocument() {
         })
     }
     isCreatingOffscreen = false
+    return true
 }
 
 /* 
     In order to ensure the offscreen document's existence, any messages from the main popup 
-    must be sent through the background service to the offscreen document 
-*/
-chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
-    if (message.ensureOffscreenExists && message.type === "AUDIO_COMMAND") {
-        await ensureOffscreenDocument()
-        // Now forward the audio command to the offscreen page after we've confirmed
-        // the offscreen document exists
-        chrome.runtime.sendMessage({
-            type: message.type + "_CONFIRMED",
-            payload: message.payload,
-        })
+    must be sent through the background service to the offscreen document.
+    One tip for the future:
+    defining addListener as an async seems to cause a "message port was closed 
+    before response was received", using a normal callback instead for ensureOffscreenDocument()
+    https://stackoverflow.com/questions/73867123/message-port-closed-before-a-response-was-received-despite-return-true
 
+*/
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    if (message.ensureOffscreenExists && message.type === "AUDIO_COMMAND") {
+        ensureOffscreenDocument().then((res) => {
+            // Now forward the audio command to the offscreen page after we've confirmed
+            // the offscreen document exists
+            chrome.runtime.sendMessage({
+                type: message.type + "_CONFIRMED",
+                payload: message.payload,
+            })
+            sendResponse({ success: true })
+            return true
+        })
     }
     sendResponse({ success: true })
     return true
