@@ -21,8 +21,8 @@ def get_song(videoId):
 @require_authentication
 def get_song_playback(videoId):
     ytmusic = initYTMusic(request)
-    playbackURL = getPlaybackURL(videoId)
-    # playbackURL = getPlaybackURLFallback(videoId)
+    # playbackURL = getPlaybackURL(videoId)
+    playbackURL = getPlaybackURLFallback(videoId)
     return {"videoId": videoId, "playbackURL": playbackURL }, 200
 
 @songs.route("/songs/<videoId>/related-tracks", endpoint="get_song_related_tracks", methods=["GET"])
