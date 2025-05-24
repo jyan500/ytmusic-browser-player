@@ -2,10 +2,18 @@ import React, { useRef, useEffect } from "react";
 import { createRoot } from "react-dom/client";
 
 const OffscreenAudio = () => {
+	console.log("In offscreen audio: created!")
 	const audioRef = useRef<HTMLAudioElement>(null)
 
 	useEffect(() => {
 	    chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
+	    	if (msg.debug){
+	        	console.log("OFFSCREEN received message: ", msg)
+	    	}
+	    	if (msg.type === "PING") {
+	            sendResponse({ ok: true })
+	            return true
+	        }
 	        if (msg.type === "AUDIO_COMMAND_CONFIRMED") {
 	        	const { action } = msg.payload
 	            if (!audioRef.current) return
@@ -13,6 +21,12 @@ const OffscreenAudio = () => {
 	            if (action === "play") {
 	            	if (audioRef.current.src != msg.payload.url){
 		                audioRef.current.src = msg.payload.url
+		            	// the reason for setting current time on play is if the user pauses
+		            	// for more than 30 seconds. This causes the offscreen document to disappear,
+		            	// so the src AND current time have to be reloaded 
+		                if (msg.payload.currentTime){
+		            		audioRef.current.currentTime = msg.payload.currentTime
+		                }
 	            	}
 	                audioRef.current.play()
 	            } 

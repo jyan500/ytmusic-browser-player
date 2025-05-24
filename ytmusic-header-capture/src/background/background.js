@@ -1,5 +1,7 @@
 import axios from "axios"
 
+const DEBUG = true
+
 chrome.webRequest.onBeforeSendHeaders.addListener(
     (details) => {
         const headerNames = ["x-goog-pageid", "authorization", "user-agent", "accept", "accept-language", "content-type", "x-goog-authuser", "x-origin", "cookie"]
@@ -33,11 +35,19 @@ chrome.action.onClicked.addListener((tab) => {
 let isCreatingOffscreen = false
 async function ensureOffscreenDocument() {
     // if we're already created the offscreen document, return true
-    if (isCreatingOffscreen) return true
+    if (isCreatingOffscreen) {
+        if (DEBUG){
+            console.log("in the process of creating offscreen document...")
+        }
+        return true
+    }
     isCreatingOffscreen = true
 
     const exists = await chrome.offscreen.hasDocument()
     if (!exists) {
+        if (DEBUG){
+            console.log("offscreen document no longer exists, creating...")
+        }
         await chrome.offscreen.createDocument({
             url: 'offscreen.html',
             reasons: ['AUDIO_PLAYBACK'],
@@ -46,6 +56,29 @@ async function ensureOffscreenDocument() {
     }
     isCreatingOffscreen = false
     return true
+}
+
+// wait for the offscreen document to be ready before sending the next command
+// by sending a "ping" to the offscreen. Should expect a successful response 
+// from offscreen document before continuing
+async function waitForOffscreenReady(retries = 10, interval = 100) {
+    for (let i = 0; i < retries; i++) {
+        try {
+            const response = await new Promise((resolve, reject) => {
+                chrome.runtime.sendMessage({ type: "PING" }, (res) => {
+                    if (chrome.runtime.lastError) reject(chrome.runtime.lastError)
+                    else resolve(res)
+                })
+            })
+            if (response?.ok) return true
+        } catch (e) {
+            if (DEBUG){
+                console.log("offscreen document did not respond. retrying...")
+            }
+        }
+        await new Promise(r => setTimeout(r, interval))
+    }
+    throw new Error("Offscreen document did not respond after retries")
 }
 
 /* 
@@ -59,16 +92,26 @@ async function ensureOffscreenDocument() {
 */
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (message.ensureOffscreenExists && message.type === "AUDIO_COMMAND") {
-        ensureOffscreenDocument().then((res) => {
-            // Now forward the audio command to the offscreen page after we've confirmed
-            // the offscreen document exists
-            chrome.runtime.sendMessage({
-                type: message.type + "_CONFIRMED",
-                payload: message.payload,
-            })
-            sendResponse({ success: true })
-            return true
+        ensureOffscreenDocument().then(async () => {
+            try {
+                // wait until the offscreen document is ready before sending the message
+                await waitForOffscreenReady()
+
+                chrome.runtime.sendMessage({
+                    type: message.type + "_CONFIRMED",
+                    payload: message.payload,
+                    debug: DEBUG,
+                })
+                if (DEBUG){
+                    console.log("sent:", message.type + "_CONFIRMED")
+                }
+                sendResponse({ success: true })
+            } catch (err) {
+                console.error("Failed to contact offscreen document", err)
+                sendResponse({ success: false, error: "Offscreen not ready" })
+            }
         })
+        return true
     }
     sendResponse({ success: true })
     return true

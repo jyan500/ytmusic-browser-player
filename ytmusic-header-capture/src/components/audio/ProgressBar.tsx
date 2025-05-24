@@ -5,7 +5,7 @@ import { formatTime } from "../../helpers/functions"
 import { useAudioPlayerContext } from "../../context/AudioPlayerProvider"
 
 export const ProgressBar = () => {
-	const { queuedTracks, duration, timeProgress } = useAppSelector((state) => state.audioPlayer)
+	const { queuedTracks, duration, timeProgress, storedPlaybackInfo } = useAppSelector((state) => state.audioPlayer)
 	const { progressBarRef, audioRef } = useAudioPlayerContext()
 	const dispatch = useAppDispatch()
 	const [hoverValue, setHoverValue] = useState<number|null>(null)
@@ -121,7 +121,9 @@ export const ProgressBar = () => {
 			type: "AUDIO_COMMAND",
 			ensureOffscreenExists: true,
 			payload: {
-				action: "resume"
+				action: "play",
+				url: storedPlaybackInfo?.playbackURL ?? "",
+				currentTime: timeProgress,
 			}
 		})
 	}

@@ -142,6 +142,7 @@ export const Controls = () => {
 				payload: {
 					action: "play",	
 					url: playbackURL,
+					currentTime: timeProgress,
 				}
 			}, () => {
 				startAnimation()	
@@ -196,7 +197,8 @@ export const Controls = () => {
 						ensureOffscreenExists: true,
 						payload: {
 							action: "restart",
-							url: playbackURL 
+							url: playbackURL,
+							currentTime: timeProgress 
 						}
 					})
 				}	
