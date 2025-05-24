@@ -2,7 +2,6 @@ import React, { useRef, useEffect } from "react";
 import { createRoot } from "react-dom/client";
 
 const OffscreenAudio = () => {
-	console.log("In offscreen audio: created!")
 	const audioRef = useRef<HTMLAudioElement>(null)
 
 	useEffect(() => {
