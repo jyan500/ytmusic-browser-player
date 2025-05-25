@@ -61,7 +61,7 @@ async function ensureOffscreenDocument() {
 // wait for the offscreen document to be ready before sending the next command
 // by sending a "ping" to the offscreen. Should expect a successful response 
 // from offscreen document before continuing
-async function waitForOffscreenReady(retries = 10, interval = 100) {
+async function waitForOffscreenReady(retries = 100, interval = 1000) {
     for (let i = 0; i < retries; i++) {
         try {
             const response = await new Promise((resolve, reject) => {
@@ -79,6 +79,7 @@ async function waitForOffscreenReady(retries = 10, interval = 100) {
         await new Promise(r => setTimeout(r, interval))
     }
     throw new Error("Offscreen document did not respond after retries")
+    return false
 }
 
 /* 
@@ -92,26 +93,24 @@ async function waitForOffscreenReady(retries = 10, interval = 100) {
 */
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (message.ensureOffscreenExists && message.type === "AUDIO_COMMAND") {
-        ensureOffscreenDocument().then(async () => {
-            try {
-                // wait until the offscreen document is ready before sending the message
-                await waitForOffscreenReady()
-
-                chrome.runtime.sendMessage({
-                    type: message.type + "_CONFIRMED",
-                    payload: message.payload,
-                    debug: DEBUG,
-                })
-                if (DEBUG){
-                    console.log("sent:", message.type + "_CONFIRMED")
-                }
-                sendResponse({ success: true })
-            } catch (err) {
-                console.error("Failed to contact offscreen document", err)
-                sendResponse({ success: false, error: "Offscreen not ready" })
+        return ensureOffscreenDocument().then(() => {
+            return waitForOffscreenReady()
+        }).then(() => {
+            chrome.runtime.sendMessage({
+                type: message.type + "_CONFIRMED",
+                payload: message.payload,
+                debug: DEBUG,
+            })
+            if (DEBUG){
+                console.log("sent:", message.type + "_CONFIRMED")
             }
+            sendResponse({ success: true })
+            return true
+        }).catch((err) => {
+            console.error("Failed to contact offscreen document", err)
+            sendResponse({ success: false, error: "Offscreen not ready" })
+            return false
         })
-        return true
     }
     sendResponse({ success: true })
     return true

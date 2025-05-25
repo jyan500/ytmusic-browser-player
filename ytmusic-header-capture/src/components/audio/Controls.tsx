@@ -31,6 +31,7 @@ import { useLazyGetPlaylistRelatedTracksQuery } from "../../services/private/pla
 import { Track } from "../../types/common"
 import { formatTime, shuffle, randRange } from "../../helpers/functions"
 import { v4 as uuidv4 } from "uuid"
+import { usePrevious } from "../../hooks/usePrevious"
 
 export const Controls = () => {
 	const { 
@@ -56,21 +57,22 @@ export const Controls = () => {
     const [ triggerRelatedTracks, {data: relatedTracksData, error: relatedTracksError, isFetching: isRelatedTracksFetching}] = useLazyGetRelatedTracksQuery()
 
     const playbackURL = storedPlaybackInfo ? storedPlaybackInfo.playbackURL : ""
+    const previousPlaybackURL = usePrevious<string>(playbackURL)
 
     /* Unused */
-	const skipForward = () => {
-		if (audioRef.current){
-			audioRef.current.currentTime += 15
-			updateProgress()
-		}
-	}
+	// const skipForward = () => {
+	// 	if (audioRef.current){
+	// 		audioRef.current.currentTime += 15
+	// 		updateProgress()
+	// 	}
+	// }
 
-	const skipBackward = () => {
-		if (audioRef.current){
-			audioRef.current.currentTime -= 15
-			updateProgress()
-		}	
-	}
+	// const skipBackward = () => {
+	// 	if (audioRef.current){
+	// 		audioRef.current.currentTime -= 15
+	// 		updateProgress()
+	// 	}	
+	// }
 
 	const handlePrevious = useCallback(() => {
 		let queued = isShuffling ? shuffledQueuedTracks : queuedTracks
@@ -142,7 +144,9 @@ export const Controls = () => {
 				payload: {
 					action: "play",	
 					url: playbackURL,
-					currentTime: timeProgress,
+					// if we're restarting the same song, send the time progress.
+					// otherwise, reset the time progress to 0 if we're switching songs
+					currentTime: previousPlaybackURL !== playbackURL ? 0 : timeProgress,
 				}
 			}, () => {
 				startAnimation()	
@@ -170,25 +174,9 @@ export const Controls = () => {
 				cancelAnimationFrame(playAnimationRef.current)
 			}
 		}
-	}, [isPlaying, playbackURL, startAnimation, updateProgress])
+	}, [isPlaying, previousPlaybackURL, playbackURL, startAnimation, updateProgress])
 
 	useEffect(() => {
-		// const currentAudioRef = audioRef.current
-		// if (currentAudioRef){
-		// 	currentAudioRef.onended = () => {
-		// 		if (isRepeat){
-		// 			currentAudioRef.play()
-		// 		}	
-		// 		else {
-		// 			handleNext()
-		// 		}
-		// 	}	
-		// }
-		// return () => {
-		// 	if (currentAudioRef){
-		// 		currentAudioRef.onended = null
-		// 	}
-		// }
 		const listener = (message: any, sender: any, sendResponse: any) => {
 			if (message.type === "AUDIO_ENDED"){
 				if (isRepeat){
@@ -198,7 +186,7 @@ export const Controls = () => {
 						payload: {
 							action: "restart",
 							url: playbackURL,
-							currentTime: timeProgress 
+							currentTime: 0
 						}
 					})
 				}	
@@ -251,7 +239,6 @@ export const Controls = () => {
 	useEffect(() => {
 		const listener = (message: any, sender: any, sendResponse: any) => {
 			if (message.type === "AUDIO_LOADED"){
-				console.log("AUDIO_LOADED")
 				const seconds = message.payload.duration
 				if (seconds !== undefined){
 					dispatch(setIsLoading(false))
