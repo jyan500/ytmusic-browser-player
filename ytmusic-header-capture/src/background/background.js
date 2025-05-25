@@ -63,11 +63,10 @@ async function setupOffscreenDocument(path) {
 }
 
 
-// currently unused
 // wait for the offscreen document to be ready before sending the next command
 // by sending a "ping" to the offscreen. Should expect a successful response 
 // from offscreen document before continuing
-async function waitForOffscreenReady(retries = 100, interval = 1000) {
+async function waitForOffscreenReady(retries = 100, interval = 500) {
     for (let i = 0; i < retries; i++) {
         try {
             const response = await new Promise((resolve, reject) => {
@@ -99,17 +98,26 @@ async function waitForOffscreenReady(retries = 100, interval = 1000) {
 */
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (message.ensureOffscreenExists && message.type === "AUDIO_COMMAND") {
-        setupOffscreenDocument("offscreen.html").then(() => {
-            chrome.runtime.sendMessage({
-                type: message.type + "_CONFIRMED",
-                payload: message.payload,
-                debug: DEBUG,
-            })
-            if (DEBUG){
-                console.log("sent:", message.type + "_CONFIRMED" + " " + message.payload.action)
+        setupOffscreenDocument("offscreen.html").then(async () => {
+            try {
+                await waitForOffscreenReady()
+                chrome.runtime.sendMessage({
+                    type: message.type + "_CONFIRMED",
+                    payload: message.payload,
+                    debug: DEBUG,
+                })
+                if (DEBUG){
+                    console.log("sent:", message.type + "_CONFIRMED" + " " + message.payload.action)
+                }
+                sendResponse({ success: true })
             }
-            sendResponse({ success: true })
-            return true
+            catch (err){
+                console.error(err)
+                sendResponse({ success: false })
+            }
+            finally {
+                return true
+            }
         })
     }
     sendResponse({ success: true })
