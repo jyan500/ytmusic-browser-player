@@ -69,7 +69,7 @@ const OffscreenAudio = () => {
 					})
 				}
 			}
-		}, 1000)
+		}, 300)
 
 	    return () => clearInterval(intervalId);
 

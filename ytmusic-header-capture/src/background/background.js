@@ -1,6 +1,6 @@
 import axios from "axios"
 
-const DEBUG = true
+const DEBUG = false 
 
 chrome.webRequest.onBeforeSendHeaders.addListener(
     (details) => {
@@ -31,33 +31,7 @@ chrome.action.onClicked.addListener((tab) => {
     });
 });
 
-// // ensure that the ensureOffscreenDocument() only is called one time
-// let isCreatingOffscreen = false
-// async function ensureOffscreenDocument() {
-//     // if we're already created the offscreen document, return true
-//     if (isCreatingOffscreen) {
-//         if (DEBUG){
-//             console.log("in the process of creating offscreen document...")
-//         }
-//         return true
-//     }
-//     isCreatingOffscreen = true
-
-//     const exists = await chrome.offscreen.hasDocument()
-//     if (!exists) {
-//         if (DEBUG){
-//             console.log("offscreen document no longer exists, creating...")
-//         }
-//         await chrome.offscreen.createDocument({
-//             url: 'offscreen.html',
-//             reasons: ['AUDIO_PLAYBACK'],
-//             justification: 'Keep audio playing while extension UI is minimized'
-//         })
-//     }
-//     isCreatingOffscreen = false
-//     return true
-// }
-
+// https://developer.chrome.com/docs/extensions/reference/api/offscreen
 let creating // A global promise to avoid concurrency issues
 
 async function setupOffscreenDocument(path) {
@@ -89,7 +63,7 @@ async function setupOffscreenDocument(path) {
 }
 
 
-
+// currently unused
 // wait for the offscreen document to be ready before sending the next command
 // by sending a "ping" to the offscreen. Should expect a successful response 
 // from offscreen document before continuing
@@ -125,26 +99,6 @@ async function waitForOffscreenReady(retries = 100, interval = 1000) {
 */
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (message.ensureOffscreenExists && message.type === "AUDIO_COMMAND") {
-        // setupOffscreenDocument("offscreen.html").then(async () => {
-        //     try {
-        //         await waitForOffscreenReady()
-        //         chrome.runtime.sendMessage({
-        //             type: message.type + "_CONFIRMED",
-        //             payload: message.payload,
-        //             debug: DEBUG,
-        //         })
-        //         if (DEBUG){
-        //             console.log("sent:", message.type + "_CONFIRMED" + " " + message.payload.action)
-        //         }
-        //     }
-        //     catch (err){
-        //         console.error("Failed to contact offscreen document", err)
-        //     }
-        //     finally {
-        //         sendResponse({ success: true })
-        //         return true
-        //     }
-        // })
         setupOffscreenDocument("offscreen.html").then(() => {
             chrome.runtime.sendMessage({
                 type: message.type + "_CONFIRMED",
