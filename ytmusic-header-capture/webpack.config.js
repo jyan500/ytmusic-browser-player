@@ -7,7 +7,8 @@ const autoprefixer = require("autoprefixer")
 module.exports = {
     entry: {
         popup: path.resolve("./src/popup/index.tsx"),
-        background: path.resolve("./src/background/background.js")
+        background: path.resolve("./src/background/background.js"),
+        offscreen: path.resolve("./src/offscreen/index.tsx")
     },
     mode: "production",
     module: {
@@ -44,7 +45,7 @@ module.exports = {
                 },
             ],
         }),
-        ...getHtmlPlugins(["popup"]),
+        ...getHtmlPlugins(["popup", "offscreen"]),
     ],
     resolve: {
         extensions: [".tsx", ".ts", ".js"],

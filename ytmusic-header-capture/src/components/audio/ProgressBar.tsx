@@ -1,11 +1,11 @@
 import React, { useEffect, useState, useRef } from "react"
 import { useAppSelector, useAppDispatch } from "../../hooks/redux-hooks"
-import { setTimeProgress } from "../../slices/audioPlayerSlice"
+import { setTimeProgress, setIsPlaying } from "../../slices/audioPlayerSlice"
 import { formatTime } from "../../helpers/functions"
 import { useAudioPlayerContext } from "../../context/AudioPlayerProvider"
 
 export const ProgressBar = () => {
-	const { queuedTracks, duration, timeProgress } = useAppSelector((state) => state.audioPlayer)
+	const { queuedTracks, duration, isPlaying, timeProgress, storedPlaybackInfo } = useAppSelector((state) => state.audioPlayer)
 	const { progressBarRef, audioRef } = useAudioPlayerContext()
 	const dispatch = useAppDispatch()
 	const [hoverValue, setHoverValue] = useState<number|null>(null)
@@ -26,15 +26,22 @@ export const ProgressBar = () => {
 		the range
 	*/
 	const handleProgressBarChange = () => {
-		if (audioRef?.current && progressBarRef?.current){
-			const newTime = Number(progressBarRef.current.value)
-			audioRef.current.currentTime = newTime
-			dispatch(setTimeProgress(newTime))
-			// if progress bar changes while audio is on pause
-			progressBarRef.current.style.setProperty(
-				"--range-progress",
-				`${(newTime/duration) * 100}%`
-			)
+		if (progressBarRef?.current){
+			const newTime = Number(progressBarRef.current.value)	
+			chrome.runtime.sendMessage({
+				type: "AUDIO_COMMAND",
+				ensureOffscreenExists: true,
+				payload: {
+					action: "setTime",
+					currentTime: newTime
+				}
+			}, () => {
+				dispatch(setTimeProgress(newTime))	
+				progressBarRef?.current?.style.setProperty(
+					"--range-progress",
+					`${(newTime/duration) * 100}%`
+				)
+			})
 		}
 	}
 
@@ -100,15 +107,32 @@ export const ProgressBar = () => {
 	}
 
 	const handleMouseDown = () => {
-		if (audioRef?.current){
-			audioRef?.current.pause()
+		// only pause if the audio is playing
+		if (isPlaying){
+			chrome.runtime.sendMessage({
+				type: "AUDIO_COMMAND",
+				ensureOffscreenExists: true,
+				payload: {
+					action: "pause"	
+				}
+			}, () => {
+				dispatch(setIsPlaying(false))
+			})
 		}
 	}
 
 	const handleMouseUp = () => {
-		if (audioRef?.current){
-			audioRef?.current.play()
-		}
+		chrome.runtime.sendMessage({
+			type: "AUDIO_COMMAND",
+			ensureOffscreenExists: true,
+			payload: {
+				action: "play",
+				url: storedPlaybackInfo?.playbackURL ?? "",
+				currentTime: progressBarRef?.current?.value ?? 0,
+			}
+		}, () => {
+			dispatch(setIsPlaying(true))
+		})
 	}
 
 	return (

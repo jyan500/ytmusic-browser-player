@@ -1,5 +1,7 @@
 import axios from "axios"
 
+const DEBUG = false 
+
 chrome.webRequest.onBeforeSendHeaders.addListener(
     (details) => {
         const headerNames = ["x-goog-pageid", "authorization", "user-agent", "accept", "accept-language", "content-type", "x-goog-authuser", "x-origin", "cookie"]
@@ -16,11 +18,120 @@ chrome.webRequest.onBeforeSendHeaders.addListener(
     ["requestHeaders", "extraHeaders"]
 );
 
+// store the id so that when the window closes, we can stop the background audio
+let extensionWindowId = null
 chrome.action.onClicked.addListener((tab) => {
     chrome.windows.create({
         url: chrome.runtime.getURL("popup.html"),
         type: 'popup',
         width: 700,
         height: 800,
+    }, (newWindow) => {
+        extensionWindowId = newWindow.id
     });
 });
+
+// https://developer.chrome.com/docs/extensions/reference/api/offscreen
+let creating // A global promise to avoid concurrency issues
+
+async function setupOffscreenDocument(path) {
+    // Check all windows controlled by the service worker to see if one
+    // of them is the offscreen document with the given path
+    const offscreenUrl = chrome.runtime.getURL(path)
+    const existingContexts = await chrome.runtime.getContexts({
+        contextTypes: ['OFFSCREEN_DOCUMENT'],
+        documentUrls: [offscreenUrl]
+    })
+
+    if (existingContexts.length > 0) {
+        return
+    }
+
+    // create offscreen document
+    if (creating) {
+        await creating
+    } else {
+        creating = chrome.offscreen.createDocument({
+            url: path,
+            reasons: ['AUDIO_PLAYBACK'],
+            justification: 'Keep audio playing while extension UI is minimized'
+        })
+        await creating
+        creating = null
+    }
+    return true
+}
+
+
+// currently unused
+// wait for the offscreen document to be ready before sending the next command
+// by sending a "ping" to the offscreen. Should expect a successful response 
+// from offscreen document before continuing
+async function waitForOffscreenReady(retries = 100, interval = 1000) {
+    for (let i = 0; i < retries; i++) {
+        try {
+            const response = await new Promise((resolve, reject) => {
+                chrome.runtime.sendMessage({ type: "PING" }, (res) => {
+                    if (chrome.runtime.lastError) reject(chrome.runtime.lastError)
+                    else resolve(res)
+                })
+            })
+            if (response?.ok) return true
+        } catch (e) {
+            if (DEBUG){
+                console.log("offscreen document did not respond. retrying...")
+            }
+        }
+        await new Promise(r => setTimeout(r, interval))
+    }
+    throw new Error("Offscreen document did not respond after retries")
+    return false
+}
+
+/* 
+    In order to ensure the offscreen document's existence, any messages from the main popup 
+    must be sent through the background service to the offscreen document.
+    One tip for the future:
+    defining addListener as an async seems to cause a "message port was closed 
+    before response was received", using a normal callback instead for ensureOffscreenDocument()
+    https://stackoverflow.com/questions/73867123/message-port-closed-before-a-response-was-received-despite-return-true
+
+*/
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    if (message.ensureOffscreenExists && message.type === "AUDIO_COMMAND") {
+        setupOffscreenDocument("offscreen.html").then(() => {
+            chrome.runtime.sendMessage({
+                type: message.type + "_CONFIRMED",
+                payload: message.payload,
+                debug: DEBUG,
+            })
+            if (DEBUG){
+                console.log("sent:", message.type + "_CONFIRMED" + " " + message.payload.action)
+            }
+            sendResponse({ success: true })
+            return true
+        })
+    }
+    sendResponse({ success: true })
+    return true
+})
+
+chrome.windows.onRemoved.addListener(async (closedWindowId) => {
+    if (closedWindowId === extensionWindowId) {
+        // Stop audio by messaging the offscreen document
+        chrome.runtime.sendMessage({
+            type: 'AUDIO_COMMAND_CONFIRMED',
+            payload: {
+                action: 'stop'
+            }
+        })
+
+        // close offscreen document
+        const hasDoc = await chrome.offscreen.hasDocument()
+        if (hasDoc) {
+            await chrome.offscreen.closeDocument()
+        }
+
+        extensionWindowId = null
+    }
+})

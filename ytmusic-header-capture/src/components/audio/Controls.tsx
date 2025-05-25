@@ -31,6 +31,7 @@ import { useLazyGetPlaylistRelatedTracksQuery } from "../../services/private/pla
 import { Track } from "../../types/common"
 import { formatTime, shuffle, randRange } from "../../helpers/functions"
 import { v4 as uuidv4 } from "uuid"
+import { usePrevious } from "../../hooks/usePrevious"
 
 export const Controls = () => {
 	const { 
@@ -56,21 +57,22 @@ export const Controls = () => {
     const [ triggerRelatedTracks, {data: relatedTracksData, error: relatedTracksError, isFetching: isRelatedTracksFetching}] = useLazyGetRelatedTracksQuery()
 
     const playbackURL = storedPlaybackInfo ? storedPlaybackInfo.playbackURL : ""
+    const previousPlaybackURL = usePrevious<string>(playbackURL)
 
     /* Unused */
-	const skipForward = () => {
-		if (audioRef.current){
-			audioRef.current.currentTime += 15
-			updateProgress()
-		}
-	}
+	// const skipForward = () => {
+	// 	if (audioRef.current){
+	// 		audioRef.current.currentTime += 15
+	// 		updateProgress()
+	// 	}
+	// }
 
-	const skipBackward = () => {
-		if (audioRef.current){
-			audioRef.current.currentTime -= 15
-			updateProgress()
-		}	
-	}
+	// const skipBackward = () => {
+	// 	if (audioRef.current){
+	// 		audioRef.current.currentTime -= 15
+	// 		updateProgress()
+	// 	}	
+	// }
 
 	const handlePrevious = useCallback(() => {
 		let queued = isShuffling ? shuffledQueuedTracks : queuedTracks
@@ -103,41 +105,68 @@ export const Controls = () => {
 
 	/* Handle animation for the progress bar once the audio playback begins */
 	const updateProgress = useCallback(() => {
-		if (audioRef.current && progressBarRef.current && duration){
-			const currentTime = audioRef.current.currentTime
-			dispatch(setTimeProgress(currentTime))
-			progressBarRef.current.value = currentTime.toString()
-			progressBarRef.current.style.setProperty(
-				"--range-progress",
-				`${(currentTime/duration) * 100}%`
-			)
+		const listener = (message: any, sender: any, sendResponse: any) => {
+			if (message.type === "AUDIO_PROGRESS"){
+				const currentTime = message.payload.currentTime
+				if (progressBarRef.current && duration && currentTime){
+					dispatch(setTimeProgress(currentTime))
+					progressBarRef.current.value = currentTime.toString()
+					progressBarRef.current.style.setProperty(
+						"--range-progress",
+						`${(currentTime/duration) * 100}%`
+					)
+				}
+			}
+			sendResponse({success: true})
+			return true
 		}
-	}, [duration, setTimeProgress, audioRef, progressBarRef])
+		chrome.runtime.onMessage.addListener(listener)
+		return () => chrome.runtime.onMessage.removeListener(listener)
+
+	}, [duration, setTimeProgress, progressBarRef])
 
 	const startAnimation = useCallback(() => {
-		if (audioRef.current && progressBarRef.current && duration){
+		if (progressBarRef.current && duration){
 			const animate = () => {
 				updateProgress()
 				playAnimationRef.current = requestAnimationFrame(animate)
 			}
 			playAnimationRef.current = requestAnimationFrame(animate)
 		}
-	}, [updateProgress, duration, audioRef, progressBarRef])
+	}, [updateProgress, duration, progressBarRef])
 
 	useEffect(() => {
-		if (audioRef?.current){
-			if (isPlaying){
-				audioRef.current.play()
-				startAnimation()
-			}
-			else {
-				audioRef.current.pause()
+		if (isPlaying){
+			// send command to play audio and start progress bar animation
+			chrome.runtime.sendMessage({
+				type: "AUDIO_COMMAND",
+				ensureOffscreenExists: true,
+				payload: {
+					action: "play",	
+					url: playbackURL,
+					// if we're restarting the same song, send the time progress.
+					// otherwise, reset the time progress to 0 if we're switching songs
+					currentTime: previousPlaybackURL !== playbackURL ? 0 : timeProgress,
+				}
+			}, () => {
+				startAnimation()	
+			})
+		}
+		else {
+			// send command to pause audio and pause progress bar animation
+			chrome.runtime.sendMessage({
+				type: "AUDIO_COMMAND",
+				ensureOffscreenExists: true,
+				payload: {
+					action: "pause",
+				}
+			}, () => {
 				if (playAnimationRef.current != null){
 					cancelAnimationFrame(playAnimationRef.current)
 					playAnimationRef.current = null
 				}
 				updateProgress()
-			}
+			})
 		}
 		// return callback to clean up and cancel animation frame
 		return () => {
@@ -145,26 +174,33 @@ export const Controls = () => {
 				cancelAnimationFrame(playAnimationRef.current)
 			}
 		}
-	}, [isPlaying, startAnimation, updateProgress, audioRef])
+	}, [isPlaying, previousPlaybackURL, playbackURL, startAnimation, updateProgress])
 
 	useEffect(() => {
-		const currentAudioRef = audioRef.current
-		if (currentAudioRef){
-			currentAudioRef.onended = () => {
+		const listener = (message: any, sender: any, sendResponse: any) => {
+			if (message.type === "AUDIO_ENDED"){
 				if (isRepeat){
-					currentAudioRef.play()
+					chrome.runtime.sendMessage({
+						type: "AUDIO_COMMAND",
+						ensureOffscreenExists: true,
+						payload: {
+							action: "restart",
+							url: playbackURL,
+							currentTime: 0
+						}
+					})
 				}	
 				else {
 					handleNext()
 				}
-			}	
-		}
-		return () => {
-			if (currentAudioRef){
-				currentAudioRef.onended = null
 			}
+			sendResponse({success: true})
+			return true
 		}
-	}, [isRepeat, handleNext, audioRef])
+
+		chrome.runtime.onMessage.addListener(listener)
+		return () => chrome.runtime.onMessage.removeListener(listener);
+	}, [isRepeat, handleNext])
 
 	// if the playlist is about to end, load in the suggested songs into the queue if autoplay is on
 	useEffect(() => {
@@ -200,6 +236,26 @@ export const Controls = () => {
 
 	}, [index, currentTrack, queuedTracks, isAutoPlay, suggestedTracks])
 
+	useEffect(() => {
+		const listener = (message: any, sender: any, sendResponse: any) => {
+			if (message.type === "AUDIO_LOADED"){
+				const seconds = message.payload.duration
+				if (seconds !== undefined){
+					dispatch(setIsLoading(false))
+					dispatch(setDuration(seconds))
+					if (progressBarRef?.current){
+						progressBarRef.current.max = seconds.toString()
+					}
+				}
+			}
+			sendResponse({success: true})
+			return true
+		}
+
+		chrome.runtime.onMessage.addListener(listener)
+		return () => chrome.runtime.onMessage.removeListener(listener);
+	}, [isPlaying])
+
 	/* Set the playback information once the song data is finished loading */
 	useEffect(() => {
         if (!isFetching && songData){
@@ -213,19 +269,6 @@ export const Controls = () => {
     		dispatch(setSuggestedTracks(relatedTracksData))		
     	}
     }, [relatedTracksData, isRelatedTracksFetching])
-
-	const onLoadedMetadata = () => {
-		if (audioRef?.current){
-			const seconds = audioRef.current.duration
-			if (seconds !== undefined){
-				dispatch(setIsLoading(false))
-				dispatch(setDuration(seconds))
-				if (progressBarRef?.current){
-					progressBarRef.current.max = seconds.toString()
-				}
-			}
-		}
-	}
 
 	const handleOnShuffle = () => {
 		if (currentTrack){
@@ -253,7 +296,7 @@ export const Controls = () => {
 
 	return (
 		<div className = "flex gap-4 items-center">
-			<audio autoPlay onLoadedMetadata={onLoadedMetadata} ref={audioRef} src={playbackURL}/>	
+			{/* <audio autoPlay onLoadedMetadata={onLoadedMetadata} ref={audioRef} src={playbackURL}/> */}
 			<button onClick={handlePrevious}>
 				<IconSkipStart/>
 			</button>

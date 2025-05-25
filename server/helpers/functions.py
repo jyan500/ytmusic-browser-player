@@ -45,8 +45,8 @@ def getPlaybackURL(videoId):
 	return ys.url
 
 def getPlaybackURLFallback(videoId):
-	# URL = f"https://www.youtube.com/watch?v={videoId}"
-	URL = f"https://music.youtube.com/watch?v={videoId}"
+	URL = f"https://www.youtube.com/watch?v={videoId}"
+	# URL = f"https://music.youtube.com/watch?v={videoId}"
 
 	# ydl_opts = {
 	# 	'format': 'm4a/bestaudio/best',
@@ -62,6 +62,7 @@ def getPlaybackURLFallback(videoId):
 	ydl_opts = {
 		'extractor_args': {'youtube': {'player_client': ['tv'], "player_skip": ["webpage", "initial_data"]}},
 	}
+	# ydl_opts = {}
 
 	url = ""
 	availableQualities = ["high", "medium", "low"]
