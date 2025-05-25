@@ -270,19 +270,6 @@ export const Controls = () => {
     	}
     }, [relatedTracksData, isRelatedTracksFetching])
 
-	// const onLoadedMetadata = () => {
-	// 	if (audioRef?.current){
-	// 		const seconds = audioRef.current.duration
-	// 		if (seconds !== undefined){
-	// 			dispatch(setIsLoading(false))
-	// 			dispatch(setDuration(seconds))
-	// 			if (progressBarRef?.current){
-	// 				progressBarRef.current.max = seconds.toString()
-	// 			}
-	// 		}
-	// 	}
-	// }
-
 	const handleOnShuffle = () => {
 		if (currentTrack){
 			// create shuffled queued tracks by randomly ordering the queued tracks
