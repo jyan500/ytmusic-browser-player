@@ -1,6 +1,8 @@
 import axios from "axios"
 
-const DEBUG = false 
+const DEBUG = true 
+// https://developer.chrome.com/docs/extensions/reference/api/offscreen
+let creating // A global promise to avoid concurrency issues
 
 chrome.webRequest.onBeforeSendHeaders.addListener(
     (details) => {
@@ -31,10 +33,9 @@ chrome.action.onClicked.addListener((tab) => {
     });
 });
 
-// https://developer.chrome.com/docs/extensions/reference/api/offscreen
-let creating // A global promise to avoid concurrency issues
 
-async function setupOffscreenDocument(path) {
+
+async function checkAllWindowsForOffscreen(path){
     // Check all windows controlled by the service worker to see if one
     // of them is the offscreen document with the given path
     const offscreenUrl = chrome.runtime.getURL(path)
@@ -43,8 +44,13 @@ async function setupOffscreenDocument(path) {
         documentUrls: [offscreenUrl]
     })
 
-    if (existingContexts.length > 0) {
-        return
+    return existingContexts.length > 0
+}
+
+async function setupOffscreenDocument(path) {
+    const hasExistingContexts = await checkAllWindowsForOffscreen(path)
+    if (hasExistingContexts){
+        return true
     }
 
     // create offscreen document
@@ -61,7 +67,6 @@ async function setupOffscreenDocument(path) {
     }
     return true
 }
-
 
 // wait for the offscreen document to be ready before sending the next command
 // by sending a "ping" to the offscreen. Should expect a successful response 
@@ -135,11 +140,10 @@ chrome.windows.onRemoved.addListener(async (closedWindowId) => {
         })
 
         // close offscreen document
-        const hasDoc = await chrome.offscreen.hasDocument()
-        if (hasDoc) {
+        const existingOffscreen = await checkAllWindowsForOffscreen("offscreen.html")
+        if (existingOffscreen){
             await chrome.offscreen.closeDocument()
         }
-
         extensionWindowId = null
     }
 })

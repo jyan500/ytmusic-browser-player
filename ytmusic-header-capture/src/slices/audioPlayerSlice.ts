@@ -14,6 +14,8 @@ type AudioPlayerState = {
    isShuffling: boolean
    isPlaying: boolean
    timeProgress: number
+   volume: number
+   muted: boolean
    duration: number
    index: number
    isAutoPlay: boolean
@@ -30,6 +32,8 @@ const initialState: AudioPlayerState = {
     isLoading: false,
     isPlaying: false,
     isShuffling: false,
+    volume: 60,
+    muted: false,
     timeProgress: 0,
     duration: 0,
     isAutoPlay: true 
@@ -77,6 +81,12 @@ const audioPlayerSlice = createSlice({
         },
         setIsAutoPlay: (state, action: PayloadAction<boolean>) => {
             state.isAutoPlay = action.payload
+        },
+        setVolume: (state, action: PayloadAction<number>) => {
+            state.volume = action.payload
+        },
+        setMuted: (state, action: PayloadAction<boolean>) => {
+            state.muted = action.payload
         }
     },
 })
@@ -95,6 +105,8 @@ export const {
     setDuration,
     setIndex,
     setIsAutoPlay,
+    setVolume,
+    setMuted,
 } = audioPlayerSlice.actions
 
 export const audioPlayerReducer = audioPlayerSlice.reducer

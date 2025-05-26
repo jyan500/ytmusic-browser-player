@@ -1,5 +1,6 @@
 import React, { useRef, useEffect } from "react";
 import { createRoot } from "react-dom/client";
+import { UPDATE_INTERVAL } from "../helpers/constants"
 
 const OffscreenAudio = () => {
 	const audioRef = useRef<HTMLAudioElement>(null)
@@ -19,6 +20,12 @@ const OffscreenAudio = () => {
 
 	            if (action === "play") {
 	            	if (audioRef.current.src != msg.payload.url){
+	            		// if (msg.payload.volume){
+			            // 	audioRef.current.volume = msg.payload.volume
+	            		// }
+	            		// if (msg.payload.muted){
+	            		// 	audioRef.current.muted = msg.payload.muted
+	            		// }
 		                audioRef.current.src = msg.payload.url
 		            	// the reason for setting current time on play is if the user pauses
 		            	// for more than 30 seconds. This causes the offscreen document to disappear,
@@ -69,7 +76,7 @@ const OffscreenAudio = () => {
 					})
 				}
 			}
-		}, 1000/60)
+		}, UPDATE_INTERVAL)
 
 	    return () => clearInterval(intervalId);
 
