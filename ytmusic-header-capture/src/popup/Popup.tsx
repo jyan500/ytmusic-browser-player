@@ -10,6 +10,7 @@ import { Home } from "../pages/Home"
 import { PADDING_AVOID_AUDIO_PLAYER_OVERLAP } from "../helpers/constants"
 
 export const Popup = () => {
+    
     return (
         <>
         <div className={`bg-dark-secondary relative text-white p-2 w-full ${PADDING_AVOID_AUDIO_PLAYER_OVERLAP} min-h-[800px]`}>

@@ -145,7 +145,7 @@ export const Controls = () => {
 					url: playbackURL,
 					// if we're restarting the same song, send the time progress.
 					// otherwise, reset the time progress to 0 if we're switching songs
-					// currentTime: previousPlaybackURL !== playbackURL ? 0 : timeProgress,
+					currentTime: previousPlaybackURL !== playbackURL ? 0 : timeProgress,
 					volume: volume,
 					muted: muted,
 				}

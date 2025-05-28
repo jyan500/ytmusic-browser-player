@@ -187,7 +187,7 @@ export const ProgressBar = () => {
 				payload: {
 					action: "play",
 					url: storedPlaybackInfo?.playbackURL ?? "",
-					// currentTime: newTime,
+					currentTime: newTime,
 					volume: volume,
 					muted: muted
 				}

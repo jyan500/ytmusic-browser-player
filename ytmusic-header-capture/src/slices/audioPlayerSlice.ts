@@ -2,6 +2,7 @@ import { createSlice } from '@reduxjs/toolkit'
 import type { PayloadAction } from '@reduxjs/toolkit'
 import type { RootState } from '../store'
 import { PlaybackInfo, Track, QueueItem} from "../types/common"
+import { DEFAULT_VOLUME } from "../helpers/constants"
 
 type AudioPlayerState = {
    storedPlaybackInfo: PlaybackInfo | null
@@ -32,7 +33,7 @@ const initialState: AudioPlayerState = {
     isLoading: false,
     isPlaying: false,
     isShuffling: false,
-    volume: 60,
+    volume: DEFAULT_VOLUME,
     muted: false,
     timeProgress: 0,
     duration: 0,

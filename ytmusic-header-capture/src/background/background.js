@@ -92,6 +92,33 @@ async function waitForOffscreenReady(retries = 100, interval = 500) {
     return false
 }
 
+let keepAliveInterval; 
+let isAudioPlaying = false
+
+// Function to keep the offscreen doc alive
+function startOffscreenKeepAlive() {
+    if (keepAliveInterval != null) return;
+    if (DEBUG){
+        console.log("Starting offscreen keep-alive interval");
+    }
+    keepAliveInterval = setInterval(async () => {
+        // If audio is playing, Chrome will keep the document alive on its own
+        if (!isAudioPlaying) {
+            await setupOffscreenDocument("offscreen.html")
+        }
+    }, 30000)
+}
+
+function stopOffscreenKeepAlive() {
+    if (keepAliveInterval != null) {
+        clearInterval(keepAliveInterval);
+        keepAliveInterval = undefined;
+        if (DEBUG){
+            console.log("Stopped offscreen keep-alive interval");
+        }
+    }
+}
+
 /* 
     In order to ensure the offscreen document's existence, any messages from the main popup 
     must be sent through the background service to the offscreen document.
@@ -102,6 +129,17 @@ async function waitForOffscreenReady(retries = 100, interval = 500) {
 
 */
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    console.log("isAudioPlaying: ", isAudioPlaying)
+    if (message.type === "AUDIO_STATE") {
+        isAudioPlaying = message.playing;
+        if (isAudioPlaying) {
+            stopOffscreenKeepAlive()
+        } else {
+            startOffscreenKeepAlive()
+        }
+        sendResponse({ success: true })
+        return true;
+    }
     if (message.ensureOffscreenExists && message.type === "AUDIO_COMMAND") {
         setupOffscreenDocument("offscreen.html").then(async () => {
             try {
@@ -129,6 +167,26 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     return true
 })
 
+// Listen for focus changes
+chrome.windows.onFocusChanged.addListener((windowId) => {
+    if (windowId === chrome.windows.WINDOW_ID_NONE) {
+        console.log("No window is focused");
+        return;
+    }
+
+    if (windowId === extensionWindowId) {
+        console.log("Extension window is focused");
+        // when focused, setup offscreen window, and 
+        // then call startOffscreenKeepAlive() 
+        setupOffscreenDocument("offscreen.html").then(() => {
+            startOffscreenKeepAlive()
+        })
+    } else {
+        console.log("Another window is focused");
+        stopOffscreenKeepAlive()
+    }
+});
+
 chrome.windows.onRemoved.addListener(async (closedWindowId) => {
     if (closedWindowId === extensionWindowId) {
         // Stop audio by messaging the offscreen document
@@ -147,3 +205,5 @@ chrome.windows.onRemoved.addListener(async (closedWindowId) => {
         extensionWindowId = null
     }
 })
+
+

@@ -10,6 +10,7 @@ export const VolumeControl = () => {
 	const { audioRef } = useAudioPlayerContext()
 	const dispatch = useAppDispatch()
 	const { volume, muted } = useAppSelector((state) => state.audioPlayer)
+	const convertedVolume = volume * 100
 
 	useEffect(() => {
 		chrome.runtime.sendMessage({
@@ -17,23 +18,24 @@ export const VolumeControl = () => {
 			ensureOffscreenExists: true,
 			payload: {
 				action: "setVolume",
-				volume: volume/100,
+				volume: volume,
 				muted: muted,
 			}
 		})
 	}, [volume, muted])
 
 	const handleVolumeChange = (e: ChangeEvent<HTMLInputElement>) => {
-		dispatch(setVolume(Number(e.target.value)))
+		// store the volume in decimal form
+		dispatch(setVolume(Number(e.target.value)/100))
 	}
 
 	return (
 		<div>
 			<div className="flex items-center gap-3">
 				<button onClick={() => dispatch(setMuted(!muted))}>
-					{muted || volume < 5 ? (
+					{muted || convertedVolume < 5 ? (
 						<IconVolumeOff/>
-					) : volume < 40 ? (
+					) : convertedVolume < 40 ? (
 						<IconVolumeLow/>
 					) : (
 						<IconVolumeHigh/>
@@ -41,12 +43,12 @@ export const VolumeControl = () => {
 				</button>
 				<input
 					style={{
-						background: `linear-gradient(to right, #f50 ${volume}%, #ccc ${volume}%)`,
+						background: `linear-gradient(to right, #f50 ${convertedVolume}%, #ccc ${convertedVolume}%)`,
 					}}
 					type="range"
 					min={0}
 					max={100}
-					value={volume}
+					value={convertedVolume}
 					className="volumn"
 					onChange={handleVolumeChange}
 				/>
