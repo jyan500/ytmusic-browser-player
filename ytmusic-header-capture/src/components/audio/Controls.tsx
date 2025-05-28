@@ -60,6 +60,7 @@ export const Controls = () => {
 
     const playbackURL = storedPlaybackInfo ? storedPlaybackInfo.playbackURL : ""
     const previousPlaybackURL = usePrevious<string>(playbackURL)
+    const previousIsPlaying = usePrevious<boolean>(isPlaying)
 
     /* Unused */
 	// const skipForward = () => {
@@ -122,7 +123,7 @@ export const Controls = () => {
 		}
 		chrome.runtime.onMessage.addListener(listener)
 		return () => chrome.runtime.onMessage.removeListener(listener)
-	}, [isPlaying, duration, timeProgress, progressBarRef])
+	}, [previousIsPlaying, isPlaying, duration, timeProgress, progressBarRef])
 
 	const startAnimation = useCallback(() => {
 		if (progressBarRef.current && duration){
@@ -132,10 +133,11 @@ export const Controls = () => {
 			}
 			playAnimationRef.current = requestAnimationFrame(animate)
 		}
-	}, [isPlaying, updateProgress, duration, progressBarRef])
+	}, [previousIsPlaying, isPlaying, updateProgress, duration, progressBarRef])
 
 	useEffect(() => {
-		if (isPlaying){
+		// if we went from not playing to playing, or we're switching tracks, play audio
+		if ((!previousIsPlaying && isPlaying) || (previousPlaybackURL !== playbackURL && isPlaying)){
 			// send command to play audio and start progress bar animation
 			chrome.runtime.sendMessage({
 				type: "AUDIO_COMMAND",
@@ -150,10 +152,11 @@ export const Controls = () => {
 					muted: muted,
 				}
 			}, () => {
-				startAnimation()	
+				console.log("starting animation...")
 			})
 		}
-		else {
+		// if went from playing to not playing, pause audio
+		else if (previousIsPlaying && !isPlaying) {
 
 			// send command to pause audio and pause progress bar animation
 			chrome.runtime.sendMessage({
@@ -163,11 +166,7 @@ export const Controls = () => {
 					action: "pause",
 				}
 			}, () => {
-				if (playAnimationRef.current != null){
-					cancelAnimationFrame(playAnimationRef.current)
-					playAnimationRef.current = null
-				}
-				updateProgress()
+			
 			})
 		}
 		// return callback to clean up and cancel animation frame
@@ -177,11 +176,30 @@ export const Controls = () => {
 			}
 		}
 	// }, [isPlaying, previousPlaybackURL, playbackURL, startAnimation, updateProgress])
-	}, [isPlaying, previousPlaybackURL, playbackURL, startAnimation, updateProgress])
+	}, [isPlaying, previousIsPlaying, previousPlaybackURL, playbackURL])
+
+	useEffect(() => {
+		if (isPlaying && duration){
+			playAnimationRef.current == null ? startAnimation() : updateProgress()
+		}
+		else {
+			if (playAnimationRef.current != null){
+				cancelAnimationFrame(playAnimationRef.current)
+				playAnimationRef.current = null
+			}
+			updateProgress()
+		}
+		return () => {
+			if (playAnimationRef.current != null){
+				cancelAnimationFrame(playAnimationRef.current)
+			}
+		}
+	}, [isPlaying, startAnimation, updateProgress])
 
 	useEffect(() => {
 		const listener = (message: any, sender: any, sendResponse: any) => {
 			if (message.type === "AUDIO_ENDED"){
+				console.log("Audio Ended")
 				if (isRepeat){
 					chrome.runtime.sendMessage({
 						type: "AUDIO_COMMAND",

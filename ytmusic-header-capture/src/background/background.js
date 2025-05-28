@@ -1,6 +1,8 @@
 import axios from "axios"
 
 const DEBUG = true 
+const OFFSCREEN_PATH = "offscreen.html"
+const POPUP_PATH = "popup.html"
 // https://developer.chrome.com/docs/extensions/reference/api/offscreen
 let creating // A global promise to avoid concurrency issues
 
@@ -24,7 +26,7 @@ chrome.webRequest.onBeforeSendHeaders.addListener(
 let extensionWindowId = null
 chrome.action.onClicked.addListener((tab) => {
     chrome.windows.create({
-        url: chrome.runtime.getURL("popup.html"),
+        url: chrome.runtime.getURL(POPUP_PATH),
         type: 'popup',
         width: 700,
         height: 800,
@@ -104,7 +106,7 @@ function startOffscreenKeepAlive() {
     keepAliveInterval = setInterval(async () => {
         // If audio is playing, Chrome will keep the document alive on its own
         if (!isAudioPlaying) {
-            await setupOffscreenDocument("offscreen.html")
+            await setupOffscreenDocument(OFFSCREEN_PATH)
         }
     }, 30000)
 }
@@ -129,7 +131,6 @@ function stopOffscreenKeepAlive() {
 
 */
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-    console.log("isAudioPlaying: ", isAudioPlaying)
     if (message.type === "AUDIO_STATE") {
         isAudioPlaying = message.playing;
         if (isAudioPlaying) {
@@ -141,9 +142,17 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         return true;
     }
     if (message.ensureOffscreenExists && message.type === "AUDIO_COMMAND") {
-        setupOffscreenDocument("offscreen.html").then(async () => {
+        setupOffscreenDocument(OFFSCREEN_PATH).then(() => {
             try {
-                await waitForOffscreenReady()
+                // await waitForOffscreenReady()
+                // add slight delay to ensure offscreen is created
+                setTimeout(() => {
+                    chrome.runtime.sendMessage({
+                        type: message.type + "_CONFIRMED",
+                        payload: message.payload,
+                        debug: DEBUG,
+                    })
+                }, 200)
                 chrome.runtime.sendMessage({
                     type: message.type + "_CONFIRMED",
                     payload: message.payload,
@@ -178,7 +187,7 @@ chrome.windows.onFocusChanged.addListener((windowId) => {
         console.log("Extension window is focused");
         // when focused, setup offscreen window, and 
         // then call startOffscreenKeepAlive() 
-        setupOffscreenDocument("offscreen.html").then(() => {
+        setupOffscreenDocument(OFFSCREEN_PATH).then(() => {
             startOffscreenKeepAlive()
         })
     } else {
@@ -198,7 +207,7 @@ chrome.windows.onRemoved.addListener(async (closedWindowId) => {
         })
 
         // close offscreen document
-        const existingOffscreen = await checkAllWindowsForOffscreen("offscreen.html")
+        const existingOffscreen = await checkAllWindowsForOffscreen(OFFSCREEN_PATH)
         if (existingOffscreen){
             await chrome.offscreen.closeDocument()
         }

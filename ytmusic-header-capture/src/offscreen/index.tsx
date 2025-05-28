@@ -29,7 +29,6 @@ const OffscreenAudio = () => {
 	            if (action === "play") {
 	            	if (audioRef.current.src != msg.payload.url){
 	            		if (msg.payload.volume){
-	            			console.log("audio is being set from play: ", msg.payload.volume)
 			            	audioRef.current.volume = msg.payload.volume
 	            		}
 	            		if (msg.payload.muted){
@@ -66,7 +65,6 @@ const OffscreenAudio = () => {
 	            	audioRef.current.currentTime = msg.payload.currentTime
 	            }
 	            else if (action === "setVolume"){
-        			console.log("audio is being set from setVolume: ", msg.payload.volume)
 	            	audioRef.current.volume = msg.payload.volume
 	            	audioRef.current.muted = msg.payload.muted
 	            }
