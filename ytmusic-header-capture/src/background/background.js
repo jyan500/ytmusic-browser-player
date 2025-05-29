@@ -94,6 +94,12 @@ async function waitForOffscreenReady(retries = 100, interval = 500) {
     return false
 }
 
+// Utility function to check if the extension window is still open
+async function isExtensionWindowOpen(windowId) {
+    const allWindows = await chrome.windows.getAll();
+    return allWindows.some((win) => win.id === windowId)
+}
+
 let keepAliveInterval; 
 let isAudioPlaying = false
 
@@ -177,23 +183,21 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 })
 
 // Listen for focus changes
-chrome.windows.onFocusChanged.addListener((windowId) => {
-    if (windowId === chrome.windows.WINDOW_ID_NONE) {
-        console.log("No window is focused");
-        return;
-    }
+chrome.windows.onFocusChanged.addListener(async (windowId) => {
+    if (extensionWindowId == null) return
 
-    if (windowId === extensionWindowId) {
-        console.log("Extension window is focused");
-        // when focused, setup offscreen window, and 
-        // then call startOffscreenKeepAlive() 
-        setupOffscreenDocument(OFFSCREEN_PATH).then(() => {
-            startOffscreenKeepAlive()
-        })
-    } else {
-        console.log("Another window is focused");
+    const isOpen = await isExtensionWindowOpen(extensionWindowId)
+    if (!isOpen){
+        console.log("extension window is closed or minimized")
         stopOffscreenKeepAlive()
+        return
     }
+    else {
+        console.log("window is not focused but still open");
+        await setupOffscreenDocument(OFFSCREEN_PATH)
+        startOffscreenKeepAlive()
+        return;
+    } 
 });
 
 chrome.windows.onRemoved.addListener(async (closedWindowId) => {
@@ -205,6 +209,8 @@ chrome.windows.onRemoved.addListener(async (closedWindowId) => {
                 action: 'stop'
             }
         })
+        // stop keeping the offscreen document alive
+        stopOffscreenKeepAlive()
 
         // close offscreen document
         const existingOffscreen = await checkAllWindowsForOffscreen(OFFSCREEN_PATH)

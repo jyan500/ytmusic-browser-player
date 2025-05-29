@@ -123,7 +123,7 @@ export const Controls = () => {
 		}
 		chrome.runtime.onMessage.addListener(listener)
 		return () => chrome.runtime.onMessage.removeListener(listener)
-	}, [previousIsPlaying, isPlaying, duration, timeProgress, progressBarRef])
+	}, [isPlaying, duration, timeProgress, progressBarRef])
 
 	const startAnimation = useCallback(() => {
 		if (progressBarRef.current && duration){
@@ -133,11 +133,12 @@ export const Controls = () => {
 			}
 			playAnimationRef.current = requestAnimationFrame(animate)
 		}
-	}, [previousIsPlaying, isPlaying, updateProgress, duration, progressBarRef])
+	}, [isPlaying, updateProgress, duration, progressBarRef])
 
 	useEffect(() => {
 		// if we went from not playing to playing, or we're switching tracks, play audio
-		if ((!previousIsPlaying && isPlaying) || (previousPlaybackURL !== playbackURL && isPlaying)){
+		// if ((!previousIsPlaying && isPlaying) || (previousPlaybackURL !== playbackURL && isPlaying)){
+		if (isPlaying){
 			// send command to play audio and start progress bar animation
 			chrome.runtime.sendMessage({
 				type: "AUDIO_COMMAND",
@@ -151,13 +152,11 @@ export const Controls = () => {
 					volume: volume,
 					muted: muted,
 				}
-			}, () => {
-				console.log("starting animation...")
 			})
 		}
 		// if went from playing to not playing, pause audio
-		else if (previousIsPlaying && !isPlaying) {
-
+		// else if (previousIsPlaying && !isPlaying) {
+		else {
 			// send command to pause audio and pause progress bar animation
 			chrome.runtime.sendMessage({
 				type: "AUDIO_COMMAND",
@@ -165,8 +164,6 @@ export const Controls = () => {
 				payload: {
 					action: "pause",
 				}
-			}, () => {
-			
 			})
 		}
 		// return callback to clean up and cancel animation frame
@@ -176,7 +173,7 @@ export const Controls = () => {
 			}
 		}
 	// }, [isPlaying, previousPlaybackURL, playbackURL, startAnimation, updateProgress])
-	}, [isPlaying, previousIsPlaying, previousPlaybackURL, playbackURL])
+	}, [isPlaying, previousPlaybackURL, playbackURL])
 
 	useEffect(() => {
 		if (isPlaying && duration){

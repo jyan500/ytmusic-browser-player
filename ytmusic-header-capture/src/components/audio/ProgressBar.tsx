@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef, useCallback } from "react"
 import { useAppSelector, useAppDispatch } from "../../hooks/redux-hooks"
+import { useDebouncedCallback } from "../../hooks/useDebouncedCallback"
 import { setTimeProgress, setIsPlaying } from "../../slices/audioPlayerSlice"
 import { formatTime } from "../../helpers/functions"
 import { useAudioPlayerContext } from "../../context/AudioPlayerProvider"
@@ -164,38 +165,17 @@ export const ProgressBar = () => {
 		setHoverValue(null)
 	}
 
+	const debouncedPlay = useDebouncedCallback(() => {
+		dispatch(setIsPlaying(true))
+	}, 150)
+
 	const handleMouseDown = useCallback(() => {
-		// only pause if the audio is playing
-		if (isPlaying){
-			dispatch(setIsPlaying(false))
-			chrome.runtime.sendMessage({
-				type: "AUDIO_COMMAND",
-				ensureOffscreenExists: true,
-				payload: {
-					action: "pause"	
-				}
-			})
-		}
+		dispatch(setIsPlaying(false))
 	}, [isPlaying])
 
 	const handleMouseUp = useCallback(() => {
-		if (progressBarRef?.current){
-			const newTime = Number(progressBarRef.current.value)	
-			chrome.runtime.sendMessage({
-				type: "AUDIO_COMMAND",
-				ensureOffscreenExists: true,
-				payload: {
-					action: "play",
-					url: storedPlaybackInfo?.playbackURL ?? "",
-					currentTime: newTime,
-					volume: volume,
-					muted: muted
-				}
-			}, () => {
-				dispatch(setIsPlaying(true))
-			})
-		}
-	}, [progressBarRef, storedPlaybackInfo])
+		debouncedPlay()
+	}, [debouncedPlay])
 
 	return (
 		<div className={`${queuedTracks?.length > 0 ? "visible" : "invisible"} relative flex items-center justify-center w-full`}>
