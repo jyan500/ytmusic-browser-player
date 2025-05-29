@@ -188,12 +188,10 @@ chrome.windows.onFocusChanged.addListener(async (windowId) => {
 
     const isOpen = await isExtensionWindowOpen(extensionWindowId)
     if (!isOpen){
-        console.log("extension window is closed or minimized")
         stopOffscreenKeepAlive()
         return
     }
     else {
-        console.log("window is not focused but still open");
         await setupOffscreenDocument(OFFSCREEN_PATH)
         startOffscreenKeepAlive()
         return;

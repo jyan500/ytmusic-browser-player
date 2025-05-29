@@ -60,7 +60,6 @@ export const Controls = () => {
 
     const playbackURL = storedPlaybackInfo ? storedPlaybackInfo.playbackURL : ""
     const previousPlaybackURL = usePrevious<string>(playbackURL)
-    const previousIsPlaying = usePrevious<boolean>(isPlaying)
 
     /* Unused */
 	// const skipForward = () => {
@@ -137,7 +136,6 @@ export const Controls = () => {
 
 	useEffect(() => {
 		// if we went from not playing to playing, or we're switching tracks, play audio
-		// if ((!previousIsPlaying && isPlaying) || (previousPlaybackURL !== playbackURL && isPlaying)){
 		if (isPlaying){
 			// send command to play audio and start progress bar animation
 			chrome.runtime.sendMessage({
@@ -155,7 +153,6 @@ export const Controls = () => {
 			})
 		}
 		// if went from playing to not playing, pause audio
-		// else if (previousIsPlaying && !isPlaying) {
 		else {
 			// send command to pause audio and pause progress bar animation
 			chrome.runtime.sendMessage({
@@ -172,7 +169,6 @@ export const Controls = () => {
 				cancelAnimationFrame(playAnimationRef.current)
 			}
 		}
-	// }, [isPlaying, previousPlaybackURL, playbackURL, startAnimation, updateProgress])
 	}, [isPlaying, previousPlaybackURL, playbackURL])
 
 	useEffect(() => {
@@ -196,7 +192,6 @@ export const Controls = () => {
 	useEffect(() => {
 		const listener = (message: any, sender: any, sendResponse: any) => {
 			if (message.type === "AUDIO_ENDED"){
-				console.log("Audio Ended")
 				if (isRepeat){
 					chrome.runtime.sendMessage({
 						type: "AUDIO_COMMAND",

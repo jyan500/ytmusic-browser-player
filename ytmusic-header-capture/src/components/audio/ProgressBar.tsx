@@ -103,63 +103,6 @@ export const ProgressBar = () => {
 			}
 		}
 	}, [tooltipRef, setTooltipPos, setHoverValue])
-	// const handleMouseMove = (e: React.MouseEvent<HTMLInputElement, MouseEvent>) => {
-	// 	if (progressBarRef?.current && tooltipRef?.current){
-	// 		const input = progressBarRef.current
-	// 		// get the "length" of the range input
-	// 		const rect = input.getBoundingClientRect()
-	// 		/* 
-	// 		Visually, it's roughly half of the tooltip's width that we have to account for.
-
-	// 		this:
-
-    //         [tooltip]                  [tooltip]
-	// 		------------------------------------
-	// 		^^^^							^^^^
-	// 		mouse cursor		    mouse cursor
-
-	// 		instead of this:
-
-	// 	[tooltip]                  			[tooltip]
-	// 		------------------------------------
-	// 		^^^^							^^^^
-	// 		mouse cursor		    mouse cursor
-
-	// 		this prevents the tooltip from displaying underneath of the window
-	// 		if it gets too close to the sides.
-
-	// 		*/
-			 
-	// 		const tooltipBoundary = tooltipRef?.current.getBoundingClientRect().width/2
-	// 		const min = Number(input.min)
-	// 		const max = Number(input.max)
-
-	// 		// calculates the horizontal offset from the left edge of the input
-	// 		const offsetX = e.clientX - rect.left
-	// 		// calculate percent that the mouse position is at
-	// 		// in relation to the input length
-	// 		const percent = Math.min(Math.max(offsetX/rect.width, 0), 1)
-	// 		// get the time value in seconds that's proportional
-	// 		// to the length of the progress bar 
-	// 		const value = min + percent * (max - min)
-
-	// 		// setHoverValue(value)
-	// 		hoverValueRef.current = value
-	// 		// the additional logic here
-	// 		// is to prevent the tooltip from going underneath the window by setting
-	// 		// the mouse position to be X amount of pixels away from each boundary once it
-	// 		// gets too close
-	// 		if (offsetX <= tooltipBoundary) {
-	// 			setTooltipPos(tooltipBoundary)
-	// 		}
-	// 		else if (offsetX >= (rect.right - tooltipBoundary)){
-	// 			setTooltipPos(rect.right - tooltipBoundary)	
-	// 		}
-	// 		else {
-	// 			setTooltipPos(offsetX)
-	// 		}
-	// 	}
-	// }
 
 	const handleMouseLeave = () => {
 		setHoverValue(null)
