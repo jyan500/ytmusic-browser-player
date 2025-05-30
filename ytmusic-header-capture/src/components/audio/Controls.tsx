@@ -250,25 +250,6 @@ export const Controls = () => {
 
 	useEffect(() => {
 		const listener = (message: any, sender: any, sendResponse: any) => {
-			if (message.type === "AUDIO_PROGRESS"){
-				const currentTime = message.payload.currentTime
-				dispatch(setTimeProgress(currentTime))
-				if (progressBarRef?.current){
-					progressBarRef.current.value = currentTime.toString()
-					progressBarRef.current.style.setProperty(
-						"--range-progress",
-						`${(currentTime/duration) * 100}%`
-					)
-				}
-			}
-		}
-		chrome.runtime.onMessage.addListener(listener)
-		return () => chrome.runtime.onMessage.removeListener(listener)
-
-	}, [progressBarRef])
-
-	useEffect(() => {
-		const listener = (message: any, sender: any, sendResponse: any) => {
 			if (message.type === "AUDIO_LOADED"){
 				const seconds = message.payload.duration
 				if (seconds !== undefined){
