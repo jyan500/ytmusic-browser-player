@@ -1,13 +1,16 @@
 import React, { ChangeEvent, useEffect, useState } from "react"
+import { useAppDispatch, useAppSelector } from "../../hooks/redux-hooks"
 import { IconVolumeOff } from "../../icons/IconVolumeOff"
 import { IconVolumeLow } from "../../icons/IconVolumeLow"
 import { IconVolumeHigh } from "../../icons/IconVolumeHigh"
 import { useAudioPlayerContext } from "../../context/AudioPlayerProvider"
+import { setVolume, setMuted } from "../../slices/audioPlayerSlice"
 
 export const VolumeControl = () => {
 	const { audioRef } = useAudioPlayerContext()
-	const [volume, setVolume] = useState<number>(60)
-	const [muteVolume, setMuteVolume] = useState(false)
+	const dispatch = useAppDispatch()
+	const { volume, muted } = useAppSelector((state) => state.audioPlayer)
+	const convertedVolume = volume * 100
 
 	useEffect(() => {
 		chrome.runtime.sendMessage({
@@ -15,23 +18,24 @@ export const VolumeControl = () => {
 			ensureOffscreenExists: true,
 			payload: {
 				action: "setVolume",
-				volume: volume/100,
-				muted: muteVolume,
+				volume: volume,
+				muted: muted,
 			}
 		})
-	}, [volume, muteVolume])
+	}, [volume, muted])
 
 	const handleVolumeChange = (e: ChangeEvent<HTMLInputElement>) => {
-		setVolume(Number(e.target.value))
+		// store the volume in decimal form
+		dispatch(setVolume(Number(e.target.value)/100))
 	}
 
 	return (
 		<div>
 			<div className="flex items-center gap-3">
-				<button onClick={() => setMuteVolume(prev => !prev)}>
-					{muteVolume || volume < 5 ? (
+				<button onClick={() => dispatch(setMuted(!muted))}>
+					{muted || convertedVolume < 5 ? (
 						<IconVolumeOff/>
-					) : volume < 40 ? (
+					) : convertedVolume < 40 ? (
 						<IconVolumeLow/>
 					) : (
 						<IconVolumeHigh/>
@@ -39,12 +43,12 @@ export const VolumeControl = () => {
 				</button>
 				<input
 					style={{
-						background: `linear-gradient(to right, #f50 ${volume}%, #ccc ${volume}%)`,
+						background: `linear-gradient(to right, #f50 ${convertedVolume}%, #ccc ${convertedVolume}%)`,
 					}}
 					type="range"
 					min={0}
 					max={100}
-					value={volume}
+					value={convertedVolume}
 					className="volumn"
 					onChange={handleVolumeChange}
 				/>

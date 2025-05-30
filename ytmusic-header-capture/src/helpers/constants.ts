@@ -11,4 +11,5 @@ export const TAG_TYPES = [
 ]
 
 export const TRANSITION_TRANSFORM = "transform transition-transform duration-500 ease-in-out"
-export const UPDATE_INTERVAL = 1000/60 // approximately 16.66667 milliseconds
+export const UPDATE_INTERVAL = 1000
+export const DEFAULT_VOLUME = .30 

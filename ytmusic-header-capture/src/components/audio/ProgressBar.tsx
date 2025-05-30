@@ -1,11 +1,12 @@
-import React, { useEffect, useState, useRef } from "react"
+import React, { useEffect, useState, useRef, useCallback } from "react"
 import { useAppSelector, useAppDispatch } from "../../hooks/redux-hooks"
+import { useDebouncedCallback } from "../../hooks/useDebouncedCallback"
 import { setTimeProgress, setIsPlaying } from "../../slices/audioPlayerSlice"
 import { formatTime } from "../../helpers/functions"
 import { useAudioPlayerContext } from "../../context/AudioPlayerProvider"
 
 export const ProgressBar = () => {
-	const { queuedTracks, duration, isPlaying, timeProgress, storedPlaybackInfo } = useAppSelector((state) => state.audioPlayer)
+	const { queuedTracks, volume, muted, duration, isPlaying, timeProgress, storedPlaybackInfo } = useAppSelector((state) => state.audioPlayer)
 	const { progressBarRef, audioRef } = useAudioPlayerContext()
 	const dispatch = useAppDispatch()
 	const [hoverValue, setHoverValue] = useState<number|null>(null)
@@ -25,9 +26,14 @@ export const ProgressBar = () => {
 		to the current time if the user clicks and changes
 		the range
 	*/
-	const handleProgressBarChange = () => {
+	const handleProgressBarChange = useCallback(() => {
 		if (progressBarRef?.current){
-			const newTime = Number(progressBarRef.current.value)	
+			const newTime = Number(progressBarRef?.current.value)	
+			dispatch(setTimeProgress(newTime))	
+			progressBarRef?.current?.style.setProperty(
+				"--range-progress",
+				`${(newTime/duration) * 100}%`
+			)	
 			chrome.runtime.sendMessage({
 				type: "AUDIO_COMMAND",
 				ensureOffscreenExists: true,
@@ -36,16 +42,12 @@ export const ProgressBar = () => {
 					currentTime: newTime
 				}
 			}, () => {
-				dispatch(setTimeProgress(newTime))	
-				progressBarRef?.current?.style.setProperty(
-					"--range-progress",
-					`${(newTime/duration) * 100}%`
-				)
+				
 			})
 		}
-	}
+	}, [duration, progressBarRef])
 
-	const handleMouseMove = (e: React.MouseEvent<HTMLInputElement, MouseEvent>) => {
+	const handleMouseMove = useCallback((e: React.MouseEvent<HTMLInputElement, MouseEvent>) => {
 		if (progressBarRef?.current && tooltipRef?.current){
 			const input = progressBarRef.current
 			// get the "length" of the range input
@@ -100,40 +102,23 @@ export const ProgressBar = () => {
 				setTooltipPos(offsetX)
 			}
 		}
-	}
+	}, [tooltipRef, setTooltipPos, setHoverValue])
 
 	const handleMouseLeave = () => {
 		setHoverValue(null)
 	}
 
-	const handleMouseDown = () => {
-		// only pause if the audio is playing
-		if (isPlaying){
-			chrome.runtime.sendMessage({
-				type: "AUDIO_COMMAND",
-				ensureOffscreenExists: true,
-				payload: {
-					action: "pause"	
-				}
-			}, () => {
-				dispatch(setIsPlaying(false))
-			})
-		}
-	}
+	const debouncedPlay = useDebouncedCallback(() => {
+		dispatch(setIsPlaying(true))
+	}, 150)
 
-	const handleMouseUp = () => {
-		chrome.runtime.sendMessage({
-			type: "AUDIO_COMMAND",
-			ensureOffscreenExists: true,
-			payload: {
-				action: "play",
-				url: storedPlaybackInfo?.playbackURL ?? "",
-				currentTime: progressBarRef?.current?.value ?? 0,
-			}
-		}, () => {
-			dispatch(setIsPlaying(true))
-		})
-	}
+	const handleMouseDown = useCallback(() => {
+		dispatch(setIsPlaying(false))
+	}, [isPlaying])
+
+	const handleMouseUp = useCallback(() => {
+		debouncedPlay()
+	}, [debouncedPlay])
 
 	return (
 		<div className={`${queuedTracks?.length > 0 ? "visible" : "invisible"} relative flex items-center justify-center w-full`}>

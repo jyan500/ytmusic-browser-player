@@ -1,11 +1,20 @@
 import React, { useRef, useEffect } from "react";
 import { createRoot } from "react-dom/client";
+import { DEFAULT_VOLUME, UPDATE_INTERVAL } from "../helpers/constants"
 
 const OffscreenAudio = () => {
 	const audioRef = useRef<HTMLAudioElement>(null)
 
 	useEffect(() => {
+		// on mount, make sure the audio volume always starts at a default of .3
+		// in case something goes wrong and the volume doesn't get set. Otherwise,
+		// it will play something very loud unexpectedly...
+		if (audioRef?.current){
+			audioRef.current.volume = DEFAULT_VOLUME
+		}	
+
 	    chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
+
 	    	if (msg.debug){
 	        	console.log("OFFSCREEN received message: ", msg)
 	    	}
@@ -19,6 +28,12 @@ const OffscreenAudio = () => {
 
 	            if (action === "play") {
 	            	if (audioRef.current.src != msg.payload.url){
+	            		if (msg.payload.volume){
+			            	audioRef.current.volume = msg.payload.volume
+	            		}
+	            		if (msg.payload.muted){
+	            			audioRef.current.muted = msg.payload.muted
+	            		}
 		                audioRef.current.src = msg.payload.url
 		            	// the reason for setting current time on play is if the user pauses
 		            	// for more than 30 seconds. This causes the offscreen document to disappear,
@@ -28,12 +43,15 @@ const OffscreenAudio = () => {
 		                }
 	            	}
 	                audioRef.current.play()
+					chrome.runtime.sendMessage({ type: "AUDIO_STATE", playing: true });
 	            } 
 	            else if (action === "resume"){
 	            	audioRef.current.play()
+					chrome.runtime.sendMessage({ type: "AUDIO_STATE", playing: true });
 	            }
 	            else if (action === "pause") {
 	                audioRef.current.pause()
+				    chrome.runtime.sendMessage({ type: "AUDIO_STATE", playing: false });
 	            }
 	            else if (action === "restart"){
 	            	audioRef.current.currentTime = 0
@@ -41,6 +59,7 @@ const OffscreenAudio = () => {
 	            		audioRef.current.src = msg.payload.url
 	            	}
 	            	audioRef.current.play()
+					chrome.runtime.sendMessage({ type: "AUDIO_STATE", playing: true });
 	            }
 	            else if (action === "setTime"){
 	            	audioRef.current.currentTime = msg.payload.currentTime
@@ -69,7 +88,7 @@ const OffscreenAudio = () => {
 					})
 				}
 			}
-		}, 1000/60)
+		}, UPDATE_INTERVAL)
 
 	    return () => clearInterval(intervalId);
 
