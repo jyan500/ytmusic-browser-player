@@ -72,6 +72,11 @@ export interface Playlist {
     count: number
 }
 
+export interface VideoItem {
+	videoId: string
+	setVideoId: string
+}
+
 export type WatchPlaylist = {
 	playlistId: string
 	related: string

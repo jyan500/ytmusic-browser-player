@@ -1,6 +1,6 @@
 import { BaseQueryFn, FetchArgs, createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react"
 import { BACKEND_BASE_URL, PLAYLIST_URL } from "../../helpers/urls" 
-import { CustomError, WatchPlaylist, Playlist, Thumbnail, PlaylistInfo, Track, ListResponse } from "../../types/common" 
+import { CustomError, WatchPlaylist, Playlist, Thumbnail, PlaylistInfo, Track, ListResponse, VideoItem } from "../../types/common" 
 import { privateApi } from "../private" 
 
 export const playlistsApi = privateApi.injectEndpoints({
@@ -29,6 +29,26 @@ export const playlistsApi = privateApi.injectEndpoints({
 				params: params
 			}),
 			providesTags: ["PlaylistTracks"]
+		}),
+		addPlaylistItems: builder.mutation<{message: string}, {playlistId: string, videoIds: Array<string>}>({
+			query: ({playlistId, videoIds}) => ({
+				url: `${PLAYLIST_URL}/${playlistId}`,
+				method: "POST",
+				body: {
+					videoIds: videoIds
+				}
+			}),
+			invalidatesTags: ["PlaylistTracks"]
+		}),
+		removePlaylistItems: builder.mutation<{message: string}, {playlistId: string, videoItems: VideoItem}>({
+			query: ({playlistId, videoItems}) => ({
+				url: `${PLAYLIST_URL}/${playlistId}`,
+				method: "DELETE",
+				body: {
+					videoItems: videoItems
+				}
+			}),
+			invalidatesTags: ["PlaylistTracks"]
 		}),
 		getPlaylistRelatedTracks: builder.query<Array<Track>, {playlistId: string, videoId: string}>({
 			query: ({playlistId, videoId}) => ({
@@ -75,4 +95,6 @@ export const {
 	useLazyGetPlaylistTracksQuery,
 	useLazyGetPlaylistRelatedTracksQuery,
 	useLazyGetWatchPlaylistQuery,
+	useAddPlaylistItemsMutation,
+	useRemovePlaylistItemsMutation
 } = playlistsApi 

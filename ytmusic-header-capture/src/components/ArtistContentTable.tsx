@@ -6,6 +6,7 @@ import { useLazyGetWatchPlaylistQuery } from "../services/private/playlists"
 import { useLoadPlaylist } from "../hooks/useLoadPlaylist"
 import { convertOptionTypesToString, getThumbnail } from "../helpers/functions"
 import { ImagePlayButton } from "./ImagePlayButton"
+import { SEPARATOR } from "../helpers/constants"
 
 interface Props {
 	content: Array<ArtistContent>
@@ -38,7 +39,7 @@ export const ArtistContentTable = ({content}: Props) => {
 			{
 				content.map((c: ArtistContent, index: number) => {
 					return (
-						<tr className = {`${index < content.length - 1 ? "border-b border-zinc-400" : ""} mb-2`}>
+						<tr className = {`${index < content.length - 1 ? SEPARATOR : ""} mb-2`}>
 							<td className="py-1 align-middle group">
 								<ImagePlayButton
 									imageHeight={"w-12"}

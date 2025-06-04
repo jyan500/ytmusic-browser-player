@@ -6,6 +6,7 @@ import { authReducer } from "./slices/authSlice"
 import { userProfileReducer } from "./slices/userProfileSlice"
 import { audioPlayerReducer } from "./slices/audioPlayerSlice"
 import { queuedTrackListReducer } from "./slices/queuedTrackListSlice"
+import { modalReducer } from "./slices/modalSlice"
 import {
 	persistStore,
 	persistReducer,
@@ -25,6 +26,7 @@ const reducers = combineReducers({
 	userProfile: userProfileReducer,
 	audioPlayer: audioPlayerReducer,
 	queuedTrackList: queuedTrackListReducer,
+	modal: modalReducer
 })
 
 const persistConfig = {
