@@ -29,8 +29,8 @@ def get_playlist(playlistId):
 def add_to_playlist(playlistId):
     ytmusic = initYTMusic(request)
     data = request.get_json()
-    if data.videoIds:
-        ytmusic.add_playlist_items(playlistId=playlistId, videoIds=videoIds)
+    if "videoIds" in data:
+        ytmusic.add_playlist_items(playlistId=playlistId, videoIds=data["videoIds"])
     return jsonify({"message": "playlist item added successfully!"}), 200
 
 @playlists.route("/playlists/<playlistId>", endpoint="remove_from_playlist", methods=["DELETE"])
@@ -38,8 +38,8 @@ def add_to_playlist(playlistId):
 def remove_from_playlist(playlistId):
     ytmusic = initYTMusic(request)
     data = request.get_json()
-    if data.videoItems:
-        ytmusic.remove_playlist_items(playlistId=playlistId, videos=videoItems)
+    if "videoItems" in data:
+        ytmusic.remove_playlist_items(playlistId=playlistId, videos=data["videoItems"])
     return jsonify({"message": "playlist items removed successfully!"}), 200
 
 @playlists.route("/playlists/<playlistId>/tracks", endpoint="get_playlist_tracks", methods=["GET"])

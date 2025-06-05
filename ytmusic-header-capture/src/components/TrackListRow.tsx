@@ -12,6 +12,7 @@ interface Props {
 	key: string
 	rowContent: React.ReactNode 
 	triggerLoadTrack: () => void
+	playlistId?: string
 	showPauseButton: boolean
 	thumbnail: string
 }
@@ -22,6 +23,7 @@ export const TrackListRow = ({
 	showPauseButton, 
 	triggerLoadTrack, 
 	rowContent, 
+	playlistId,
 	key, 
 	thumbnail
 }: Props) => {
@@ -65,7 +67,7 @@ export const TrackListRow = ({
                     </button>
                     {
                     showDropdown ? 
-	                    <TrackDropdown videoId={track.videoId} setVideoId={track.setVideoId} ref={menuDropdownRef} closeDropdown={() => setShowDropdown(false)}/>
+	                    <TrackDropdown playlistId={playlistId} videoId={track.videoId} setVideoId={track.setVideoId} ref={menuDropdownRef} closeDropdown={() => setShowDropdown(false)}/>
 	                    : null
 	                }
                 </div>

@@ -9,6 +9,7 @@ import {
 import { Home } from "../pages/Home"
 import { PADDING_AVOID_AUDIO_PLAYER_OVERLAP } from "../helpers/constants"
 import { ModalManager } from "../components/ModalManager"
+import { ToastList } from "../components/elements/ToastList"
 
 export const Popup = () => {
     
@@ -22,6 +23,7 @@ export const Popup = () => {
         </div>
         <AudioPlayer/>
         <ModalManager/>
+        <ToastList/>
         </>
     );
 }

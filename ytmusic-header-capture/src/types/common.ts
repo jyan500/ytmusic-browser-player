@@ -199,6 +199,12 @@ export interface Artist {
     }
 }
 
+export interface Toast {
+	id: string
+	message: string
+	animationType: string
+}
+
 export interface HomeContent {
 	title: string
 	// explore content can contain album information, song information or playlist information

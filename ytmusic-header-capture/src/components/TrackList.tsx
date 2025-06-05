@@ -57,6 +57,7 @@ export const TrackList = ({ data, playlist, inQueueTrackList }: Props) => {
                     key={isQueueItem(track) ? track.queueId : track.videoId} 
                     showPauseButton={isPlaying && currentTrack?.videoId === track.videoId}
                     triggerLoadTrack={() => triggerLoadTrack(playlist ?? {} as Playlist, track)}
+                    playlistId={playlist?.playlistId}
                     shouldHighlightRow={shouldHighlightRow(track)} 
                     thumbnail={getThumbnail(track)?.url ?? ""}
                     rowContent={rowContent(track)}
