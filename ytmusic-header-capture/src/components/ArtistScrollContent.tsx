@@ -106,7 +106,8 @@ export const ArtistScrollContent = ({content}: Props) => {
 				thumbnails: [],
 				title: watchPlaylistData.title,
 				count: watchPlaylistData.tracks.length,
-				description: ""
+				description: "",
+				tracks: watchPlaylistData.tracks,
 			} as TPlaylist, watchPlaylistData.tracks, false)
 		}
 	}, [watchPlaylistData, isWatchPlaylistFetching])

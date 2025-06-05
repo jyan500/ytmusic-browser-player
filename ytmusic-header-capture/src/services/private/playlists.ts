@@ -12,7 +12,13 @@ export const playlistsApi = privateApi.injectEndpoints({
 				method: "GET",
 				params: params
 			}),
-			providesTags: ["Playlists"]	
+			providesTags: (result) =>
+				result
+					? [
+						{ type: "Playlists", id: "LIST" }, // for the whole list
+						...result.map((playlist) => ({ type: "Playlists" as const, id: playlist.playlistId }))
+					]
+					: [{ type: "Playlists", id: "LIST" }],
 		}),
 		getPlaylist: builder.query<PlaylistInfo, {playlistId: string, params: Record<string, any>}>({
 			query: ({playlistId, params}) => ({
@@ -20,7 +26,7 @@ export const playlistsApi = privateApi.injectEndpoints({
 				method: "GET",
 				params: params
 			}),
-			providesTags: ["Playlists"]	
+			providesTags: (result, error, { playlistId }) => [{ type: "Playlists", id: playlistId }],
 		}),
 		getPlaylistTracks: builder.query<Array<Track>, {playlistId: string, params: Record<string, any>}>({
 			query: ({playlistId, params}) => ({
@@ -38,7 +44,13 @@ export const playlistsApi = privateApi.injectEndpoints({
 					videoIds: videoIds
 				}
 			}),
-			invalidatesTags: ["PlaylistTracks"]
+			// invalidatesTags: ["Playlists", "PlaylistTracks", "Home"]
+			invalidatesTags: (result, error, { playlistId }) => [
+				// update all playlists and also the specific playlist
+				{ type: "Playlists", id: "LIST"},
+				{ type: "Playlists", id: playlistId },
+				"Home",
+			]
 		}),
 		removePlaylistItems: builder.mutation<{message: string}, {playlistId: string, videoItems: Array<VideoItem>}>({
 			query: ({playlistId, videoItems}) => ({
@@ -48,7 +60,12 @@ export const playlistsApi = privateApi.injectEndpoints({
 					videoItems: videoItems
 				}
 			}),
-			invalidatesTags: ["PlaylistTracks"]
+			invalidatesTags: (result, error, { playlistId }) => [
+				// update all playlists and also the specific playlist
+				{ type: "Playlists", id: "LIST"},
+				{ type: "Playlists", id: playlistId },
+				"Home",
+			]
 		}),
 		getPlaylistRelatedTracks: builder.query<Array<Track>, {playlistId: string, videoId: string}>({
 			query: ({playlistId, videoId}) => ({
@@ -64,7 +81,6 @@ export const playlistsApi = privateApi.injectEndpoints({
 					return {...track, thumbnails: track.thumbnail ?? [] as Thumbnail[], duration: track.length}
 				})
 			},
-			providesTags: ["PlaylistTracks"]
 		}),
 		getWatchPlaylist: builder.query<WatchPlaylist, {videoId: string}>({
 			query: ({videoId}) => ({

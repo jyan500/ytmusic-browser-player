@@ -14,6 +14,7 @@ type Props = {
 	closeDropdown: () => void
 	setVideoId?: string
 	playlistId?: string
+	displayAbove?: boolean
 	videoId: string
 }
 
@@ -22,7 +23,8 @@ export const TrackDropdown = React.forwardRef<HTMLDivElement, Props>(({
 	closeDropdown, 
 	setVideoId,
 	playlistId, 
-	videoId
+	videoId,
+	displayAbove=false,
 }: Props, ref) => {
 	const dispatch = useAppDispatch()
 	const [removePlaylistItems, {isLoading, error}] = useRemovePlaylistItemsMutation()
@@ -70,7 +72,7 @@ export const TrackDropdown = React.forwardRef<HTMLDivElement, Props>(({
 	}
 
 	return (
-		<Dropdown closeDropdown={closeDropdown} ref = {ref} className = "text-white">
+		<Dropdown closeDropdown={closeDropdown} ref = {ref} className = {`${displayAbove ? "bottom-full right-full mb-2": "mt-2"} text-white`}>
 			<ul>
 				{Object.values(options).map((option) => {
 					return (
@@ -82,7 +84,7 @@ export const TrackDropdown = React.forwardRef<HTMLDivElement, Props>(({
 								}
 								option.onClick()
 							}}
-							className="block px-4 py-2 text-sm text-white"
+							className="hover:opacity-60 cursor-pointer block px-4 py-2 text-sm text-white"
 							role="menuitem"
 						>
 							<div className = "flex flex-row gap-x-2 items-center">

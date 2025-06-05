@@ -13,7 +13,7 @@ import { Album as TAlbum, Playlist, Track } from "../types/common"
 import { Playlists } from "../pages/Playlists"
 import { goTo } from "react-chrome-extension-router"
 import { NavButton } from "../components/NavButton"
-import { useLazyGetPlaylistTracksQuery } from "../services/private/playlists"
+import { useLazyGetPlaylistQuery } from "../services/private/playlists"
 import { useGetAlbumQuery } from "../services/private/albums"
 import { useLazyGetSongPlaybackQuery } from "../services/private/songs"
 import { skipToken } from '@reduxjs/toolkit/query/react'
@@ -35,10 +35,8 @@ export const Album = ({browseId}: Props) => {
 	const { triggerLoadPlaylist } = useLoadPlaylist()
 	const { isPlaying, queuedTracks, showAudioPlayer, storedPlaybackInfo } = useAppSelector((state) => state.audioPlayer)
 	const { showQueuedTrackList, playlist: currentPlaylist } = useAppSelector((state) => state.queuedTrackList)
-	const [ playlist, setPlaylist ] = useState<Playlist | null>(null)
 	const { data: albumData, isFetching: isAlbumFetching, isError: isAlbumError} = useGetAlbumQuery(browseId ?? skipToken)
-    // const { data: tracks, error: tracksError, isFetching: isFetchingTracks } = useGetPlaylistTracksQuery(audioPlaylistId ? {playlistId: audioPlaylistId, params: {}} : skipToken);
-    const [ triggerGetPlaylistTracks, { data: tracks, error: tracksError, isFetching: isFetchingTracks }] = useLazyGetPlaylistTracksQuery()
+    const [ triggerGetPlaylist, { data: playlistData, error: playlistError, isFetching: isPlaylistFetching }] = useLazyGetPlaylistQuery()
 	const divRef = useRef<HTMLDivElement | null>(null)
 
 	const getAlbumDescription = (data: TAlbum) => {
@@ -52,14 +50,7 @@ export const Album = ({browseId}: Props) => {
 
 	useEffect(() => {
 		if (albumData && !isAlbumFetching){
-			setPlaylist({
-				title: albumData.title,
-				playlistId: albumData.audioPlaylistId,
-				thumbnails: albumData.thumbnails,	
-				description: getAlbumDescription(albumData),
-				count: albumData.trackCount,
-			} as Playlist)
-			triggerGetPlaylistTracks({playlistId: albumData.audioPlaylistId, params: {}})
+			triggerGetPlaylist({playlistId: albumData.audioPlaylistId, params: {}})
 		}
 	}, [albumData, isAlbumFetching])
 
@@ -72,6 +63,13 @@ export const Album = ({browseId}: Props) => {
 	}, [browseId])
 
 	return (
-		tracks && playlist ? <PlaylistPageContainer playlist={playlist} tracks={tracks}/> : <LoadingSpinner/>
+		playlistData && albumData ? <PlaylistPageContainer playlist={{
+			title: albumData.title,
+			playlistId: albumData.audioPlaylistId,
+			thumbnails: albumData.thumbnails,	
+			description: getAlbumDescription(albumData),
+			count: albumData.trackCount,
+			tracks: playlistData.tracks,
+		} as Playlist} tracks={playlistData.tracks}/> : <LoadingSpinner/>
 	)
 }

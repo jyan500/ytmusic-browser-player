@@ -42,7 +42,8 @@ export const SuggestedContentGrid = ({content}: Props) => {
 				thumbnails: [],
 				title: watchPlaylistData.title,
 				count: watchPlaylistData.tracks.length,
-				description: ""
+				description: "",
+				tracks: watchPlaylistData.tracks
 			} as Playlist, watchPlaylistData.tracks, false)
 		}
 	}, [watchPlaylistData, isWatchPlaylistFetching])

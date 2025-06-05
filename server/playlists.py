@@ -21,8 +21,9 @@ def get_playlists():
 def get_playlist(playlistId):
     ytmusic = initYTMusic(request)
     playlistInfo = ytmusic.get_playlist(playlistId=playlistId, limit=1)
+    return jsonify(playlistInfo), 200
     # remove the tracks attribute
-    return jsonify({k: v for k, v in playlistInfo.items() if k != "tracks"}), 200
+    # return jsonify({k: v for k, v in playlistInfo.items() if k != "tracks"}), 200
 
 @playlists.route("/playlists/<playlistId>", endpoint="add_to_playlist", methods=["POST"])
 @require_authentication

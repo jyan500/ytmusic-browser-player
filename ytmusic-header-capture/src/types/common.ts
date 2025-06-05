@@ -32,6 +32,7 @@ export interface PlaylistInfo {
 	duration: string
 	duration_seconds: number
 	trackCount: number
+	tracks: Array<Track>
 }
 
 export interface OptionType {
@@ -66,10 +67,12 @@ export type QueueItem = Track & {
 
 export interface Playlist {
 	playlistId: string
+	author?: Array<OptionType>
     title: string
     thumbnails?: Array<Thumbnail>
     description: string
     count: number
+    tracks: Array<Track>
 }
 
 export interface VideoItem {
