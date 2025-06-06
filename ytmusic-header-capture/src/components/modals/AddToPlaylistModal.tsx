@@ -4,7 +4,7 @@ import { useAppDispatch } from "../../hooks/redux-hooks"
 import { 
 	useAddPlaylistItemsMutation, 
 	useRemovePlaylistItemsMutation, 
-	useGetPlaylistsQuery 
+	useGetPlaylistsQuery,
 } from "../../services/private/playlists"
 import { LoadingSpinner } from "../elements/LoadingSpinner"
 import { getThumbnail } from "../../helpers/functions"
@@ -36,7 +36,7 @@ export const PlaylistRows = ({data, addToPlaylist, loading}: PlaylistRowsProps) 
 				data.filter((playlist: Playlist) => playlist.title !== "Liked Music" && playlist.title !== "Episodes for Later").map((playlist: Playlist) => {
 					return (
 						/* prevent clicking another playlist while an item is being added and is still loading */
-						<button disabled={loading.loading} onClick={() => addToPlaylist(playlist.playlistId)} className = "hover:bg-dark-secondary flex flex-row items-center justify-between">
+						<button disabled={loading.loading} onClick={() => addToPlaylist(playlist.playlistId)} className = {`${loading.loading ? "opacity-60" : ""} hover:bg-dark-secondary flex flex-row items-center justify-between`}>
 							<div className = "flex flex-row items-center gap-x-2">
 								<div className = "h-12 w-12">
 									<img className = "w-full h-full object-fill" src={getThumbnail(playlist)?.url ?? ""}/>
@@ -63,16 +63,21 @@ export const AddToPlaylistModal = ({videoId, setVideoId}: Props) => {
 	const [addPlaylistItems, {isLoading, error}] = useAddPlaylistItemsMutation()
 	const [loading, setLoading] = useState<PlaylistRowLoading>({loading: false, playlistId: undefined})
 
-	const addToPlaylist = async (playlistId: string) => {
-		setLoading({loading: true, playlistId: playlistId})
-		try {
-			await addPlaylistItems({playlistId, videoIds: [videoId]}).unwrap()
+	useEffect(() => {
+		if (data && !isFetching && loading.loading){
 			setLoading({loading: false, playlistId: undefined})
 			dispatch(addToast({
 				id: uuidv4(),
 				animationType: "animation-in",
 				message: "Added to playlist!"
 			}))
+		}
+	}, [data, isFetching])
+
+	const addToPlaylist = async (playlistId: string) => {
+		setLoading({loading: true, playlistId: playlistId})
+		try {
+			await addPlaylistItems({playlistId, videoIds: [videoId]}).unwrap()
 		}
 		catch {
 			dispatch(addToast({
@@ -86,7 +91,7 @@ export const AddToPlaylistModal = ({videoId, setVideoId}: Props) => {
 	return (
 		<div className = "flex flex-col gap-y-4">
 			<p className = "text-xl font-semibold">Save to Playlist</p>
-			{data && !isFetching ? (
+			{data ? (
 				<InfiniteScrollList<Playlist, Omit<PlaylistRowsProps, "data">> props={{addToPlaylist: addToPlaylist, loading}} data={data} component={PlaylistRows}/>
 			) : (
 				<LoadingSpinner/>

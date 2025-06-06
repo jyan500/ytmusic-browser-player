@@ -44,16 +44,18 @@ export const Playlist = ({playlist}: Props) => {
 	}, [playlist])
 
 	return (
-		playlistData ? <PlaylistPageContainer playlist={{
-			title: playlistData.title,
-			playlistId: playlistData.id,
-			thumbnails: playlistData.thumbnails,	
-			// should be okay to use the author based on the home page playlist data, as it should be static
-			// and not changing. The count needs to be pulled from playlistInfo data in order to be updated
-			// when an item is added/removed from the playlist though.
-			description: playlist.author?.[0] ? convertOptionTypesToString([playlist.author[0], {id: "", name: `${playlistData.trackCount.toString()} tracks`}]) : playlist.description,
-			count: playlistData.trackCount,
-			tracks: playlistData.tracks,	
-		} as TPlaylist} tracks={playlistData.tracks}/> : <LoadingSpinner/>
+		playlistData ? <PlaylistPageContainer 
+			playlist={{
+				title: playlistData.title,
+				playlistId: playlistData.id,
+				thumbnails: playlistData.thumbnails,	
+				// should be okay to use the author based on the home page playlist data, as it should be static
+				// and not changing. The count needs to be pulled from playlistInfo data in order to be updated
+				// when an item is added/removed from the playlist though.
+				description: playlist.author?.[0] ? convertOptionTypesToString([playlist.author[0], {id: "", name: `${playlistData.trackCount.toString()} tracks`}]) : playlist.description,
+				count: playlistData.trackCount,
+				tracks: playlistData.tracks,	
+			} as TPlaylist} 
+			tracks={playlistData.tracks}/> : <LoadingSpinner/>
 	)
 }

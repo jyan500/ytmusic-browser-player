@@ -5,7 +5,7 @@ import { IconAddToPlaylist } from "../../icons/IconAddToPlaylist"
 import { setIsOpen, setModalType, setModalProps } from "../../slices/modalSlice"
 import { Playlist, VideoItem } from "../../types/common"
 import { IconTrash } from "../../icons/IconTrash"
-import { useRemovePlaylistItemsMutation } from "../../services/private/playlists"
+import { useLazyGetPlaylistQuery, useRemovePlaylistItemsMutation } from "../../services/private/playlists"
 import { v4 as uuidv4 } from "uuid"
 import { addToast } from "../../slices/toastSlice"
 import { LoadingSpinner } from "../elements/LoadingSpinner"
@@ -28,12 +28,14 @@ export const TrackDropdown = React.forwardRef<HTMLDivElement, Props>(({
 }: Props, ref) => {
 	const dispatch = useAppDispatch()
 	const [removePlaylistItems, {isLoading, error}] = useRemovePlaylistItemsMutation()
+	const [triggerGetPlaylist, {data, isFetching, isError}] = useLazyGetPlaylistQuery()
 
 	const removePlaylistItem = async () => {
 		if (playlistId && videoId && setVideoId){
 			const id = uuidv4()
 			try {
 				await removePlaylistItems({playlistId, videoItems: [{videoId, setVideoId} as VideoItem]}).unwrap()
+				await triggerGetPlaylist({playlistId: playlistId, params: {}}).unwrap()
 				dispatch(addToast({
 					id: id,
 					message: "Removed successfully!",
@@ -84,11 +86,11 @@ export const TrackDropdown = React.forwardRef<HTMLDivElement, Props>(({
 								}
 								option.onClick()
 							}}
-							className="hover:opacity-60 cursor-pointer block px-4 py-2 text-sm text-white"
+							className={`${isLoading || isFetching ? "opacity-60": ""} hover:opacity-60 cursor-pointer block px-4 py-2 text-sm text-white`}
 							role="menuitem"
 						>
 							<div className = "flex flex-row gap-x-2 items-center">
-								{isLoading && option.text === "Remove from playlist" ? <div><LoadingSpinner width={"w-4"} height={"h-4"}/></div> : <div>{option.icon}</div>}
+								{(isLoading || isFetching) && option.text === "Remove from playlist" ? <div><LoadingSpinner width={"w-4"} height={"h-4"}/></div> : <div>{option.icon}</div>}
 								<p>{option.text}</p>
 							</div>
 						</li>
