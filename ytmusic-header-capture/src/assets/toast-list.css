@@ -1,0 +1,37 @@
+.toast-list {
+	position: fixed;
+	padding: var(--toast-list-padding);
+	width: 100%;
+	max-width: var(--toast-list-width);
+	max-height: 100vh;
+	overflow: hidden auto;
+	z-index:999;
+}
+
+.--top-left {
+	top: 0;
+	left: 0;
+
+}
+
+.--top-right {
+	top: 0;
+	right: 0;
+}
+
+.--bottom-left {
+	bottom: 0;	
+	left: 0;
+}
+
+.--bottom-right {
+	bottom: 0;
+	right: 0;
+}
+
+/* apply the transition properties to the toast elements within the toast list */
+.toast-list .toast {
+	transition: transform var(--toast-speed), opacity var(--toast-speed),
+	box-shadow var(--toast-speed) ease-in-out;
+}
+

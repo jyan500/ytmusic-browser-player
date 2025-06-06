@@ -21,8 +21,27 @@ def get_playlists():
 def get_playlist(playlistId):
     ytmusic = initYTMusic(request)
     playlistInfo = ytmusic.get_playlist(playlistId=playlistId, limit=1)
+    return jsonify(playlistInfo), 200
     # remove the tracks attribute
-    return jsonify({k: v for k, v in playlistInfo.items() if k != "tracks"}), 200
+    # return jsonify({k: v for k, v in playlistInfo.items() if k != "tracks"}), 200
+
+@playlists.route("/playlists/<playlistId>", endpoint="add_to_playlist", methods=["POST"])
+@require_authentication
+def add_to_playlist(playlistId):
+    ytmusic = initYTMusic(request)
+    data = request.get_json()
+    if "videoIds" in data:
+        ytmusic.add_playlist_items(playlistId=playlistId, videoIds=data["videoIds"])
+    return jsonify({"message": "playlist item added successfully!"}), 200
+
+@playlists.route("/playlists/<playlistId>", endpoint="remove_from_playlist", methods=["DELETE"])
+@require_authentication
+def remove_from_playlist(playlistId):
+    ytmusic = initYTMusic(request)
+    data = request.get_json()
+    if "videoItems" in data:
+        ytmusic.remove_playlist_items(playlistId=playlistId, videos=data["videoItems"])
+    return jsonify({"message": "playlist items removed successfully!"}), 200
 
 @playlists.route("/playlists/<playlistId>/tracks", endpoint="get_playlist_tracks", methods=["GET"])
 @require_authentication
@@ -52,5 +71,6 @@ def get_watch_playlist():
     # add the title "Radio" to the playlist
     watchPlaylist["title"] = "Radio"
     return jsonify(watchPlaylist), 200
+
 
 

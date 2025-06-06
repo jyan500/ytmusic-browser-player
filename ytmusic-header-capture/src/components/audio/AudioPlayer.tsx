@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React, { useState, useRef } from "react"
 import { useAppSelector, useAppDispatch } from "../../hooks/redux-hooks"
 import { IconUpArrow } from "../../icons/IconUpArrow"
 import { IconDownArrow } from "../../icons/IconDownArrow"
@@ -10,11 +10,25 @@ import { VolumeControl } from "./VolumeControl"
 import { Playlist } from "./Playlist"
 import { setShowQueuedTrackList } from "../../slices/queuedTrackListSlice"
 import { TRANSITION_TRANSFORM } from "../../helpers/constants"
+import { TrackDropdown } from "../dropdowns/TrackDropdown"
+import { IconVerticalMenu } from "../../icons/IconVerticalMenu"
+import { useClickOutside } from "../../hooks/useClickOutside"
 
 export const AudioPlayer = () => {
-	const { showQueuedTrackList } = useAppSelector((state) => state.queuedTrackList)
+	const { playlist, showQueuedTrackList } = useAppSelector((state) => state.queuedTrackList)
 	const dispatch = useAppDispatch()
 	const { showAudioPlayer: isOpen, currentTrack } = useAppSelector((state) => state.audioPlayer)
+
+    const [showDropdown, setShowDropdown] = useState(false)
+    const menuDropdownRef = useRef<HTMLDivElement>(null)
+    const buttonRef = useRef<HTMLButtonElement>(null)
+
+    const onClickOutside = () => {
+        setShowDropdown(false)  
+    }
+
+    useClickOutside(menuDropdownRef, onClickOutside, buttonRef)
+
 	return (
 		<div className = {`${isOpen ? `translate-y-0` : "translate-y-full"} ${TRANSITION_TRANSFORM} w-full fixed bottom-0 left-0`}>
 			<ProgressBar/>
@@ -27,6 +41,18 @@ export const AudioPlayer = () => {
 					<div className = "w-28">
 						<VolumeControl/>
 					</div>
+					<div className = "relative inline-block">
+						<button ref={buttonRef} onClick={() => {
+	                        setShowDropdown(!showDropdown)}
+	                    } className="hover:opacity-60">
+	                        <IconVerticalMenu/>
+	                    </button>
+	                    {
+	                    showDropdown && currentTrack ? 
+		                    <TrackDropdown displayAbove={true} playlistId={playlist?.playlistId} videoId={currentTrack.videoId} setVideoId={currentTrack.setVideoId} ref={menuDropdownRef} closeDropdown={() => setShowDropdown(false)}/>
+		                    : null
+		                }
+		            </div>
 					<button onClick={() => dispatch(setShowQueuedTrackList(!showQueuedTrackList))}>{showQueuedTrackList ? <IconDownArrow/> : <IconUpArrow/>}</button>
 				</div>
 			</div>
