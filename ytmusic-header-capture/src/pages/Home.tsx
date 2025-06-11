@@ -4,7 +4,7 @@ import { Playlists } from "./Playlists"
 import { useAppSelector, useAppDispatch } from "../hooks/redux-hooks"
 import { useLoginMutation } from "../services/public/auth"
 import { setUserProfile } from "../slices/userProfileSlice"
-import { setCredentials } from "../slices/authSlice"
+import { setCredentials, logout } from "../slices/authSlice"
 import { BackendErrorMessage } from "../components/BackendErrorMessage"
 import { UserProfile, HomeContent } from "../types/common"
 import { useLazyGetHomeQuery }  from "../services/private/home"
@@ -14,6 +14,8 @@ import {
 import { Avatar } from "../components/elements/Avatar"
 import { SuggestedContentContainer } from "../components/SuggestedContentContainer"
 import { LoadingSpinner } from "../components/elements/LoadingSpinner"
+import { addToast } from "../slices/toastSlice"
+import { v4 as uuidv4 } from "uuid"
 
 export const Home = () => {
 	const [login, {isLoading, error}] = useLoginMutation()
@@ -30,27 +32,53 @@ export const Home = () => {
 	}, [])
 
 	useEffect(() => {
-		if (!isLoading && headers && userProfile){
+		if (!isLoading && headers && userProfile && !error){
 			trigger({}, true)
 		}
 	}, [isLoading, headers, userProfile])
 
 	const authenticate = async () => {
-		const res = await chrome.storage.local.get("ytMusicHeaders")
-		if (res){
+		const fallbackHeaders = await chrome.storage.local.get("ytMusicHeaders")
+		if (headers){
 			try {
-				const response = await login({headers: JSON.stringify(res.ytMusicHeaders)}).unwrap()
-				dispatch(setCredentials({headers: JSON.stringify(res.ytMusicHeaders)}))
-				dispatch(setUserProfile({userProfile: {
-					accountName: response.accountName,
-				    channelHandle: response.channelHandle,
-				    accountPhotoUrl: response.accountPhotoUrl
-				} as UserProfile}))
+				const response = await login({headers}).unwrap()
+				if (!headers){
+					dispatch(setUserProfile({userProfile: {
+						accountName: response.accountName,
+					    channelHandle: response.channelHandle,
+					    accountPhotoUrl: response.accountPhotoUrl
+					} as UserProfile}))
+				}
+				return
+			}
+			catch (e){
+				// if the login fails, clear out the headers as they are likely expired
+				dispatch(logout())
+			}
+		}
+		if (fallbackHeaders?.ytMusicHeaders){
+			try {
+				const fallback = JSON.stringify(fallbackHeaders.ytMusicHeaders)	
+				const response = await login({ headers: fallback }).unwrap()
+				dispatch(setCredentials({ headers: fallback }))
+				dispatch(setUserProfile({
+					userProfile: {
+						accountName: response.accountName,
+						channelHandle: response.channelHandle,
+						accountPhotoUrl: response.accountPhotoUrl,
+					} as UserProfile
+				}))
+				return
 			}
 			catch (e){
 
 			}
 		}
+		dispatch(addToast({
+			id: uuidv4(),
+			message: "Please open music.youtube.com to reauthenticate",
+			animationType: "animation-in"
+		}))
 	}
 
     return (

@@ -6,7 +6,7 @@ const POPUP_PATH = "popup.html"
 // https://developer.chrome.com/docs/extensions/reference/api/offscreen
 let creating // A global promise to avoid concurrency issues
 
-chrome.webRequest.onBeforeSendHeaders.addListener(
+chrome.webRequest.onSendHeaders.addListener(
     (details) => {
         const headerNames = ["x-goog-pageid", "authorization", "user-agent", "accept", "accept-language", "content-type", "x-goog-authuser", "x-origin", "cookie"]
         const headers = details.requestHeaders || [];

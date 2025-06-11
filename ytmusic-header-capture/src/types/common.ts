@@ -230,6 +230,11 @@ export interface SuggestedContent {
 	views?: string
 }
 
+export interface ContainsArtists {
+	artists?: Array<OptionType>,
+	[key: string]: any 
+}
+
 export interface CustomError {
 	data: Record<string, Array<string>>
 	status: number

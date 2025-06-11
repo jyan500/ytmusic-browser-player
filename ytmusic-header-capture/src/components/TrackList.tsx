@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
-import { OptionType, Track, QueueItem, Thumbnail, Playlist } from "../types/common"
+import { ContainsArtists, OptionType, Track, QueueItem, Thumbnail, Playlist } from "../types/common"
 import { useAppDispatch, useAppSelector } from "../hooks/redux-hooks"
 import { setShowAudioPlayer, setSuggestedTracks, setIsPlaying, setCurrentTrack, setQueuedTracks, setIndex, setStoredPlaybackInfo, setIsLoading } from "../slices/audioPlayerSlice"
 import { setShowQueuedTrackList, setPlaylist } from "../slices/queuedTrackListSlice"
@@ -16,6 +16,7 @@ import { useLoadTrack } from "../hooks/useLoadTrack"
 import { TrackDropdown } from "./dropdowns/TrackDropdown"
 import { useClickOutside } from "../hooks/useClickOutside"
 import { TrackListRow } from "./TrackListRow"
+import { ArtistDescription } from "./ArtistDescription"
 
 export interface Props {
     data: Array<Track | QueueItem>;
@@ -39,11 +40,14 @@ export const TrackList = ({ data, playlist, inQueueTrackList }: Props) => {
                 <p className = "font-bold">{track?.title ?? ""}</p>
                 <div className = "flex flex-row gap-x-2">
                     {
+                        /*
                         track?.artists?.map((artist: OptionType) => {
                             return (
                                 <p key={artist.id}>{artist.name}</p>
                             )
                         })
+                        */
+                        <p className = {`text-sm ${shouldHighlightRow(track) ? "text-white" : "text-gray-400"} truncate`}><ArtistDescription content={track as ContainsArtists}/></p>
                     }
                 </div>
             </>

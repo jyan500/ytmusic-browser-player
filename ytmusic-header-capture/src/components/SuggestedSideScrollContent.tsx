@@ -1,6 +1,6 @@
 import React, { useEffect } from "react"
 import { useAppDispatch, useAppSelector } from "../hooks/redux-hooks"
-import { SuggestedContent, OptionType, Playlist as TPlaylist, Track } from "../types/common"
+import { ContainsArtists, SuggestedContent, OptionType, Playlist as TPlaylist, Track } from "../types/common"
 import { PlayableCard } from "./PlayableCard"
 import { goTo } from "react-chrome-extension-router"
 import { useLazyGetWatchPlaylistQuery, useLazyGetPlaylistTracksQuery } from "../services/private/playlists"
@@ -12,6 +12,8 @@ import { Artist } from "../pages/Artist"
 import { Album } from "../pages/Album"
 import { getThumbnail } from "../helpers/functions"
 import { SideScrollContent } from "./SideScrollContent"
+import { LinkableDescription } from "./LinkableDescription"
+import { ArtistDescription } from "./ArtistDescription"
 
 interface Props {
 	content: SuggestedContent
@@ -38,23 +40,43 @@ export const SuggestedSideScrollContent = ({content}: Props) => {
     }
 
 	const getDescription = (): string => {
+        if ("playlistId" in content){
+            if ("description" in content){
+               return content?.description ?? ""
+            }
+        }
+        if ("subscribers" in content){
+           return content?.subscribers ? `${content?.subscribers} subscribers` : ""
+        }
+        if ("artists" in content){
+               const artistNames = content?.artists?.map((artist: OptionType) => {
+                       return artist.name
+               })
+               if (artistNames){
+                       return artistNames.join(" • ")
+               }
+        }
+        return ""
+    }
+
+    const onClickArtist = (artistId: string) => {
+    	goTo(Artist, {browseId: artistId})
+    	return
+    }
+
+	const getLinkableDescription = (): React.ReactNode => {
 		if ("playlistId" in content){
 			if ("description" in content){
-				return content?.description ?? ""
+				return <>{content?.description ?? ""}</>
 			}
 		}
 		if ("subscribers" in content){
-			return content?.subscribers ? `${content?.subscribers} subscribers` : "" 
+			return <>{content?.subscribers ? `${content?.subscribers} subscribers` : ""}</>
 		}
 		if ("artists" in content){
-			const artistNames = content?.artists?.map((artist: OptionType) => {
-				return artist.name
-			})
-			if (artistNames){
-				return artistNames.join(" • ")
-			}
+			return <ArtistDescription content={content as ContainsArtists}/>
 		}
-		return ""
+		return <></>
 	}
 
 	const shouldShowPauseButton = () => {
@@ -85,7 +107,6 @@ export const SuggestedSideScrollContent = ({content}: Props) => {
     		}
     	}
     }
-
 
 	useEffect(() => {
 		if (!isFetchingTracks && tracksData){
@@ -122,6 +143,7 @@ export const SuggestedSideScrollContent = ({content}: Props) => {
 			cardClickAction={() => cardClickAction()}
 			playContent={() => playContent()}
 		    showPauseButton={shouldShowPauseButton()}
+		    linkableDescription={<LinkableDescription description={getLinkableDescription()}/>}
 		>
 		</SideScrollContent>
 	)

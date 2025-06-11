@@ -1,6 +1,6 @@
 import React, { useEffect } from "react"
 import { useAppDispatch, useAppSelector } from "../hooks/redux-hooks"
-import { ArtistContent, OptionType, Playlist as TPlaylist, Track } from "../types/common"
+import { ContainsArtists, ArtistContent, OptionType, Playlist as TPlaylist, Track } from "../types/common"
 import { PlayableCard } from "./PlayableCard"
 import { goTo } from "react-chrome-extension-router"
 import { useLazyGetWatchPlaylistQuery, useLazyGetPlaylistTracksQuery } from "../services/private/playlists"
@@ -13,6 +13,8 @@ import { Artist } from "../pages/Artist"
 import { Album } from "../pages/Album"
 import { getThumbnail } from "../helpers/functions"
 import { SideScrollContent } from "./SideScrollContent"
+import { LinkableDescription } from "./LinkableDescription"
+import { ArtistDescription } from "./ArtistDescription"
 
 interface Props {
 	content: ArtistContent
@@ -57,6 +59,19 @@ export const ArtistScrollContent = ({content}: Props) => {
 			}
 		}
 		return ""
+	}
+
+	const getLinkableDescription = () => {
+		if ("browseId" in content && "year" in content){
+			return <>{content?.year ?? ""}</>
+		}
+		if ("subscribers" in content){
+			return <>{content?.subscribers ? `${content?.subscribers} subscribers` : ""}</> 
+		}
+		if ("artists" in content){
+			return <ArtistDescription content={content as ContainsArtists}/>
+		}
+		return <></>
 	}
 
 	const shouldShowPauseButton = () => {
@@ -128,6 +143,7 @@ export const ArtistScrollContent = ({content}: Props) => {
 			cardClickAction={() => cardClickAction()}
 			isCircular={"subscribers" in content}
 			playContent={() => playContent()}
+			linkableDescription={<LinkableDescription description={getLinkableDescription()}/>}
 			showPauseButton={shouldShowPauseButton()}
 		>
 		</SideScrollContent>

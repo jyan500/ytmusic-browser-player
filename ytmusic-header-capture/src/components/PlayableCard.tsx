@@ -7,6 +7,7 @@ interface PlayableCardProps {
 	title: string,
 	description: string,
 	children?: React.ReactNode
+	linkableDescription?: React.ReactNode
 	isCircular?: boolean
 	isHeader?: boolean
 	imageHeight?: string
@@ -28,17 +29,46 @@ export const PlayableCard = ({
 	cardOnClick, 
 	imagePlayButtonProps,
 	isCircular=false,
+	linkableDescription,
 	children
 }: PlayableCardProps) => {
+
 	const titleDescription = () => {
 		return (
 			<>
 				<p className = {`${isHeader ? "text-md" : ""} font-semibold word-break line-clamp-4`}>{title}</p>
 				{/* whitespace prewrap allows /n to show for displaying multiline descriptions in strings */}
-				<p className = "whitespace-pre-wrap word-break text-gray-300">{description}</p>
+				{linkableDescription ? 
+					linkableDescription : 
+					<p className = "whitespace-pre-wrap word-break text-gray-300">{description}</p>
+				}
 			</>
 		)
 	}
+
+	const displayDescription = () => {
+		// if (isHeader || !cardOnClick){
+		// 	return (
+		// 		<div className = {`${isHeader ? "text-lg text-center" : "text-left" } break-words`}>
+		// 			{titleDescription()}
+		// 		</div>
+		// 	)
+		// }
+		// else{
+		// 	<button onClick={cardOnClick} className = {`text-left break-words`}>
+		// 		{titleDescription()}
+		// 	</button>
+		// }
+		return isHeader || !cardOnClick ?
+           (<div className = {`${isHeader ? "text-lg text-center" : "text-left" } break-words`}>
+                   {titleDescription()}
+           </div>) :
+           (<button onClick={cardOnClick} className= {`text-left break-words`}>
+                   {titleDescription()}
+           </button>)
+
+	}
+
 	return (
 		<>
 			<div className={`${isHeader ? "items-center" : "items-start"} ${!isHeader ? (imageWidth ?? "w-32") : ""} flex flex-col gap-y-2 group`}>
@@ -59,13 +89,7 @@ export const PlayableCard = ({
 					</div>
 				}
 				{
-					isHeader || !cardOnClick ? 
-					<div className = {`${isHeader ? "text-lg text-center" : "text-left" } break-words`}>
-						{titleDescription()}
-					</div> :
-					<button onClick={cardOnClick} className = {`text-left break-words`}>
-						{titleDescription()}
-					</button>
+					displayDescription()
 				}
 			</div>
 			{children}	

@@ -19,6 +19,7 @@ interface Props {
 	description: string
 	cardClickAction: () => void
 	playContent: () => void
+	linkableDescription?: React.ReactNode
 	showPauseButton: boolean
 	isCircular?: boolean
 }
@@ -29,6 +30,7 @@ export const SideScrollContent = ({
 	canPlay,
 	description, 
 	cardClickAction,
+	linkableDescription,
 	playContent,
 	isCircular=false,
 	showPauseButton,
@@ -44,6 +46,7 @@ export const SideScrollContent = ({
 			isHeader={false}
 			canPlay={canPlay}
 			cardOnClick={cardClickAction}
+			linkableDescription={linkableDescription}
 			imagePlayButtonProps={canPlay ? {
 				onPress: playContent,
 				imageHeight: "h-32", 

@@ -7,11 +7,13 @@ interface HorizontalPlayableCardProps {
 	description: string
 	cardOnClick?: () => void
 	imagePlayButtonProps?: ImagePlayButtonProps
+	linkableDescription?: React.ReactNode
 }
 
 export const HorizontalPlayableCard = ({
 	title,
 	description,
+	linkableDescription,
 	cardOnClick, 
 	imagePlayButtonProps,
 }: HorizontalPlayableCardProps) => {
@@ -19,7 +21,11 @@ export const HorizontalPlayableCard = ({
 		return (
 			<>
 				<p className = {`font-semibold overflow-hidden truncate`}>{title}</p>
-				<p className = "text-gray-300 overflow-hidden truncate">{description}</p>
+				{
+					linkableDescription ? 
+					linkableDescription :
+					<p className = "text-gray-300 overflow-hidden truncate">{description}</p>
+				}
 			</>
 		)
 	}

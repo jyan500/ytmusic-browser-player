@@ -36,12 +36,12 @@ export const ArtistContentTable = ({content}: Props) => {
 	}, [watchPlaylistData, isWatchPlaylistFetching])
 
 	return (
-		<div className="w-full table table-auto border-collapse">
+		<table className="w-full table table-fixed overflow-x-auto border-collapse">
 			{
 				content.map((c: ArtistContent, index: number) => {
 					return (
 						<tr className = {`${index < content.length - 1 ? SEPARATOR : ""} mb-2`}>
-							<td className="py-1 align-middle group">
+							<td className="w-14 py-1 align-middle group">
 								<ImagePlayButton
 									imageHeight={"w-12"}
 								    imageWidth={"h-12"} 
@@ -61,6 +61,6 @@ export const ArtistContentTable = ({content}: Props) => {
 					)
 				})
 			}
-		</div>
+		</table>
 	)
 }

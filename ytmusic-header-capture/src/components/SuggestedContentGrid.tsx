@@ -1,10 +1,12 @@
 import React, {useEffect} from "react"
 import { useAppSelector } from "../hooks/redux-hooks"
-import { OptionType, Track, Playlist, SuggestedContent } from "../types/common"
+import { ContainsArtists, OptionType, Track, Playlist, SuggestedContent } from "../types/common"
 import { HorizontalPlayableCard } from "./HorizontalPlayableCard"
 import { useLazyGetWatchPlaylistQuery } from "../services/private/playlists"
 import { useLoadPlaylist } from "../hooks/useLoadPlaylist"
 import { getThumbnail } from "../helpers/functions"
+import { LinkableDescription } from "./LinkableDescription"
+import { ArtistDescription } from "./ArtistDescription"
 
 interface Props {
 	content: Array<SuggestedContent>
@@ -15,6 +17,7 @@ export const SuggestedContentGrid = ({content}: Props) => {
     const [ triggerGetWatchPlaylist, {data: watchPlaylistData, error: watchPlaylistError, isFetching: isWatchPlaylistFetching}] = useLazyGetWatchPlaylistQuery()
 	const { isPlaying, currentTrack } = useAppSelector((state) => state.audioPlayer)
 	const { triggerLoadPlaylist } = useLoadPlaylist()
+
 	const getArtists = (sContent: SuggestedContent) => {
 		const artistNames = sContent?.artists?.map((artist: OptionType) => artist.name)
 		let res = ""
@@ -22,6 +25,13 @@ export const SuggestedContentGrid = ({content}: Props) => {
 			res = artistNames.join(" • ")
 		}
 		return res
+	}
+
+	const getLinkableDescription = (sContent: SuggestedContent): React.ReactNode => {
+		if ("artists" in sContent){
+			return <ArtistDescription content={sContent as ContainsArtists}/>
+		}
+		return <></>
 	}
 
 	const onPress = (content: SuggestedContent) => {
@@ -56,6 +66,7 @@ export const SuggestedContentGrid = ({content}: Props) => {
 					<HorizontalPlayableCard
 						title={sContent.title ?? ""}	
 						description={getArtists(sContent)}
+						linkableDescription={<LinkableDescription description={getLinkableDescription(sContent)}/>}
 						cardOnClick={() => {}}
 						imagePlayButtonProps={
 							{
