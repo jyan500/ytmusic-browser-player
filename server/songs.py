@@ -21,9 +21,16 @@ def get_song(videoId):
 @require_authentication
 def get_song_playback(videoId):
     ytmusic = initYTMusic(request)
-    # playbackURL = getPlaybackURL(videoId)
-    playbackURL = getPlaybackURLFallback(videoId)
-    return {"videoId": videoId, "playbackURL": playbackURL }, 200
+    try:
+        playbackURL = getPlaybackURL(videoId)
+        return {"videoId": videoId, "playbackURL": playbackURL }, 200
+    except:
+        print("Initial playback attempt failed. Attempting fallback.")
+    try:
+        playbackURL = getPlaybackURLFallback(videoId)
+        return {"videoId": videoId, "playbackURL": playbackURL }, 200
+    except:
+        return jsonify({"message": "There was an error getting playback"}), 500
 
 @songs.route("/songs/<videoId>/related-tracks", endpoint="get_song_related_tracks", methods=["GET"])
 @require_authentication

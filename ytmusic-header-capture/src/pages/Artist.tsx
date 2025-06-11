@@ -39,7 +39,7 @@ export const Artist = ({browseId}: Props) => {
 				<button onClick={() => goBack()}>Go Back</button>
 				<div className = "flex flex-col gap-y-2">
 					<div className = "w-full flex flex-row gap-x-4 items-start">
-						<img className = "rounded-full h-48 w-48 object-fill" src={getThumbnail(data)?.url ?? ""}/>
+						<img className = "rounded-full h-48 w-48 object-cover" src={getThumbnail(data)?.url ?? ""}/>
 						<div className = "flex flex-col gap-y-2">
 							<p className = "text-xl font-bold">{data.name}</p>	
 							<CollapseText lineClamp={"line-clamp-3"} className={"space-y-2 w-96 text-sm overflow-y-auto"} text={data.description}/>
@@ -49,39 +49,54 @@ export const Artist = ({browseId}: Props) => {
 							</div>
 						</div>
 					</div>
-					<div className = "space-y-2">
-						<p className="text-lg font-bold">Songs</p>
-						<ArtistContentTable content={data.songs.results}/>
-						<ActionButton isLoading={isPlaylistFetching} onClick={() => {
-							triggerGetPlaylist({playlistId: data.songs.browseId, params: {}}, true)
-						}} text={"Show More"}/>
+					{
+						data.songs?.results ? 
+						<div className = "space-y-2">
+							<p className="text-lg font-bold">Songs</p>
+							<ArtistContentTable content={data.songs?.results}/>
+							<ActionButton isLoading={isPlaylistFetching} onClick={() => {
+								triggerGetPlaylist({playlistId: data.songs?.browseId, params: {}}, true)
+							}} text={"Show More"}/>
+						</div>
+						: null
+					}
+					<div>
+						{
+							data?.albums ? 
+							<SideScroller height={"h-48"} title={"Albums"}>
+								<div className = "flex flex-row gap-x-2">
+									{data.albums?.results.map((album: ArtistContent) => {
+										return <ArtistScrollContent content={album}/>
+									})}
+								</div>
+							</SideScroller> : 
+							null
+						}
 					</div>
 					<div>
-						<SideScroller height={"h-48"} title={"Albums"}>
-							<div className = "flex flex-row gap-x-2">
-								{data.albums.results.map((album: ArtistContent) => {
-									return <ArtistScrollContent content={album}/>
-								})}
-							</div>
-						</SideScroller>
+						{
+							data.singles?.results ? 
+							<SideScroller height={"h-48"} title={"Singles & EPs"}>	
+								<div className = "flex flex-row gap-x-2">
+									{data.singles?.results.map((single: ArtistContent) => {
+										return <ArtistScrollContent content={single}/>
+									})}
+								</div>
+							</SideScroller> : null
+						}
 					</div>
 					<div>
-						<SideScroller height={"h-48"} title={"Singles & EPs"}>	
-							<div className = "flex flex-row gap-x-2">
-								{data.singles.results.map((single: ArtistContent) => {
-									return <ArtistScrollContent content={single}/>
-								})}
-							</div>
-						</SideScroller>
-					</div>
-					<div>
-						<SideScroller height={"h-48"} title="Related Artists">
-							<div className = "flex flex-row gap-x-2">
-								{data.related.results.map((relatedArtist: ArtistContent) => {
-									return <ArtistScrollContent content={relatedArtist}/>
-								})}
-							</div>
-						</SideScroller>
+						{
+							data.related?.results ? 
+							<SideScroller height={"h-48"} title="Related Artists">
+								<div className = "flex flex-row gap-x-2">
+									{data.related?.results.map((relatedArtist: ArtistContent) => {
+										return <ArtistScrollContent content={relatedArtist}/>
+									})}
+								</div>
+							</SideScroller>
+							: null
+						}
 					</div>
 				</div>
 			</div>

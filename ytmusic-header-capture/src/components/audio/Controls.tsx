@@ -32,6 +32,7 @@ import { Track } from "../../types/common"
 import { formatTime, shuffle, randRange } from "../../helpers/functions"
 import { v4 as uuidv4 } from "uuid"
 import { usePrevious } from "../../hooks/usePrevious"
+import { addToast } from "../../slices/toastSlice"
 
 export const Controls = () => {
 	const { 
@@ -60,6 +61,17 @@ export const Controls = () => {
 
     const playbackURL = storedPlaybackInfo ? storedPlaybackInfo.playbackURL : ""
     const previousPlaybackURL = usePrevious<string>(playbackURL)
+
+    // show error message if playback URL retrieval fails.
+    useEffect(() => {
+    	if (!isFetching && error){
+    		dispatch(addToast({
+    			id: uuidv4(),
+    			message: "Failed to retrieve playback. Try refreshing the extension and trying again.",
+    			animationType: "animation-in",
+    		}))
+    	}
+    }, [isFetching, error])
 
     /* Unused */
 	// const skipForward = () => {

@@ -36,8 +36,8 @@ const persistConfig = {
 	version: 1,
 	storage: localStorage,
 	whitelist: [
-		// "auth", 
-		// "userProfile", 
+		"auth", 
+		"userProfile", 
 		// "audioPlayer", 
 		// "queuedTrackList"
 	]

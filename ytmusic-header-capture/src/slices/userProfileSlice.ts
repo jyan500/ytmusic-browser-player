@@ -16,7 +16,7 @@ const userProfileSlice = createSlice({
     name: 'userProfile',
     initialState,
     reducers: {
-      	setUserProfile: (state, { payload: { userProfile }}: PayloadAction<{ userProfile: UserProfile }>,
+      	setUserProfile: (state, { payload: { userProfile }}: PayloadAction<{ userProfile: UserProfile | null }>,
         ) => {
             state.userProfile = userProfile
         },
