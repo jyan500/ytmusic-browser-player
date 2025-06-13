@@ -23,7 +23,13 @@ export const ArtistDescription = ({content, closeTracklist}: Props) => {
 				content?.artists?.length ? 
 					content?.artists?.map((artist: OptionType, index: number) => {
 						return (
-							<a key={artist.id} className = {artist.id ? `hover:opacity-60 hover:underline` : ""} onClick={() => artist.id ? onClickArtist(artist.id) : {}}>{artist.name} {index !== length - 1 ? "• " : ""}</a>
+							<a key={artist.id} className = {artist.id ? `hover:opacity-60 hover:underline` : ""} onClick={
+								(e) => {
+									e.preventDefault()
+									artist.id ? onClickArtist(artist.id) : {}
+								}
+							}
+							>{artist.name} {index !== length - 1 ? "• " : ""}</a>
 						)
 					}) :
 				<></>

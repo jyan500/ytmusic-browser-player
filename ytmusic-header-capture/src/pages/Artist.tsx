@@ -12,6 +12,7 @@ import { ActionButton } from "../components/elements/ActionButton"
 import { SideScroller } from "../components/SideScroller"
 import { ArtistScrollContent } from "../components/ArtistScrollContent"
 import { useLazyGetPlaylistQuery } from "../services/private/playlists"
+import { User } from "../pages/User"
 
 interface Props {
 	browseId: string
@@ -20,6 +21,12 @@ interface Props {
 export const Artist = ({browseId}: Props) => {
 	const {data, isFetching, isError} = useGetArtistQuery(browseId ?? skipToken)
 	const [ triggerGetPlaylist, { data: playlist, isError: isPlaylistError, isFetching: isPlaylistFetching}] = useLazyGetPlaylistQuery()
+
+	useEffect(() => {
+		if (!isFetching && isError){
+			goTo(User, {channelId: browseId, invalidArtist: true})
+		}
+	}, [isFetching, isError])
 
 	useEffect(() => {
 		if (!isPlaylistFetching && playlist && data){
@@ -42,11 +49,15 @@ export const Artist = ({browseId}: Props) => {
 						<img className = "rounded-full h-48 w-48 object-cover" src={getThumbnail(data)?.url ?? ""}/>
 						<div className = "flex flex-col gap-y-2">
 							<p className = "text-xl font-bold">{data.name}</p>	
-							<CollapseText lineClamp={"line-clamp-3"} className={"space-y-2 w-96 text-sm overflow-y-auto"} text={data.description}/>
+							{
+								data.description ? 
+								<CollapseText lineClamp={"line-clamp-3"} className={"space-y-2 w-96 text-sm overflow-y-auto"} text={data.description}/>
+								: null
+							}
 							<div className = "flex flex-row gap-x-2">
 								<p className = "text-lg text-orange">{data.subscribers} subscribers</p>								
 								<p className = "text-lg">{data.views}</p>								
-							</div>
+							</div> 
 						</div>
 					</div>
 					{

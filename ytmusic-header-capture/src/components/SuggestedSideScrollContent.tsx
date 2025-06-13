@@ -1,6 +1,6 @@
 import React, { useEffect } from "react"
 import { useAppDispatch, useAppSelector } from "../hooks/redux-hooks"
-import { ContainsArtists, SuggestedContent, OptionType, Playlist as TPlaylist, Track } from "../types/common"
+import { ContainsAuthor, ContainsArtists, SuggestedContent, OptionType, Playlist as TPlaylist, Track } from "../types/common"
 import { PlayableCard } from "./PlayableCard"
 import { goTo } from "react-chrome-extension-router"
 import { useLazyGetWatchPlaylistQuery, useLazyGetPlaylistTracksQuery } from "../services/private/playlists"
@@ -14,6 +14,7 @@ import { getThumbnail } from "../helpers/functions"
 import { SideScrollContent } from "./SideScrollContent"
 import { LinkableDescription } from "./LinkableDescription"
 import { ArtistDescription } from "./ArtistDescription"
+import { AuthorDescription } from "./AuthorDescription"
 
 interface Props {
 	content: SuggestedContent
@@ -49,12 +50,12 @@ export const SuggestedSideScrollContent = ({content}: Props) => {
            return content?.subscribers ? `${content?.subscribers} subscribers` : ""
         }
         if ("artists" in content){
-               const artistNames = content?.artists?.map((artist: OptionType) => {
-                       return artist.name
-               })
-               if (artistNames){
-                       return artistNames.join(" • ")
-               }
+	        const artistNames = content?.artists?.map((artist: OptionType) => {
+	        	return artist.name
+	        })
+	        if (artistNames){
+	        	return artistNames.join(" • ")
+	        }
         }
         return ""
     }
@@ -65,16 +66,32 @@ export const SuggestedSideScrollContent = ({content}: Props) => {
     }
 
 	const getLinkableDescription = (): React.ReactNode => {
+		if ("artists" in content){
+			return <ArtistDescription content={content as ContainsArtists}/>
+		}
 		if ("playlistId" in content){
-			if ("description" in content){
-				return <>{content?.description ?? ""}</>
+			const description = content?.description ?? ""
+			const parts = description.split(" • ")
+			// map the other parts to {id: null, name: <part>} so its in the OptionType format
+			const remainingDescription = parts.slice(1, parts.length).map((part: string) => {
+				return {
+					id: null,
+					name: part
+				}
+			})
+			// only get the tracks portion, which is every past the first element
+			if ("author" in content && content.author != null){
+				return (<AuthorDescription content={{
+					author: [
+						...content.author,	
+						...remainingDescription,
+					]
+				} as ContainsAuthor}/>)
 			}
+			return <>{description}</>
 		}
 		if ("subscribers" in content){
 			return <>{content?.subscribers ? `${content?.subscribers} subscribers` : ""}</>
-		}
-		if ("artists" in content){
-			return <ArtistDescription content={content as ContainsArtists}/>
 		}
 		return <></>
 	}

@@ -4,6 +4,29 @@ export interface UserProfile {
     accountPhotoUrl: string
 }
 
+export interface UserContent {
+	artists?: Array<OptionType>
+	playlistId: string
+	thumbnails: Array<Thumbnail>
+	title: string
+	videoId?: string
+	views?: string
+	description?: string
+}
+
+export interface User {
+	name: string
+	playlists: {
+    	browseId: string
+    	results: Array<UserContent>
+    }
+    videos: {
+        results: Array<UserContent>
+        browseId: string 
+        params: string
+    }
+}
+
 export interface Thumbnail {
 	url: string
 	width: number
@@ -33,6 +56,15 @@ export interface PlaylistInfo {
 	duration_seconds: number
 	trackCount: number
 	tracks: Array<Track>
+}
+
+export interface Video {
+	artists: Array<OptionType>,
+	thumbnails: Array<Thumbnail>
+	title: string
+	videoId: string
+	playlistId: string
+	views: string
 }
 
 export interface OptionType {
@@ -231,8 +263,13 @@ export interface SuggestedContent {
 }
 
 export interface ContainsArtists {
-	artists?: Array<OptionType>,
+	artists?: Array<OptionType>
 	[key: string]: any 
+}
+
+export interface ContainsAuthor {
+	author?: Array<OptionType>
+	[key: string]: any
 }
 
 export interface CustomError {

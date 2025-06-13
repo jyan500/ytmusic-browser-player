@@ -8,6 +8,7 @@ export const TAG_TYPES = [
 	"PlaybackInfo",
 	"RelatedTracks",
 	"Home",
+	"Users",
 ]
 
 export const TRANSITION_TRANSFORM = "transform transition-transform duration-500 ease-in-out"

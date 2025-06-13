@@ -15,7 +15,7 @@ import { LoadingSpinner } from "../components/elements/LoadingSpinner"
 export const Playlists = () => {
 	const {data, isLoading, isError} = useGetPlaylistsQuery({})
 	return (
-		<div className="w-full">
+		<div className="w-full flex flex-col gap-y-2">
 			<div className = "flex flex-col gap-y-2 text-lg">
 				<div>
 					<NavButton onClick={(e) => {goTo(Home)}} message={"Return Home"}/>

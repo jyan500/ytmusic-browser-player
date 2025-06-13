@@ -39,16 +39,7 @@ export const TrackList = ({ data, playlist, inQueueTrackList }: Props) => {
             <>
                 <p className = "font-bold">{track?.title ?? ""}</p>
                 <div className = "flex flex-row gap-x-2">
-                    {
-                        /*
-                        track?.artists?.map((artist: OptionType) => {
-                            return (
-                                <p key={artist.id}>{artist.name}</p>
-                            )
-                        })
-                        */
-                        <p className = {`text-sm ${shouldHighlightRow(track) ? "text-white" : "text-gray-400"} truncate`}><ArtistDescription content={track as ContainsArtists}/></p>
-                    }
+                    <p className = {`text-sm ${shouldHighlightRow(track) ? "text-white" : "text-gray-300"} truncate overflow-hidden`}><ArtistDescription content={track as ContainsArtists}/></p>
                 </div>
             </>
         )
