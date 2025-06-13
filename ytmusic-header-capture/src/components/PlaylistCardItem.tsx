@@ -1,7 +1,7 @@
 import React, {useState, useEffect} from "react"
 import { goTo } from "react-chrome-extension-router"
 import { useAppDispatch, useAppSelector } from "../hooks/redux-hooks"
-import { Thumbnail, Playlist as TPlaylist } from "../types/common"
+import { ContainsAuthor, Thumbnail, Playlist as TPlaylist } from "../types/common"
 import { Playlist } from "../pages/Playlist"
 import { Props as ImagePlayButtonProps, ImagePlayButton } from "./ImagePlayButton"
 import { setSuggestedTracks, setIsLoading, setIsPlaying, setCurrentTrack, setQueuedTracks, setStoredPlaybackInfo, setShowAudioPlayer } from "../slices/audioPlayerSlice"
@@ -11,6 +11,8 @@ import { useLazyGetSongPlaybackQuery } from "../services/private/songs"
 import { prepareQueueItems, randRange } from "../helpers/functions"
 import { PlayableCard } from "./PlayableCard"
 import { useLoadPlaylist } from "../hooks/useLoadPlaylist"
+import { AuthorDescription } from "./AuthorDescription"
+import { LinkableDescription } from "./LinkableDescription"
 
 interface Props {
 	playlist: TPlaylist
@@ -36,6 +38,28 @@ export const PlaylistCardItem = ({playlist, imageHeight, imageWidth, children, i
 		if (playlist){
 			triggerGetTracks({playlistId: playlist?.playlistId, params: {}})
 		}
+	}
+
+	const getLinkableDescription = () => {
+		const description = playlist?.description
+		const parts = description.split(" • ")
+		// map the other parts to {id: null, name: <part>} so its in the OptionType format
+		const remainingDescription = parts.slice(1, parts.length).map((part: string) => {
+			return {
+				id: null,
+				name: part
+			}
+		})
+		// only get the tracks portion, which is every past the first element
+		if ("author" in playlist && playlist.author != null){
+			return (<AuthorDescription content={{
+				author: [
+					...playlist.author,	
+					...remainingDescription,
+				]
+			} as ContainsAuthor}/>)
+		}
+		return <>{description ?? ""}</>
 	}
 
 	useEffect(() => {
@@ -68,7 +92,11 @@ export const PlaylistCardItem = ({playlist, imageHeight, imageWidth, children, i
 					thumbnail={thumbnail} 
 					isHeader={isHeader}
 					canPlay={true}
-					cardOnClick={() => goTo(Playlist, {playlist})}
+					linkableDescription={<LinkableDescription description={getLinkableDescription()}/>}
+					cardOnClick={() => {
+						goTo(Playlist, {playlist})
+						return
+					}}
 					imagePlayButtonProps={{
 						onPress: () => {
 							// if the playlist is the currently selected playlist

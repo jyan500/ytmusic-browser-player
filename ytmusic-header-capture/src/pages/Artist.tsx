@@ -24,7 +24,7 @@ export const Artist = ({browseId}: Props) => {
 
 	useEffect(() => {
 		if (!isFetching && isError){
-			goTo(User, {channelId: browseId})
+			goTo(User, {channelId: browseId, invalidArtist: true})
 		}
 	}, [isFetching, isError])
 
@@ -49,7 +49,11 @@ export const Artist = ({browseId}: Props) => {
 						<img className = "rounded-full h-48 w-48 object-cover" src={getThumbnail(data)?.url ?? ""}/>
 						<div className = "flex flex-col gap-y-2">
 							<p className = "text-xl font-bold">{data.name}</p>	
-							<CollapseText lineClamp={"line-clamp-3"} className={"space-y-2 w-96 text-sm overflow-y-auto"} text={data.description}/>
+							{
+								data.description ? 
+								<CollapseText lineClamp={"line-clamp-3"} className={"space-y-2 w-96 text-sm overflow-y-auto"} text={data.description}/>
+								: null
+							}
 							<div className = "flex flex-row gap-x-2">
 								<p className = "text-lg text-orange">{data.subscribers} subscribers</p>								
 								<p className = "text-lg">{data.views}</p>								

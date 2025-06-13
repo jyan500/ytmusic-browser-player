@@ -13,15 +13,18 @@ import { Home } from "../pages/Home"
 
 interface Props {
 	channelId: string
+	invalidArtist?: boolean
 }
 
-export const User = ({channelId}: Props) => {
+export const User = ({channelId, invalidArtist}: Props) => {
 	const {data, isFetching, isError} = useGetUserQuery(channelId ?? skipToken)
 
 	return (
 		!isFetching && data ? (
 			<div className = "w-full">
-				<button onClick={() => goTo(Home)}>Go Back</button>
+				{/* To prevent a loop where the user clicks on an artist, and it redirects to a user page (due to invalid artist id), 
+				go back home instead. */}
+				<button onClick={() => invalidArtist ? goTo(Home) : goBack()}>Go Back</button>
 				<div className = "flex flex-col gap-y-2">
 					<div className = "w-full flex flex-row gap-x-4 items-start">
 						<div className = "flex flex-col gap-y-2">

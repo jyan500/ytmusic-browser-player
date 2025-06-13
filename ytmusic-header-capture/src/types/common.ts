@@ -263,8 +263,13 @@ export interface SuggestedContent {
 }
 
 export interface ContainsArtists {
-	artists?: Array<OptionType>,
+	artists?: Array<OptionType>
 	[key: string]: any 
+}
+
+export interface ContainsAuthor {
+	author?: Array<OptionType>
+	[key: string]: any
 }
 
 export interface CustomError {

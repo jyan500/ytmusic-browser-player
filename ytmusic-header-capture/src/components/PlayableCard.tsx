@@ -63,7 +63,12 @@ export const PlayableCard = ({
            (<div className = {`${isHeader ? "text-lg text-center" : "text-left" } break-words`}>
                    {titleDescription()}
            </div>) :
-           (<button onClick={cardOnClick} className= {`text-left break-words`}>
+           (<button onClick={(e) => {
+           	if (e.defaultPrevented){
+   		    return
+           	}
+           	cardOnClick()
+           }} className= {`text-left break-words`}>
                    {titleDescription()}
            </button>)
 
