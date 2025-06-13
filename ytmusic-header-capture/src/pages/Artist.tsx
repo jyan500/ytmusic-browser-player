@@ -12,6 +12,7 @@ import { ActionButton } from "../components/elements/ActionButton"
 import { SideScroller } from "../components/SideScroller"
 import { ArtistScrollContent } from "../components/ArtistScrollContent"
 import { useLazyGetPlaylistQuery } from "../services/private/playlists"
+import { User } from "../pages/User"
 
 interface Props {
 	browseId: string
@@ -20,6 +21,13 @@ interface Props {
 export const Artist = ({browseId}: Props) => {
 	const {data, isFetching, isError} = useGetArtistQuery(browseId ?? skipToken)
 	const [ triggerGetPlaylist, { data: playlist, isError: isPlaylistError, isFetching: isPlaylistFetching}] = useLazyGetPlaylistQuery()
+	const [ triggerGetUser ] = useLazyGetUserQuery()
+
+	useEffect(() => {
+		if (!isFetching && isError){
+			goTo(User, {channelId: browseId})
+		}
+	}, [isFetching, isError])
 
 	useEffect(() => {
 		if (!isPlaylistFetching && playlist && data){
@@ -46,7 +54,7 @@ export const Artist = ({browseId}: Props) => {
 							<div className = "flex flex-row gap-x-2">
 								<p className = "text-lg text-orange">{data.subscribers} subscribers</p>								
 								<p className = "text-lg">{data.views}</p>								
-							</div>
+							</div> 
 						</div>
 					</div>
 					{

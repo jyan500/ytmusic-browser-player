@@ -4,6 +4,12 @@ export interface UserProfile {
     accountPhotoUrl: string
 }
 
+export interface User {
+	name: string
+	playlists: Array<Playlist>
+	videos: Array<Video>
+}
+
 export interface Thumbnail {
 	url: string
 	width: number
@@ -33,6 +39,15 @@ export interface PlaylistInfo {
 	duration_seconds: number
 	trackCount: number
 	tracks: Array<Track>
+}
+
+export interface Video {
+	artists: Array<OptionType>,
+	thumbnails: Array<Thumbnail>
+	title: string
+	videoId: string
+	playlistId: string
+	views: string
 }
 
 export interface OptionType {

@@ -12,8 +12,11 @@ artists = Blueprint('artists', __name__)
 @require_authentication
 def get_artist(browseId):
     ytmusic = initYTMusic(request)
-    artist = ytmusic.get_artist(browseId)
-    return jsonify(artist), 200
+    try:
+        artist = ytmusic.get_artist(channelId=browseId)
+        return jsonify(artist), 200
+    except KeyError:
+        return jsonify({message: "Failed to locate artist"}, 500)
 
 @artists.route("/artists/albums/<browseId>", endpoint="get_artist_album", methods=["GET"])
 @require_authentication
