@@ -21,7 +21,6 @@ interface Props {
 export const Artist = ({browseId}: Props) => {
 	const {data, isFetching, isError} = useGetArtistQuery(browseId ?? skipToken)
 	const [ triggerGetPlaylist, { data: playlist, isError: isPlaylistError, isFetching: isPlaylistFetching}] = useLazyGetPlaylistQuery()
-	const [ triggerGetUser ] = useLazyGetUserQuery()
 
 	useEffect(() => {
 		if (!isFetching && isError){

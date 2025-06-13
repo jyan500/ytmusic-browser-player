@@ -36,7 +36,7 @@ export const PlayableCard = ({
 	const titleDescription = () => {
 		return (
 			<>
-				<p className = {`${isHeader ? "text-md" : ""} font-semibold word-break line-clamp-4`}>{title}</p>
+				<p className = {`${isHeader ? "text-md" : ""} font-semibold word-break`}>{title}</p>
 				{/* whitespace prewrap allows /n to show for displaying multiline descriptions in strings */}
 				{linkableDescription ? 
 					linkableDescription : 

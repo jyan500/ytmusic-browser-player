@@ -15,8 +15,9 @@ def get_artist(browseId):
     try:
         artist = ytmusic.get_artist(channelId=browseId)
         return jsonify(artist), 200
-    except KeyError:
-        return jsonify({message: "Failed to locate artist"}, 500)
+    except Exception as e:
+        print(e.message())
+        return jsonify({"message": "Failed to locate artist"}, 500)
 
 @artists.route("/artists/albums/<browseId>", endpoint="get_artist_album", methods=["GET"])
 @require_authentication

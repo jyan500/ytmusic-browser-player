@@ -4,10 +4,27 @@ export interface UserProfile {
     accountPhotoUrl: string
 }
 
+export interface UserContent {
+	artists?: Array<OptionType>
+	playlistId: string
+	thumbnails: Array<Thumbnail>
+	title: string
+	videoId?: string
+	views?: string
+	description?: string
+}
+
 export interface User {
 	name: string
-	playlists: Array<Playlist>
-	videos: Array<Video>
+	playlists: {
+    	browseId: string
+    	results: Array<UserContent>
+    }
+    videos: {
+        results: Array<UserContent>
+        browseId: string 
+        params: string
+    }
 }
 
 export interface Thumbnail {

@@ -1,6 +1,6 @@
 import React, { useEffect } from "react"
 import { useAppDispatch, useAppSelector } from "../hooks/redux-hooks"
-import { ContainsArtists, ArtistContent, OptionType, Playlist as TPlaylist, Track } from "../types/common"
+import { UserContent, ContainsArtists, ArtistContent, OptionType, Playlist as TPlaylist, Track } from "../types/common"
 import { PlayableCard } from "./PlayableCard"
 import { goTo } from "react-chrome-extension-router"
 import { useLazyGetWatchPlaylistQuery, useLazyGetPlaylistTracksQuery } from "../services/private/playlists"
@@ -15,10 +15,9 @@ import { getThumbnail } from "../helpers/functions"
 import { SideScrollContent } from "./SideScrollContent"
 import { LinkableDescription } from "./LinkableDescription"
 import { ArtistDescription } from "./ArtistDescription"
-import { isVideo, isPlaylist } from "../helpers/type-guards"
 
 interface Props {
-	content: Playlist | Video 
+	content: UserContent 
 }
 
 export const UserScrollContent = ({content}: Props) => {
@@ -32,77 +31,48 @@ export const UserScrollContent = ({content}: Props) => {
     const { triggerLoadPlaylist } = useLoadPlaylist()
 
 	const playContent = () => {
-    	if (isVideo(content)){
+    	if ("videoId" in content){
     		// get the watch playlist for this video and load as playlist
     		triggerGetWatchPlaylist({videoId: content?.videoId ?? ""})
     	}
-    	else {
+    	else if ("playlistId" in content) {
 			triggerGetTracks({playlistId: content.playlistId, params: {}})
     	}
     }
 
-	const getDescription = (): string => {
-		if ("browseId" in content && "year" in content){
-			return content?.year ?? ""
-		}
-		if ("subscribers" in content){
-			return content?.subscribers ? `${content?.subscribers} subscribers` : "" 
-		}
-		if ("artists" in content){
-			const artistNames = content?.artists?.map((artist: OptionType) => {
-				return artist.name
-			})
-			if (artistNames){
-				return artistNames.join(" • ")
-			}
-		}
-		return ""
-	}
-
 	const getLinkableDescription = () => {
-		if ("browseId" in content && "year" in content){
-			return <>{content?.year ?? ""}</>
+		if ("description" in content){
+			return <>{content.description}</>
 		}
-		if ("subscribers" in content){
-			return <>{content?.subscribers ? `${content?.subscribers} subscribers` : ""}</> 
-		}
-		if ("artists" in content){
+		else if ("artists" in content){
 			return <ArtistDescription content={content as ContainsArtists}/>
 		}
 		return <></>
 	}
 
 	const shouldShowPauseButton = () => {
-		if ("playlistId" in content || "audioPlaylistId" in content){
-			return isPlaying && (currentPlaylist?.playlistId === content?.playlistId || currentPlaylist?.playlistId === content?.audioPlaylistId)
+		if ("playlistId" in content && content.playlistId != null){
+			return isPlaying && currentPlaylist?.playlistId === content.playlistId
 		}
-		else if ("videoId" in content){
-			return isPlaying && currentTrack?.videoId === content?.videoId
+		else if ("videoId" in content && content.videoId != null) {
+			return isPlaying && currentTrack?.videoId === content.videoId
 		}
 		return false 
 	}
 
 	const cardClickAction = () => {
     	// if it's a playlist, enter the playlist page
-    	if (!("videoId" in content)){
-    		if ("playlistId" in content){
-    			goTo(Playlist, {playlist: content})
-    			return
-    		}
-    		else if ("browseId" in content){
-    			goTo(Album, {browseId: content.browseId})
-    			return
-    		}
+    	if ("playlistId" in content){
+			goTo(Playlist, {playlist: content})
+			return
     	}
-
     }
 
 	useEffect(() => {
 		if (!isFetchingTracks && tracksData){
-			// include the playlistId as audioPlaylistId for album playlists
 			triggerLoadPlaylist({
 				...content,
-				playlistId: "audioPlaylistId" in content ? content.audioPlaylistId : content.playlistId,
+				playlistId: content.playlistId,
 			} as TPlaylist, tracksData)
 		}
 	}, [tracksData, isFetchingTracks])
@@ -121,23 +91,17 @@ export const UserScrollContent = ({content}: Props) => {
 		}
 	}, [watchPlaylistData, isWatchPlaylistFetching])
 
-	useEffect(() => {
-		if (albumData && !isAlbumFetching){
-			triggerGetTracks({playlistId: albumData.audioPlaylistId, params: {}})
-		}
-	}, [albumData, isAlbumFetching])
-
 	return (
 		<SideScrollContent 
 			title={content.title ?? ""}
 			thumbnail={getThumbnail(content)}
-			description={getDescription()}
+			description={content?.description ?? ""}
 			canPlay={true}
 			cardClickAction={() => cardClickAction()}
 			isCircular={false}
 			playContent={() => playContent()}
-			linkableDescription={<LinkableDescription description={getLinkableDescription()}/>}
 			showPauseButton={shouldShowPauseButton()}
+			linkableDescription={<LinkableDescription description={getLinkableDescription()}/>}
 		>
 		</SideScrollContent>
 	)

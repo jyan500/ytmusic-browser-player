@@ -1,7 +1,7 @@
 import React, { useEffect } from "react"
 import { useGetUserQuery } from "../services/private/users"
 import { skipToken } from '@reduxjs/toolkit/query/react'
-import { ArtistContent, Playlist as TPlaylist, Video } from "../types/common"
+import { UserContent, Playlist as TPlaylist, Video } from "../types/common"
 import { goBack, goTo } from "react-chrome-extension-router"
 import { LoadingSpinner } from "../components/elements/LoadingSpinner"
 import { getThumbnail } from "../helpers/functions"
@@ -9,7 +9,7 @@ import { CollapseText } from "../components/elements/CollapseText"
 import { ActionButton } from "../components/elements/ActionButton"
 import { SideScroller } from "../components/SideScroller"
 import { UserScrollContent } from "../components/UserScrollContent"
-import { useLazyGetPlaylistQuery } from "../services/private/playlists"
+import { Home } from "../pages/Home"
 
 interface Props {
 	channelId: string
@@ -21,7 +21,7 @@ export const User = ({channelId}: Props) => {
 	return (
 		!isFetching && data ? (
 			<div className = "w-full">
-				<button onClick={() => goBack()}>Go Back</button>
+				<button onClick={() => goTo(Home)}>Go Back</button>
 				<div className = "flex flex-col gap-y-2">
 					<div className = "w-full flex flex-row gap-x-4 items-start">
 						<div className = "flex flex-col gap-y-2">
@@ -33,7 +33,7 @@ export const User = ({channelId}: Props) => {
 							data.playlists?.results ? 
 							<SideScroller height={"h-48"} title={"Playlists"}>	
 								<div className = "flex flex-row gap-x-2">
-									{data.playlists?.results.map((playlist: TPlaylist) => {
+									{data.playlists?.results.map((playlist: UserContent) => {
 										return <UserScrollContent content={playlist}/>
 									})}
 								</div>
@@ -45,7 +45,7 @@ export const User = ({channelId}: Props) => {
 							data.videos?.results ? 
 							<SideScroller height={"h-48"} title="Videos">
 								<div className = "flex flex-row gap-x-2">
-									{data.videos?.results.map((video: Video) => {
+									{data.videos?.results.map((video: UserContent) => {
 										return <UserScrollContent content={video}/>
 									})}
 								</div>
