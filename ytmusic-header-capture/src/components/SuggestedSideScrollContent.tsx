@@ -88,6 +88,7 @@ export const SuggestedSideScrollContent = ({content}: Props) => {
 					]
 				} as ContainsAuthor}/>)
 			}
+			return <>{description}</>
 		}
 		if ("subscribers" in content){
 			return <>{content?.subscribers ? `${content?.subscribers} subscribers` : ""}</>
