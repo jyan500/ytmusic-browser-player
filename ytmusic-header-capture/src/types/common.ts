@@ -14,6 +14,13 @@ export interface UserContent {
 	description?: string
 }
 
+export interface UserSearchResult {
+	title: string
+	name: string
+	browseId: string
+	thumbnails: Array<Thumbnail>
+}
+
 export interface User {
 	name: string
 	playlists: {
@@ -91,6 +98,25 @@ export interface Track {
 		add?: string,
 		remove?: string	
 	}	
+}
+
+export type SearchContent = {
+	category: string
+	resultType: string
+} & PossibleSearchContent
+
+export type PossibleSearchContent = Playlist | Video | ArtistContent | Album | UserSearchResult | Track 
+
+export interface SearchSuggestionRuns {
+	text: string
+	bold?: boolean
+}
+
+export interface SearchSuggestionContent {
+	text: string
+	runs: Array<SearchSuggestionRuns>
+	fromHistory: boolean
+	feedbackToken: string
 }
 
 export type QueueItem = Track & {

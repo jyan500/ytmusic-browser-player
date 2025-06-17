@@ -9,7 +9,7 @@ def login():
     headers = request.json.get("headers")
     try:
         jsonHeaders = json.loads(headers)
-        brandAccountNumber = jsonHeaders["x-Goog-Pageid"] if "x-Goog-Pageid" in jsonHeaders else ""
+        brandAccountNumber = jsonHeaders["X-Goog-PageId"] if "X-Goog-PageId" in jsonHeaders else ""
         ytmusic = ytmusicapi.YTMusic(headers, brandAccountNumber) 
         return jsonify(ytmusic.get_account_info()), 200
     except ytmusicapi.exceptions.YTMusicUserError:

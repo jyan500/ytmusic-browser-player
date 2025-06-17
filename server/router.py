@@ -5,6 +5,7 @@ from home import home
 from albums import albums
 from artists import artists
 from users import users
+from search import search
 
 class Router:
     def __init__(self, app):
@@ -16,3 +17,4 @@ class Router:
         self.app.register_blueprint(albums)
         self.app.register_blueprint(artists)
         self.app.register_blueprint(users)
+        self.app.register_blueprint(search)

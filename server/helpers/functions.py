@@ -13,7 +13,7 @@ Note that this function assumes that you have already been authenticated!
 def initYTMusic(request: dict):
 	headers = request.headers["Authorization"]
 	jsonHeaders = json.loads(headers)
-	brandAccountNumber = jsonHeaders["x-Goog-Pageid"] if "x-Goog-Pageid" in jsonHeaders else ""
+	brandAccountNumber = jsonHeaders["X-Goog-PageId"] if "X-Goog-PageId" in jsonHeaders else ""
 	return ytmusicapi.YTMusic(headers, brandAccountNumber) 
 
 """

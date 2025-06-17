@@ -16,6 +16,7 @@ import { SuggestedContentContainer } from "../components/SuggestedContentContain
 import { LoadingSpinner } from "../components/elements/LoadingSpinner"
 import { addToast } from "../slices/toastSlice"
 import { v4 as uuidv4 } from "uuid"
+import { AutoCompleteSearch } from "../components/elements/AutoCompleteSearch"
 
 export const Home = () => {
 	const [login, {isLoading, error}] = useLoginMutation()
@@ -25,14 +26,11 @@ export const Home = () => {
     const [ trigger, { data: homeData, error: getHomeError, isFetching: isGetHomeFetching }] = useLazyGetHomeQuery();
 
 	useEffect(() => {
-		// if (!headers && !userProfile){
-		// 	authenticate()
-		// }
 		authenticate()
 	}, [])
 
 	useEffect(() => {
-		if (!isLoading && headers && userProfile && !error){
+		if (!isLoading && !error && headers && userProfile){
 			trigger({}, true)
 		}
 	}, [isLoading, headers, userProfile])
@@ -96,6 +94,7 @@ export const Home = () => {
 			    {
 			    	!isGetHomeFetching && homeData ? (
 			    		<div className = "flex flex-col gap-y-2">
+			    			<AutoCompleteSearch/>
 			    			{
 			    				homeData?.map((content: HomeContent) => (
 			    					<SuggestedContentContainer content={content}/>
