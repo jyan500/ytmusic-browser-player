@@ -181,7 +181,7 @@ export const SearchResultsRow = ({
                             </button>
                         ) 
                     }
-                    <div className = "py-1 flex flex-col gap-y-2 truncate overflow-hidden">
+                    <div className = "py-1 flex flex-col gap-y-2 items-start truncate overflow-hidden">
                         {rowContent()}
                     </div>
                 </div>
