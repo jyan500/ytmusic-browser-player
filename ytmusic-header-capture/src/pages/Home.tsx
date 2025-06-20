@@ -16,7 +16,7 @@ import { SuggestedContentContainer } from "../components/SuggestedContentContain
 import { LoadingSpinner } from "../components/elements/LoadingSpinner"
 import { addToast } from "../slices/toastSlice"
 import { v4 as uuidv4 } from "uuid"
-import { AutoCompleteSearch } from "../components/elements/AutoCompleteSearch"
+import { AutoCompleteSearch } from "../components/search/AutoCompleteSearch"
 
 export const Home = () => {
 	const [login, {isLoading, error}] = useLoginMutation()

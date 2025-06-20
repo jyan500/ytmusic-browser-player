@@ -11,7 +11,7 @@ type Props = {
 export const Dropdown = React.forwardRef<HTMLDivElement, Props>(({className, children, closeDropdown}, ref) => {
 	return (
 		<div ref = {ref} className={`${DROPDOWN_Z_INDEX} absolute w-48 rounded-md bg-black ${className}`}>
-			{closeDropdown ? (
+		{/*	{closeDropdown ? (
 				<button 
 					className = "absolute top-0 right-0 mr-1 mt-1"
 					onClick={(e) => {
@@ -21,7 +21,7 @@ export const Dropdown = React.forwardRef<HTMLDivElement, Props>(({className, chi
 				>
 					<IconClose className = "w-4 h-4"/>
 				</button>
-			) : null}
+			) : null}*/}
 			<div className="py-1" role="menu" aria-orientation="vertical" aria-labelledby="options-menu">
 				{children}
 			</div>

@@ -50,7 +50,6 @@ export const PlaylistCardItem = ({playlist, imageHeight, imageWidth, children, i
 				name: part
 			}
 		})
-		// only get the tracks portion, which is every past the first element
 		if ("author" in playlist && playlist.author != null){
 			return (<AuthorDescription content={{
 				author: [

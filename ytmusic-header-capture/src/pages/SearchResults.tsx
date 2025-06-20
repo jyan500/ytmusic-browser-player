@@ -1,9 +1,18 @@
 import React, {useState, useEffect} from "react"
 import { useGetSearchQuery } from "../services/private/search"
 import { skipToken } from '@reduxjs/toolkit/query/react'
-import { goBack } from "react-chrome-extension-router"
+import { goBack, goTo } from "react-chrome-extension-router"
+import { Artist } from "./Artist"
+import { User } from "./User"
 import { LoadingSpinner } from "../components/elements/LoadingSpinner"
-import { SearchContent } from "../types/common"
+import { Playlist as TPlaylist, ContainsArtists, ContainsAuthor, SearchContent } from "../types/common"
+import { SearchResultsRow } from "../components/search/SearchResultsRow"
+import { TopResultRow } from "../components/search/TopResultRow"
+import { getThumbnail } from "../helpers/functions"
+import { ArtistDescription } from "../components/ArtistDescription"
+import { AuthorDescription } from "../components/AuthorDescription"
+import { useLoadPlaylist } from "../hooks/useLoadPlaylist"
+import { useLazyGetPlaylistTracksQuery, useLazyGetWatchPlaylistQuery } from "../services/private/playlists"
 
 interface Props {
 	result: string
@@ -18,27 +27,58 @@ interface ResultRowProps {
 	results: GroupedResults
 }
 
-export const ResultRow = ({category, results}: ResultRowProps) => {
+const ResultRow = ({category, results}: ResultRowProps) => {
+    
+	const displayContent = () => {
+		if (category === "Top Result"){
+			const data: Array<SearchContent> = results["top result"]
+			if (data.length && data[0].resultType !== "episode" && data[0].resultType !== "podcast"){
+				return (
+					<>
+						<p className = "text-lg font-semibold">{category}</p>
+						<TopResultRow resultType={data[0].resultType} data={data[0]}/>
+					</>
+				)
+			}
+			return <></>
+		}
+		return <>
+			<p className = "text-lg font-semibold">{category}</p>
+			<ul className = "flex flex-col gap-y-1">
+			{
+				results[category.toLowerCase()]?.map((data: SearchContent, index: number) => (
+					<SearchResultsRow 
+						data={data} 
+						canPlay={"videoId" in data || "playlistId" in data}
+						thumbnail={getThumbnail(data)?.url ?? ""}
+						key={`search-content-${data.resultType}-${index}`}
+					/>
+				))
+			}
+			</ul>
+		</>
+	}
+
 	return (
 		<div className = "flex flex-col gap-y-2">
-			<p className = "text-lg font-semibold">{category}</p>
+			{displayContent()}
 		</div>
 	)
 }
 
 export const SearchResults = ({result}: Props) => {
 	const {data, isFetching, isError } = useGetSearchQuery(!result ? skipToken : {search: result}) 
-	const categories = ["Top Result", "Songs", "Videos", "Albums", "Artists", "Profiles"]
+	const categories = ["Top Result", "Episodes", "Songs", "Videos", "Albums", "Artists", "Community Playlists", "Profiles"]
 	const [ groupedByCategory, setGroupedByCategory ] = useState<GroupedResults>({})
 	useEffect(() => {
 		if (!isFetching && data){
 			const grouped: GroupedResults = data.reduce((acc: GroupedResults, obj: SearchContent) => {
-				const category = obj.category
+				const category = obj.category.toLowerCase()
 				if (category in acc){
-					acc[category.toLowerCase()].push(obj)
+					acc[category].push(obj)
 				}
 				else {
-					acc[category.toLowerCase()] = [obj]
+					acc[category] = [obj]
 				}
 				return acc
 			}, {} as GroupedResults)	

@@ -103,6 +103,9 @@ export interface Track {
 export type SearchContent = {
 	category: string
 	resultType: string
+	browseId?: string
+	playlistId?: string
+	duration?: string
 } & PossibleSearchContent
 
 export type PossibleSearchContent = Playlist | Video | ArtistContent | Album | UserSearchResult | Track 

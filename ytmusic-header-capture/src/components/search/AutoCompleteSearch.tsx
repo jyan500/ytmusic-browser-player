@@ -37,12 +37,17 @@ export const AutoCompleteSearch = () => {
 
 	return (
 		<div className = "relative">
-			<SearchBar onChange={onChange} placeholder={"Search songs, albums, artists"}/>
-			{
-				isFetching || suggestedResults.length > 0 ? 
-				<SearchResults onClickResult={onClickResult} data={suggestedResults} isLoading={isFetching}/>
-				: null
-			}
+			<form onSubmit={(e) => {
+				e.preventDefault()
+				onClickResult(searchTerm)
+			}}>
+				<SearchBar onChange={onChange} placeholder={"Search songs, albums, artists"}/>
+				{
+					isFetching || suggestedResults.length > 0 ? 
+					<SearchResults onClickResult={onClickResult} data={suggestedResults} isLoading={isFetching}/>
+					: null
+				}
+			</form>
 		</div>
 	)	
 }
