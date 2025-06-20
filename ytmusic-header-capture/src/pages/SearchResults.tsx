@@ -49,7 +49,7 @@ const ResultRow = ({category, results}: ResultRowProps) => {
 				results[category.toLowerCase()]?.map((data: SearchContent, index: number) => (
 					<SearchResultsRow 
 						data={data} 
-						canPlay={"videoId" in data || "playlistId" in data}
+						canPlay={"videoId" in data || "playlistId" in data || data.resultType === "playlist" || data.resultType === "album"}
 						thumbnail={getThumbnail(data)?.url ?? ""}
 						key={`search-content-${data.resultType}-${index}`}
 					/>
@@ -90,7 +90,7 @@ export const SearchResults = ({result}: Props) => {
 			<button onClick={() => goBack()}>Go Back</button>
 			{
 				Object.keys(groupedByCategory).length > 0 ? (
-				<div className = "flex flex-col gap-y-2">
+				<div className = "flex flex-col gap-y-4">
 					{
 						categories.map((category: string) => {
 							if (category.toLowerCase() in groupedByCategory){

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react"
-import { SearchContent, Playlist as TPlaylist, ContainsArtists, ContainsAuthor } from "../../types/common"
+import { Track, SearchContent, Playlist as TPlaylist, ContainsArtists, ContainsAuthor } from "../../types/common"
 import { IconVerticalMenu } from "../../icons/IconVerticalMenu"
 import { SearchResultsDropdown } from "../dropdowns/SearchResultsDropdown"
 import { useClickOutside } from "../../hooks/useClickOutside"
@@ -7,6 +7,8 @@ import { ImagePlayButton } from "../ImagePlayButton"
 import { goTo } from "react-chrome-extension-router"
 import { Artist } from "../../pages/Artist"
 import { User } from "../../pages/User"
+import { Album } from "../../pages/Album"
+import { Playlist } from "../../pages/Playlist"
 import { getThumbnail } from "../../helpers/functions"
 import { ArtistDescription } from "../ArtistDescription"
 import { AuthorDescription } from "../AuthorDescription"
@@ -40,11 +42,11 @@ export const SearchResultsRow = ({
     const {triggerLoadPlaylist} = useLoadPlaylist()
 
     useEffect(() => {
-        if (!isFetchingTracks && tracksData && data.playlistId){
+        if (!isFetchingTracks && tracksData){
             // include the playlistId as audioPlaylistId for album playlists
             triggerLoadPlaylist({
                 ...data,
-                playlistId: data.playlistId,
+                playlistId: data.resultType === "album" ? data.playlistId : data.browseId,
             } as TPlaylist, tracksData)
         }
     }, [tracksData, isFetchingTracks])
@@ -83,13 +85,14 @@ export const SearchResultsRow = ({
             component = <ArtistDescription content={data as ContainsArtists}/>
         } 
         else if ("author" in data){
-            component = <AuthorDescription content={{
-                ...data,
-                author: [{
-                    name: data?.author ?? "",
-                    id: data?.browseId ?? "",
-                }]
-            } as ContainsAuthor}/>
+            // component = <AuthorDescription content={{
+            //     ...data,
+            //     author: [{
+            //         name: data?.author ?? "",
+            //         id: null,
+            //     }]
+            // } as ContainsAuthor}/>
+            component = <>{data?.author ?? ""}</>
         }
         return (
             <div className = "flex flex-row gap-x-2">
@@ -100,12 +103,30 @@ export const SearchResultsRow = ({
         )
     }
 
+    const enterPlaylistOrAlbumPage = () => {
+        if (data.resultType === "album" && "browseId" in data){
+            goTo(Album, {browseId: data.browseId})
+            return
+        }
+        else if (data.resultType === "playlist" && "browseId" in data){
+            goTo(Playlist, {playlist: {
+                playlistId: data.browseId ?? "",
+                title: data.title ?? "",
+                thumbnails: data.thumbnails,
+                count: data.itemCount ?? 0,
+                description: "",
+                tracks: [] as Array<Track>,
+            } as TPlaylist})
+            return
+        }
+    }
+
     const rowContent = () => {
         const title = <p className = "font-bold">{getTitle()}</p>
         return (
             <>
                 {
-                    "playlistId" in data ? (<button className="hover:underline hover:opacity-60">{title}</button>) : (<div>{title}</div>)   
+                    data.resultType === "album" || data.resultType === "playlist" ? (<button onClick={() => enterPlaylistOrAlbumPage()} className="hover:underline hover:opacity-60">{title}</button>) : (<div>{title}</div>)   
                 }
                 {getDescription()}
             </>
@@ -115,11 +136,14 @@ export const SearchResultsRow = ({
     const triggerLoadContent = () => {
         if ("videoId" in data){
             triggerGetWatchPlaylist({videoId: data.videoId ?? ""})
+            return
         }
-        if ("playlistId" in data){
-            triggerGetTracks({playlistId: data.playlistId ?? "", params: {}})
+        if (data.resultType === "album" || data.resultType === "playlist"){
+            const id = data.resultType === "playlist" ? (data.browseId ?? "") : (data.playlistId ?? "")
+            triggerGetTracks({playlistId: id, params: {}})
+            return
         }
-        if ("browseId" in data){
+        if (data.resultType === "artists"){
             if (data.category === "Artists"){
                 goTo(Artist, {browseId: data.browseId}) 
                 return

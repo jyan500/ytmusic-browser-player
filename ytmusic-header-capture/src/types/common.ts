@@ -106,6 +106,7 @@ export type SearchContent = {
 	browseId?: string
 	playlistId?: string
 	duration?: string
+	itemCount?: number 
 } & PossibleSearchContent
 
 export type PossibleSearchContent = Playlist | Video | ArtistContent | Album | UserSearchResult | Track 
