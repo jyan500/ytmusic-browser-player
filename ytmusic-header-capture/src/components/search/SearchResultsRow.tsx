@@ -114,7 +114,7 @@ export const SearchResultsRow = ({
                 title: data.title ?? "",
                 thumbnails: data.thumbnails,
                 count: data.itemCount ?? 0,
-                description: "",
+                description: `${data?.author ?? ""} • ${data.itemCount?.toString() ?? ""} tracks`,
                 tracks: [] as Array<Track>,
             } as TPlaylist})
             return
@@ -143,13 +143,13 @@ export const SearchResultsRow = ({
             triggerGetTracks({playlistId: id, params: {}})
             return
         }
-        if (data.resultType === "artists"){
+        if (data.resultType === "artist"){
             if (data.category === "Artists"){
-                goTo(Artist, {browseId: data.browseId}) 
+                goTo(Artist, {browseId: data.browseId ?? ""}) 
                 return
             }   
             else if (data.category === "Profiles"){
-                goTo(User, {channelId: data.browseId})
+                goTo(User, {channelId: data.browseId ?? ""})
                 return
             }
         }

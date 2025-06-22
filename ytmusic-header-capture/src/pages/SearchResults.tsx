@@ -73,12 +73,14 @@ export const SearchResults = ({result}: Props) => {
 	useEffect(() => {
 		if (!isFetching && data){
 			const grouped: GroupedResults = data.reduce((acc: GroupedResults, obj: SearchContent) => {
-				const category = obj.category.toLowerCase()
-				if (category in acc){
-					acc[category].push(obj)
-				}
-				else {
-					acc[category] = [obj]
+				const category = obj.category?.toLowerCase() ?? ""
+				if (category !== ""){
+					if (category in acc){
+						acc[category].push(obj)
+					}
+					else {
+						acc[category] = [obj]
+					}
 				}
 				return acc
 			}, {} as GroupedResults)	

@@ -21,10 +21,13 @@ export const SearchResults = ({data, onClickResult, isLoading=false}: Props) => 
 			<div className = "flex flex-col gap-y-2">
 				{
 					data != null && data?.length > 0 ? data.map((d: SearchSuggestionContent) => (
-						<button onClick={(e) => onClickResult(d.text)} className = "hover:opacity-60 flex flex-row items-center gap-x-2">
+						<a onClick={(e) => {
+							e.preventDefault()
+							onClickResult(d.text)}
+						} className = "hover:opacity-60 flex flex-row items-center gap-x-2">
 							{d.fromHistory ? <IconHistory className = "w-3 h-3"/> : <IconSearch className="w-3 h-3"/>}
 							<p>{d.text}</p>
-						</button>
+						</a>
 					)) : null
 				}
 			</div>

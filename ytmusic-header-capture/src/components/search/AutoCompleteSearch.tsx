@@ -12,7 +12,7 @@ export const AutoCompleteSearch = () => {
 	const [searchTerm, setSearchTerm] = useState<string>("")
 	const [ suggestedResults, setSuggestedResults ] = useState<Array<SearchSuggestionContent>>([])
 
-	const debouncedSearch = useDebouncedValue(searchTerm, 300)
+	const debouncedSearch = useDebouncedValue(searchTerm, 400)
 
 	useEffect(() => {
 		if (data && !isFetching){
@@ -27,6 +27,7 @@ export const AutoCompleteSearch = () => {
 	}, [debouncedSearch])
 
 	const onChange = (param: string) => {
+		console.log("changing: ", param)
 		setSearchTerm(param)
 	}
 
