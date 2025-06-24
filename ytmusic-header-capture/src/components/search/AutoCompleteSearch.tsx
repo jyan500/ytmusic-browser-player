@@ -27,7 +27,6 @@ export const AutoCompleteSearch = () => {
 	}, [debouncedSearch])
 
 	const onChange = (param: string) => {
-		console.log("changing: ", param)
 		setSearchTerm(param)
 	}
 

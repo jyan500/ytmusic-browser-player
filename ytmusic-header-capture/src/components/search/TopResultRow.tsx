@@ -80,7 +80,7 @@ export const TopResultRow = ({resultType, data}: Props) => {
     }
 
 	const onPlay = () => {
-		if ("videoId" in data){
+		if ("videoId" in data && data.resultType !== "album"){
 			triggerGetWatchPlaylist({videoId: data.videoId ?? ""})
 		}
 		else if ("playlistId" in data){
@@ -97,7 +97,7 @@ export const TopResultRow = ({resultType, data}: Props) => {
 	const buttonBar = () => {
 		if (data.resultType === "artist") {
 			return (
-				<button className = "flex bg-white text-black px-3 py-1 rounded-md" onClick={() => goTo(Artist, {browseId: data.browseId ?? ""})}>See More</button>
+				<button className = "flex bg-white text-black px-3 py-1 rounded-md" onClick={() => goTo(Artist, {browseId: data.browseId ?? ""})}><p className = "font-semibold">See More</p></button>
 			)
 		}
 		if ("videoId" in data || "playlistId" in data){

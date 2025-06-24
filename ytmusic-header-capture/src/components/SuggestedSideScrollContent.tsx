@@ -15,6 +15,7 @@ import { SideScrollContent } from "./SideScrollContent"
 import { LinkableDescription } from "./LinkableDescription"
 import { ArtistDescription } from "./ArtistDescription"
 import { AuthorDescription } from "./AuthorDescription"
+import { setIsPlaying } from "../slices/audioPlayerSlice"
 
 interface Props {
 	content: SuggestedContent
@@ -22,23 +23,34 @@ interface Props {
 
 export const SuggestedSideScrollContent = ({content}: Props) => {
 
+   const dispatch = useAppDispatch()
 	const { isPlaying, currentTrack } = useAppSelector((state) => state.audioPlayer)
 	const { playlist: currentPlaylist } = useAppSelector((state) => state.queuedTrackList)
-    const [ triggerGetTracks, { data: tracksData, error: tracksError, isFetching: isFetchingTracks }] = useLazyGetPlaylistTracksQuery();
-    const [ triggerGetRelatedTracks, { data: relatedTracksData, error: relatedTracksError, isFetching: isFetchingRelatedTracks }] = useLazyGetRelatedTracksQuery();
-    const [ triggerGetWatchPlaylist, {data: watchPlaylistData, error: watchPlaylistError, isFetching: isWatchPlaylistFetching}] = useLazyGetWatchPlaylistQuery()
-    // const { triggerLoadTrack } = useLoadTrack()
-    const { triggerLoadPlaylist } = useLoadPlaylist()
+   const [ triggerGetTracks, { data: tracksData, error: tracksError, isFetching: isFetchingTracks }] = useLazyGetPlaylistTracksQuery();
+   const [ triggerGetRelatedTracks, { data: relatedTracksData, error: relatedTracksError, isFetching: isFetchingRelatedTracks }] = useLazyGetRelatedTracksQuery();
+   const [ triggerGetWatchPlaylist, {data: watchPlaylistData, error: watchPlaylistError, isFetching: isWatchPlaylistFetching}] = useLazyGetWatchPlaylistQuery()
+   const { triggerLoadPlaylist } = useLoadPlaylist()
 
 	const playContent = () => {
     	if ("videoId" in content){
-    		// get the watch playlist for this video and load as playlist
-    		triggerGetWatchPlaylist({videoId: content?.videoId ?? ""})
+    		// if the current video is loaded but paused, just reload the audio
+    		if (currentTrack?.videoId === content?.videoId){
+    			dispatch(setIsPlaying(!isPlaying))
+    		}
+    		else {
+	    		// get the watch playlist for this video and load as playlist
+	    		triggerGetWatchPlaylist({videoId: content?.videoId ?? ""})
+    		}
     	}
     	else if ("playlistId" in content || "audioPlaylistId" in content){
-			triggerGetTracks({playlistId: "playlistId" in content ? (content.playlistId ?? "") : (content.audioPlaylistId ?? ""), params: {}})
+    		if (((currentPlaylist?.playlistId === content?.playlistId) || (currentPlaylist?.playlistId === content?.audioPlaylistId))){
+    			dispatch(setIsPlaying(!isPlaying))	
+    		}
+    		else {
+				triggerGetTracks({playlistId: "playlistId" in content ? (content.playlistId ?? "") : (content.audioPlaylistId ?? ""), params: {}})
+    		}
     	}
-    }
+   }
 
 	const getDescription = (): string => {
         if ("playlistId" in content){

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react"
+import { useAppDispatch, useAppSelector } from "../../hooks/redux-hooks"
 import { Track, SearchContent, Playlist as TPlaylist, ContainsArtists, ContainsAuthor } from "../../types/common"
 import { IconVerticalMenu } from "../../icons/IconVerticalMenu"
 import { SearchResultsDropdown } from "../dropdowns/SearchResultsDropdown"
@@ -14,6 +15,7 @@ import { ArtistDescription } from "../ArtistDescription"
 import { AuthorDescription } from "../AuthorDescription"
 import { useLoadPlaylist } from "../../hooks/useLoadPlaylist"
 import { useLazyGetPlaylistTracksQuery, useLazyGetWatchPlaylistQuery } from "../../services/private/playlists"
+import { setIsPlaying } from "../../slices/audioPlayerSlice"
 
 interface Props {
     data: SearchContent 
@@ -29,9 +31,12 @@ export const SearchResultsRow = ({
 	thumbnail
 }: Props) => {
 
+    const dispatch = useAppDispatch()
     const [showDropdown, setShowDropdown] = useState(false)
     const menuDropdownRef = useRef<HTMLDivElement>(null)
     const buttonRef = useRef<HTMLButtonElement>(null)
+    const { currentTrack, isPlaying } = useAppSelector((state) => state.audioPlayer)
+    const { playlist: currentPlaylist } = useAppSelector((state) => state.queuedTrackList)
 
     const onClickOutside = () => {
         setShowDropdown(false)  
@@ -66,7 +71,13 @@ export const SearchResultsRow = ({
     }, [watchPlaylistData, isWatchPlaylistFetching])
 
     const showPauseButton = () => {
-        return false
+        if ("playlistId" in data){
+            return isPlaying && (currentPlaylist?.playlistId === data?.playlistId)
+        }
+        else if ("videoId" in data){
+            return isPlaying && currentTrack?.videoId === data.videoId
+        }
+        return false 
     }
 
     const getTitle = () => {
@@ -135,12 +146,24 @@ export const SearchResultsRow = ({
 
     const triggerLoadContent = () => {
         if ("videoId" in data){
-            triggerGetWatchPlaylist({videoId: data.videoId ?? ""})
+            if (currentTrack?.videoId === data.videoId){
+                dispatch(setIsPlaying(!isPlaying))
+            }
+            else {
+                triggerGetWatchPlaylist({videoId: data.videoId ?? ""})
+            }
             return
         }
         if (data.resultType === "album" || data.resultType === "playlist"){
-            const id = data.resultType === "playlist" ? (data.browseId ?? "") : (data.playlistId ?? "")
-            triggerGetTracks({playlistId: id, params: {}})
+            if ( 
+                (data.playlistId != null && currentPlaylist?.playlistId === data.playlistId) || 
+                (data.browseId != null && currentPlaylist?.playlistId === data.browseId)){
+                dispatch(setIsPlaying(!isPlaying)) 
+            }
+            else {
+                const id = data.resultType === "playlist" ? (data.browseId ?? "") : (data.playlistId ?? "")
+                triggerGetTracks({playlistId: id, params: {}})
+            }
             return
         }
         if (data.resultType === "artist"){
@@ -193,7 +216,7 @@ export const SearchResultsRow = ({
                         <IconVerticalMenu/>
                     </button>
                     {
-                    showDropdown ? 
+                    showDropdown && "videoId" in data ? 
 	                    <SearchResultsDropdown ref={menuDropdownRef} closeDropdown={() => setShowDropdown(false)}/>
 	                    : null
 	                }
