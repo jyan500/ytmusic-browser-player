@@ -13,6 +13,7 @@ import { ArtistDescription } from "../components/ArtistDescription"
 import { AuthorDescription } from "../components/AuthorDescription"
 import { useLoadPlaylist } from "../hooks/useLoadPlaylist"
 import { useLazyGetPlaylistTracksQuery, useLazyGetWatchPlaylistQuery } from "../services/private/playlists"
+import { AutoCompleteSearch } from "../components/search/AutoCompleteSearch"
 
 interface Props {
 	result: string
@@ -90,8 +91,9 @@ export const SearchResults = ({result}: Props) => {
 	return (
 		<div className = "space-y-2">
 			<button onClick={() => goBack()}>Go Back</button>
+			<AutoCompleteSearch existingSearchTerm={result}/>
 			{
-				Object.keys(groupedByCategory).length > 0 ? (
+				!isFetching && Object.keys(groupedByCategory).length > 0 ? (
 				<div className = "flex flex-col gap-y-4">
 					{
 						categories.map((category: string) => {

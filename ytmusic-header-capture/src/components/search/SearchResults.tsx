@@ -14,16 +14,16 @@ interface Props {
 	isLoadingForRemoval: {isLoading: boolean, index: number}
 }
 
-export const SearchResults = ({
+export const SearchResults = React.forwardRef<HTMLDivElement, Props>(({
 	data, 
 	onClickResult, 
 	onClickRemove, 
 	setIsLoadingForRemoval, 
 	isLoadingForRemoval, 
 	isLoading=false
-}: Props) => {
+}: Props, ref) => {
 	return (
-		<div className = "flex flex-col gap-y-2 p-2 w-full bg-dark absolute z-10 rounded-md max-h-60 overflow-y-auto">
+		<div ref={ref} className = "flex flex-col gap-y-2 p-2 w-full bg-dark absolute z-10 rounded-md max-h-60 overflow-y-auto">
 			<div>
 				{
 					isLoading ? <LoadingSpinner width={"w-4"} height={"h-4"}/> : null
@@ -57,4 +57,4 @@ export const SearchResults = ({
 			</div>
 		</div>
 	)	
-}
+})

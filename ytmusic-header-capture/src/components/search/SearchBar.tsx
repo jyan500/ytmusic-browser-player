@@ -3,16 +3,18 @@ import { IconSearch } from "../../icons/IconSearch"
 
 interface Props {
 	placeholder?: string
+	searchTerm: string
 	onChange: (param: string) => void
+	onFocus: () => void
 }
 
-export const SearchBar = ({placeholder, onChange}: Props) => {
+export const SearchBar = React.forwardRef<HTMLDivElement, Props>(({placeholder, onChange, onFocus, searchTerm}: Props, ref) => {
 	return (
-		<div className = "w-full relative">
+		<div className = "w-full relative" ref={ref}>
 			<IconSearch className="w-4 h-4 absolute top-2 left-2"/>	
-			<input onChange={(e) => {
+			<input onFocus={onFocus} value={searchTerm} onChange={(e) => {
 				onChange(e.target.value)
 			}} name="autocomplete" placeholder={placeholder} className="focus:outline-none focus:ring-2 focus:ring-gray-400 rounded-md w-full h-8 bg-dark pl-10" type="text"/>
 		</div>
 	)
-}
+})

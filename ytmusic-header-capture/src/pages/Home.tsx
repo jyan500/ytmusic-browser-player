@@ -17,6 +17,7 @@ import { LoadingSpinner } from "../components/elements/LoadingSpinner"
 import { addToast } from "../slices/toastSlice"
 import { v4 as uuidv4 } from "uuid"
 import { AutoCompleteSearch } from "../components/search/AutoCompleteSearch"
+import { SearchResults as SearchResultsPage } from "./SearchResults"
 
 export const Home = () => {
 	const [login, {isLoading, error}] = useLoginMutation()
@@ -91,10 +92,10 @@ export const Home = () => {
         		<Link className = "text-xl" component={Playlists}>
         			See Playlists
 			    </Link>
+    			<AutoCompleteSearch/>
 			    {
 			    	!isGetHomeFetching && homeData ? (
 			    		<div className = "flex flex-col gap-y-2">
-			    			<AutoCompleteSearch/>
 			    			{
 			    				homeData?.map((content: HomeContent) => (
 			    					<SuggestedContentContainer content={content}/>

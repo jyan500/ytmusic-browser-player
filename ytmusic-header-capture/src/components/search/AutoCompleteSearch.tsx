@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react"
+import React, { useState, useEffect, useRef } from "react"
 import { SearchBar } from "./SearchBar"
 import { SearchResults } from "./SearchResults"
 import { useAppDispatch } from "../../hooks/redux-hooks"
@@ -6,15 +6,23 @@ import { useDebouncedValue } from "../../hooks/useDebouncedValue"
 import { useRemoveSearchSuggestionsMutation, useLazyGetSearchSuggestionsQuery } from "../../services/private/search"
 import { SearchSuggestionContent } from "../../types/common"
 import { SearchResults as SearchResultsPage } from "../../pages/SearchResults"
-import { goTo } from "react-chrome-extension-router"
+import { goTo, getCurrent } from "react-chrome-extension-router"
 import { addToast } from "../../slices/toastSlice"
 import { v4 as uuidv4 } from "uuid"
+import { useClickOutside } from "../../hooks/useClickOutside"
 
-export const AutoCompleteSearch = () => {
+interface Props {
+	existingSearchTerm?: string
+}
+
+export const AutoCompleteSearch = ({existingSearchTerm = ""}: Props) => {
 	const dispatch = useAppDispatch()
+	const searchSuggestionsRef = useRef<HTMLDivElement>(null)
+	const searchBarRef = useRef<HTMLDivElement>(null)
 	const [trigger, {data, isFetching, isError}] = useLazyGetSearchSuggestionsQuery()
 	const [searchTerm, setSearchTerm] = useState<string>("")
 	const [ suggestedResults, setSuggestedResults ] = useState<Array<SearchSuggestionContent>>([])
+	const [ openSuggestedResults, setOpenSuggestedResults] = useState(false)
 	const [ removeSearchSuggestions, {isLoading, error}] = useRemoveSearchSuggestionsMutation()
 	const debouncedSearch = useDebouncedValue(searchTerm, 400)
 	const [isLoadingForRemoval, setIsLoadingForRemoval] = useState<{isLoading: boolean, index: number}>({
@@ -23,8 +31,14 @@ export const AutoCompleteSearch = () => {
 	})
 
 	useEffect(() => {
+		if (isFetching){
+			setOpenSuggestedResults(true)
+		}
 		if (data && !isFetching){
 			setSuggestedResults(data)	
+			if (data.length == 0){
+				setOpenSuggestedResults(false)
+			}
 		}
 	}, [data, isFetching])
 
@@ -39,6 +53,7 @@ export const AutoCompleteSearch = () => {
 	}
 
 	const onClickResult = (result: string) => {
+		setOpenSuggestedResults(false)
 		goTo(SearchResultsPage, {result})
 		return
 	}
@@ -65,16 +80,29 @@ export const AutoCompleteSearch = () => {
 		}
 	}
 
+	const onClickOutside = () => {
+		setOpenSuggestedResults(false)
+	}
+
+	const onFocus = () => {
+		if (suggestedResults.length && !openSuggestedResults){
+			setOpenSuggestedResults(true)
+		}
+	}
+
+	// if clicking outside the autocomplete search suggestions (except on the search bar itself), close the search results
+    useClickOutside(searchSuggestionsRef, onClickOutside, searchBarRef)
+
 	return (
 		<div className = "relative">
 			<form onSubmit={(e) => {
 				e.preventDefault()
 				onClickResult(searchTerm)
 			}}>
-				<SearchBar onChange={onChange} placeholder={"Search songs, albums, artists"}/>
+				<SearchBar onFocus={onFocus} ref={searchBarRef} searchTerm = {searchTerm === "" ? existingSearchTerm : searchTerm} onChange={onChange} placeholder={"Search songs, albums, artists"}/>
 				{
-					isFetching || suggestedResults.length > 0 ? 
-					<SearchResults isLoadingForRemoval={isLoadingForRemoval} setIsLoadingForRemoval={setIsLoadingForRemoval} onClickResult={onClickResult} onClickRemove={onClickRemove} data={suggestedResults} isLoading={isFetching}/>
+					openSuggestedResults ? 
+					<SearchResults ref={searchSuggestionsRef} isLoadingForRemoval={isLoadingForRemoval} setIsLoadingForRemoval={setIsLoadingForRemoval} onClickResult={onClickResult} onClickRemove={onClickRemove} data={suggestedResults} isLoading={isFetching}/>
 					: null
 				}
 			</form>
