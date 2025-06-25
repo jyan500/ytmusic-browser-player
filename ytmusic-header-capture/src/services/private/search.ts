@@ -21,6 +21,14 @@ export const searchApi = privateApi.injectEndpoints({
 				params: params
 			}),
 			providesTags: ["SearchSuggestions"]
+		}),
+		removeSearchSuggestions: builder.mutation<{message: string}, Record<string, any>>({
+			query: (body) => ({
+				url: `${SEARCH_URL}/suggestions`,
+				method: "POST",
+				body: body
+			}),
+			invalidatesTags: ["SearchSuggestions"]
 		})
 	}),
 })
@@ -28,4 +36,5 @@ export const searchApi = privateApi.injectEndpoints({
 export const { 
 	useGetSearchQuery, 
 	useLazyGetSearchSuggestionsQuery, 
+	useRemoveSearchSuggestionsMutation,
 } = searchApi 

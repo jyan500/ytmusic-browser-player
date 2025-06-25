@@ -3,6 +3,7 @@ export const ITEMS_PER_VIEW = 25
 export const PADDING_AVOID_AUDIO_PLAYER_OVERLAP = "pb-[115px]"
 export const TAG_TYPES = [
 	"Playlists",
+	"SearchSuggestions",
 	"PlaylistTracks",
 	"Songs",
 	"PlaybackInfo",

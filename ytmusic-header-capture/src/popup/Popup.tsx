@@ -12,7 +12,7 @@ import { ModalManager } from "../components/ModalManager"
 import { ToastList } from "../components/elements/ToastList"
 
 export const Popup = () => {
-    
+
     return (
         <>
         <div className={`bg-dark-secondary relative text-white p-2 w-full ${PADDING_AVOID_AUDIO_PLAYER_OVERLAP} min-h-[800px]`}>

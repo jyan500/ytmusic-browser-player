@@ -25,3 +25,13 @@ def get_search_suggestions():
     ytmusic = initYTMusic(request)
     results = ytmusic.get_search_suggestions(query=searchParam, detailed_runs=True)
     return jsonify(results)
+
+@search.route("/search/suggestions", endpoint="remove_search_suggestions", methods=["POST"])
+@require_authentication
+def remove_search_suggestions():
+    data = request.get_json()
+    if ("suggestions" in data and "index" in data):
+        ytmusic = initYTMusic(request)
+        ytmusic.remove_search_suggestions(suggestions=data["suggestions"], indices=[data["index"]])
+    return jsonify({"message": "suggestion removed successfully!"})
+

@@ -103,7 +103,7 @@ export const SearchResultsRow = ({
             //         id: null,
             //     }]
             // } as ContainsAuthor}/>
-            component = <>{data?.author ?? ""}</>
+            component = <button className = "hover:underline hover:opacity-60" onClick={() => goTo(Artist, {browseId: data.browseId})}>{data?.author ?? ""}</button>
         }
         return (
             <div className = "flex flex-row gap-x-2">
@@ -114,7 +114,7 @@ export const SearchResultsRow = ({
         )
     }
 
-    const enterPlaylistOrAlbumPage = () => {
+    const enterPage = () => {
         if (data.resultType === "album" && "browseId" in data){
             goTo(Album, {browseId: data.browseId})
             return
@@ -130,17 +130,21 @@ export const SearchResultsRow = ({
             } as TPlaylist})
             return
         }
+        else if (data.resultType === "artist" && "browseId" in data){
+            goTo(Artist, {browseId: data.browseId})
+            return
+        }
     }
 
     const rowContent = () => {
         const title = <p className = "font-bold">{getTitle()}</p>
         return (
-            <>
+            <div className = "truncate">
                 {
-                    data.resultType === "album" || data.resultType === "playlist" ? (<button onClick={() => enterPlaylistOrAlbumPage()} className="hover:underline hover:opacity-60">{title}</button>) : (<div>{title}</div>)   
+                    data.resultType === "album" || data.resultType === "playlist" || data.resultType === "artist" ? (<button onClick={() => enterPage()} className="hover:underline hover:opacity-60">{title}</button>) : (<div>{title}</div>)   
                 }
                 {getDescription()}
-            </>
+            </div>
         )
     }
 
@@ -204,7 +208,7 @@ export const SearchResultsRow = ({
                             </button>
                         ) 
                     }
-                    <div className = "py-1 flex flex-col gap-y-2 items-start truncate overflow-hidden">
+                    <div className = "py-1 flex flex-col gap-y-2 items-start w-4/6">
                         {rowContent()}
                     </div>
                 </div>
