@@ -90,6 +90,12 @@ export const AutoCompleteSearch = ({existingSearchTerm = ""}: Props) => {
 		}
 	}
 
+	const onClear = () => {
+		setOpenSuggestedResults(false)
+		setSuggestedResults([])
+		setSearchTerm("")
+	}
+
 	// if clicking outside the autocomplete search suggestions (except on the search bar itself), close the search results
     useClickOutside(searchSuggestionsRef, onClickOutside, searchBarRef)
 
@@ -99,7 +105,7 @@ export const AutoCompleteSearch = ({existingSearchTerm = ""}: Props) => {
 				e.preventDefault()
 				onClickResult(searchTerm)
 			}}>
-				<SearchBar onFocus={onFocus} ref={searchBarRef} searchTerm = {searchTerm === "" ? existingSearchTerm : searchTerm} onChange={onChange} placeholder={"Search songs, albums, artists"}/>
+				<SearchBar onFocus={onFocus} ref={searchBarRef} onClear={onClear} searchTerm = {searchTerm === "" ? existingSearchTerm : searchTerm} onChange={onChange} placeholder={"Search songs, albums, artists"}/>
 				{
 					openSuggestedResults ? 
 					<SearchResults ref={searchSuggestionsRef} isLoadingForRemoval={isLoadingForRemoval} setIsLoadingForRemoval={setIsLoadingForRemoval} onClickResult={onClickResult} onClickRemove={onClickRemove} data={suggestedResults} isLoading={isFetching}/>
