@@ -103,7 +103,7 @@ export const SearchResultsRow = ({
             //         id: null,
             //     }]
             // } as ContainsAuthor}/>
-            component = <button className = "hover:underline hover:opacity-60" onClick={() => goTo(Artist, {browseId: data.browseId})}>{data?.author ?? ""}</button>
+            component = <button className = "hover:underline hover:opacity-60" onClick={() => goTo(User, {channelId: data.browseId})}>{data?.author ?? ""}</button>
         }
         return (
             <div className = "flex flex-row gap-x-2">
@@ -125,14 +125,20 @@ export const SearchResultsRow = ({
                 title: data.title ?? "",
                 thumbnails: data.thumbnails,
                 count: data.itemCount ?? 0,
-                description: `${data?.author ?? ""} • ${data.itemCount?.toString() ?? ""} tracks`,
+                description: `${data?.author ?? ""} • ${data.itemCount?.toString() ?? ""} views`,
                 tracks: [] as Array<Track>,
             } as TPlaylist})
             return
         }
         else if (data.resultType === "artist" && "browseId" in data){
-            goTo(Artist, {browseId: data.browseId})
-            return
+            if (data.category === "Profiles"){
+                goTo(User, {channelId: data.browseId})
+                return
+            }
+            else {
+                goTo(Artist, {browseId: data.browseId})
+                return
+            }
         }
     }
 
@@ -204,7 +210,7 @@ export const SearchResultsRow = ({
                             />        
                         ) : (
                             <button onClick={() => triggerLoadContent()} className = "hover:opacity-60 w-24 h-16">
-                                <img loading="lazy" className={`w-24 h-16 object-fill`} src = {thumbnail}/>
+                                <img loading="lazy" className={`w-full h-full object-fill`} src = {thumbnail}/>
                             </button>
                         ) 
                     }
@@ -212,19 +218,22 @@ export const SearchResultsRow = ({
                         {rowContent()}
                     </div>
                 </div>
-                <div className = "relative pr-2 w-12 flex-shrink-0 flex justify-end items-center">
-                    <p className = {`absolute ${showDropdown ? "invisible" : "group-hover:invisible"}`}>{data?.duration ?? ""}</p>
-                    <button ref={buttonRef} onClick={() => {
-                        setShowDropdown(!showDropdown)}
-                    } className="hover:opacity-60 invisible group-hover:visible absolute">
-                        <IconVerticalMenu/>
-                    </button>
-                    {
-                    showDropdown && "videoId" in data ? 
-	                    <SearchResultsDropdown ref={menuDropdownRef} closeDropdown={() => setShowDropdown(false)}/>
-	                    : null
-	                }
-                </div>
+                {
+                    "videoId" in data ? 
+                    <div className = "relative pr-2 w-12 flex-shrink-0 flex justify-end items-center">
+                        <p className = {`absolute ${showDropdown ? "invisible" : "group-hover:invisible"}`}>{data?.duration ?? ""}</p>
+                        <button ref={buttonRef} onClick={() => {
+                            setShowDropdown(!showDropdown)}
+                        } className="hover:opacity-60 invisible group-hover:visible absolute">
+                            <IconVerticalMenu/>
+                        </button>
+                        {
+                        showDropdown ? 
+    	                    <SearchResultsDropdown videoId={data.videoId ?? ""} ref={menuDropdownRef} closeDropdown={() => setShowDropdown(false)}/>
+    	                    : null
+    	                }
+                    </div> : null
+                }
         </li>
 	)	
 }
