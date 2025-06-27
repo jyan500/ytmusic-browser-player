@@ -57,28 +57,13 @@ export const AutoCompleteSearch = ({existingSearchTerm = ""}: Props) => {
 		}
 	}
 
+	const onClear = () => {
+		setOpenSuggestedResults(false)
+		setSuggestedResults([])
+		setSearchTerm("")
+	}
 
-	useEffect(() => {
-		if (isFetching){
-			setOpenSuggestedResults(true)
-		}
-		if (data && !isFetching){
-			setSuggestedResults(data)	
-			if (data.length == 0){
-				setOpenSuggestedResults(false)
-			}
-		}
-	}, [data, isFetching])
-
-	useEffect(() => {
-		// checking the previous debounced search will prevent an edge case where upon render, setting the
-		// existing search term triggers this call. At that time, debounced search and previous debounced search
-		// would have the same value, so the logic prevents that search from occurring. 
-		if (previousDebouncedSearch != null && debouncedSearch !== "" && debouncedSearch !== previousDebouncedSearch){
-			trigger({search: debouncedSearch})
-		}
-	}, [debouncedSearch])
-
+	
 	const onChange = (param: string) => {
 		setSearchTerm(param)
 	}
@@ -99,11 +84,33 @@ export const AutoCompleteSearch = ({existingSearchTerm = ""}: Props) => {
 		}
 	}
 
-	const onClear = () => {
-		setOpenSuggestedResults(false)
-		setSuggestedResults([])
-		setSearchTerm("")
-	}
+	useEffect(() => {
+		if (isFetching){
+			setOpenSuggestedResults(true)
+		}
+		if (data && !isFetching){
+			setSuggestedResults(data)	
+			if (data.length == 0){
+				setOpenSuggestedResults(false)
+			}
+		}
+	}, [data, isFetching])
+
+	useEffect(() => {
+		// checking the previous debounced search will prevent an edge case where upon render, setting the
+		// existing search term triggers this call. At that time, debounced search and previous debounced search
+		// would have the same value, so the logic prevents that search from occurring. 
+		console.log("previousDebounce", previousDebouncedSearch)
+		console.log("debounce search", debouncedSearch)
+		if (previousDebouncedSearch != null && debouncedSearch !== "" && debouncedSearch !== previousDebouncedSearch){
+			trigger({search: debouncedSearch})
+		}
+		// if the user manually removes all characters, make sure to clear out the search results
+		else if (previousDebouncedSearch != null && debouncedSearch === ""){
+			onClear()
+		}
+	}, [debouncedSearch])
+
 
 	// if clicking outside the autocomplete search suggestions (except on the search bar itself), close the search results
     useClickOutside(searchSuggestionsRef, onClickOutside, searchBarRef)
