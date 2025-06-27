@@ -26,9 +26,13 @@ export const Home = () => {
 	const { userProfile } = useAppSelector((state) => state.userProfile)
     const [ trigger, { data: homeData, error: getHomeError, isFetching: isGetHomeFetching }] = useLazyGetHomeQuery();
 
-	// useEffect(() => {
-	// 	authenticate()
-	// }, [])
+	useEffect(() => {
+		if (getHomeError){
+			dispatch(logout())
+			// refresh the youtube music tab to trigger re-authentication
+			chrome.runtime.sendMessage({ type: "refresh-music-youtube-tabs" })
+		}
+	}, [getHomeError])
 
 	useEffect(() => {
 		if (!headers){
