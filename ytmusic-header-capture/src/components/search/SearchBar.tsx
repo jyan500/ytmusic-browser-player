@@ -19,7 +19,10 @@ export const SearchBar = React.forwardRef<HTMLDivElement, Props>(({placeholder, 
 			}} name="autocomplete" placeholder={placeholder} className="focus:outline-none focus:ring-2 focus:ring-gray-400 rounded-md w-full h-8 bg-dark pl-10 pr-10" type="text"/>
 			{
 				searchTerm !== "" ? 
-				<button onClick={(e) => onClear()} className = "w-4 h-4 absolute top-2 right-2"><IconClose/></button>
+				<a onClick={(e) => {
+					e.preventDefault() 
+					onClear()}
+				} className = "w-4 h-4 absolute top-2 right-2"><IconClose/></a>
 				: null
 			}
 		</div>

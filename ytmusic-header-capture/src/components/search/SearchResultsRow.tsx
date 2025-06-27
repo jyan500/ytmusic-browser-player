@@ -166,8 +166,8 @@ export const SearchResultsRow = ({
         }
         if (data.resultType === "album" || data.resultType === "playlist"){
             if ( 
-                (data.playlistId != null && currentPlaylist?.playlistId === data.playlistId) || 
-                (data.browseId != null && currentPlaylist?.playlistId === data.browseId)){
+                currentPlaylist && ((data.playlistId != null && currentPlaylist?.playlistId === data.playlistId) || 
+                (data.browseId != null && currentPlaylist?.playlistId === data.browseId))){
                 dispatch(setIsPlaying(!isPlaying)) 
             }
             else {

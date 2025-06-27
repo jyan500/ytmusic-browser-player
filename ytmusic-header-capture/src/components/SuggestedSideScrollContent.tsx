@@ -43,7 +43,7 @@ export const SuggestedSideScrollContent = ({content}: Props) => {
     		}
     	}
     	else if ("playlistId" in content || "audioPlaylistId" in content){
-    		if (((currentPlaylist?.playlistId === content?.playlistId) || (currentPlaylist?.playlistId === content?.audioPlaylistId))){
+    		if ((currentPlaylist && (currentPlaylist?.playlistId === content?.playlistId) || (currentPlaylist?.playlistId === content?.audioPlaylistId))){
     			dispatch(setIsPlaying(!isPlaying))	
     		}
     		else {

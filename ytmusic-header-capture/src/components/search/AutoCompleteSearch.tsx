@@ -10,6 +10,7 @@ import { goTo, getCurrent } from "react-chrome-extension-router"
 import { addToast } from "../../slices/toastSlice"
 import { v4 as uuidv4 } from "uuid"
 import { useClickOutside } from "../../hooks/useClickOutside"
+import { usePrevious } from "../../hooks/usePrevious"
 
 interface Props {
 	existingSearchTerm?: string
@@ -20,15 +21,11 @@ export const AutoCompleteSearch = ({existingSearchTerm = ""}: Props) => {
 	const searchSuggestionsRef = useRef<HTMLDivElement>(null)
 	const searchBarRef = useRef<HTMLDivElement>(null)
 	const [trigger, {data, isFetching, isError}] = useLazyGetSearchSuggestionsQuery()
-	const [searchTerm, setSearchTerm] = useState<string>("")
+	const [searchTerm, setSearchTerm] = useState<string>(existingSearchTerm)
 	const [ suggestedResults, setSuggestedResults ] = useState<Array<SearchSuggestionContent>>([])
 	const [ openSuggestedResults, setOpenSuggestedResults] = useState(false)
-	const [ removeSearchSuggestions, {isLoading, error}] = useRemoveSearchSuggestionsMutation()
 	const debouncedSearch = useDebouncedValue(searchTerm, 400)
-	const [isLoadingForRemoval, setIsLoadingForRemoval] = useState<{isLoading: boolean, index: number}>({
-		isLoading: false,	
-		index: -1
-	})
+	const previousDebouncedSearch = usePrevious(debouncedSearch)
 
 	useEffect(() => {
 		if (isFetching){
@@ -43,7 +40,10 @@ export const AutoCompleteSearch = ({existingSearchTerm = ""}: Props) => {
 	}, [data, isFetching])
 
 	useEffect(() => {
-		if (debouncedSearch !== ""){
+		// checking the previous debounced search will prevent an edge case where upon render, setting the
+		// existing search term triggers this call. At that time, debounced search and previous debounced search
+		// would have the same value, so the logic prevents that search from occurring. 
+		if (previousDebouncedSearch != null && debouncedSearch !== "" && debouncedSearch !== previousDebouncedSearch){
 			trigger({search: debouncedSearch})
 		}
 	}, [debouncedSearch])
@@ -56,28 +56,6 @@ export const AutoCompleteSearch = ({existingSearchTerm = ""}: Props) => {
 		setOpenSuggestedResults(false)
 		goTo(SearchResultsPage, {result})
 		return
-	}
-
-	const onClickRemove = async (index: number) => {
-		const id = uuidv4()
-		try {
-			await removeSearchSuggestions({suggestions: data, index: index}).unwrap()
-			dispatch(addToast({
-				id,			
-				animationType: "animation-in",
-				message: "Search suggestion removed successfully!",
-			}))
-		}
-		catch (e) {
-			dispatch(addToast({
-				id,			
-				animationType: "animation-in",
-				message: "Something went wrong when removing search suggestion.",
-			}))
-		}
-		finally {
-			setIsLoadingForRemoval({isLoading: false, index: -1})
-		}
 	}
 
 	const onClickOutside = () => {
@@ -106,11 +84,7 @@ export const AutoCompleteSearch = ({existingSearchTerm = ""}: Props) => {
 				onClickResult(searchTerm)
 			}}>
 				<SearchBar onFocus={onFocus} ref={searchBarRef} onClear={onClear} searchTerm = {searchTerm === "" ? existingSearchTerm : searchTerm} onChange={onChange} placeholder={"Search songs, albums, artists"}/>
-				{
-					openSuggestedResults ? 
-					<SearchResults ref={searchSuggestionsRef} isLoadingForRemoval={isLoadingForRemoval} setIsLoadingForRemoval={setIsLoadingForRemoval} onClickResult={onClickResult} onClickRemove={onClickRemove} data={suggestedResults} isLoading={isFetching}/>
-					: null
-				}
+				<SearchResults data={suggestedResults} isVisible={openSuggestedResults} ref={searchSuggestionsRef} onClickResult={onClickResult} isLoading={isFetching}/>
 			</form>
 		</div>
 	)	
