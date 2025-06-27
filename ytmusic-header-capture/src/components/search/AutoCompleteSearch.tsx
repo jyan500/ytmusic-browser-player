@@ -24,8 +24,39 @@ export const AutoCompleteSearch = ({existingSearchTerm = ""}: Props) => {
 	const [searchTerm, setSearchTerm] = useState<string>(existingSearchTerm)
 	const [ suggestedResults, setSuggestedResults ] = useState<Array<SearchSuggestionContent>>([])
 	const [ openSuggestedResults, setOpenSuggestedResults] = useState(false)
+	const [ removeSearchSuggestions, {isLoading: isRemoveSearchLoading, error}] = useRemoveSearchSuggestionsMutation()
 	const debouncedSearch = useDebouncedValue(searchTerm, 400)
 	const previousDebouncedSearch = usePrevious(debouncedSearch)
+	const [isLoadingForRemoval, setIsLoadingForRemoval] = useState<{isLoading: boolean, index: number}>({
+		isLoading: false,	
+		index: -1
+	})
+
+	const onClickRemove = async (index: number) => {
+
+		setIsLoadingForRemoval({isLoading: true, index: index})
+		const id = uuidv4()
+		try {
+			await removeSearchSuggestions({suggestions: data, index: index}).unwrap()
+			await trigger({search: debouncedSearch}).unwrap()
+			dispatch(addToast({
+				id,			
+				animationType: "animation-in",
+				message: "Search suggestion removed successfully!",
+			}))
+		}
+		catch (e) {
+			dispatch(addToast({
+				id,			
+				animationType: "animation-in",
+				message: "Something went wrong when removing search suggestion.",
+			}))
+		}
+		finally {
+			setIsLoadingForRemoval({isLoading: false, index: -1})
+		}
+	}
+
 
 	useEffect(() => {
 		if (isFetching){
@@ -84,7 +115,7 @@ export const AutoCompleteSearch = ({existingSearchTerm = ""}: Props) => {
 				onClickResult(searchTerm)
 			}}>
 				<SearchBar onFocus={onFocus} ref={searchBarRef} onClear={onClear} searchTerm = {searchTerm === "" ? existingSearchTerm : searchTerm} onChange={onChange} placeholder={"Search songs, albums, artists"}/>
-				<SearchResults data={suggestedResults} isVisible={openSuggestedResults} ref={searchSuggestionsRef} onClickResult={onClickResult} isLoading={isFetching}/>
+				<SearchResults isLoadingForRemoval={isLoadingForRemoval} data={suggestedResults} isVisible={openSuggestedResults} ref={searchSuggestionsRef} onClickRemove={onClickRemove} onClickResult={onClickResult} isLoading={isFetching}/>
 			</form>
 		</div>
 	)	

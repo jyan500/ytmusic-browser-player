@@ -13,6 +13,8 @@ interface Props {
 	data: Array<SearchSuggestionContent>
 	isLoading?: boolean
 	onClickResult: (result: string) => void
+	onClickRemove: (index: number) => void
+	isLoadingForRemoval: {isLoading: boolean, index: number}
 	isVisible: boolean
 }
 
@@ -20,38 +22,12 @@ export const SearchResults = React.forwardRef<HTMLDivElement, Props>(({
 	data, 
 	onClickResult, 
 	isLoading=false,
+	onClickRemove,
+	isLoadingForRemoval,
 	isVisible,
 }: Props, ref) => {
 
 	const dispatch = useAppDispatch()
-	const [ removeSearchSuggestions, {isLoading: isRemoveSearchLoading, error}] = useRemoveSearchSuggestionsMutation()
-	const [isLoadingForRemoval, setIsLoadingForRemoval] = useState<{isLoading: boolean, index: number}>({
-		isLoading: false,	
-		index: -1
-	})
-
-	const onClickRemove = async (index: number) => {
-
-		const id = uuidv4()
-		try {
-			await removeSearchSuggestions({suggestions: data, index: index}).unwrap()
-			dispatch(addToast({
-				id,			
-				animationType: "animation-in",
-				message: "Search suggestion removed successfully!",
-			}))
-		}
-		catch (e) {
-			dispatch(addToast({
-				id,			
-				animationType: "animation-in",
-				message: "Something went wrong when removing search suggestion.",
-			}))
-		}
-		finally {
-			setIsLoadingForRemoval({isLoading: false, index: -1})
-		}
-	}
 
 	return (
 		<div ref={ref} className = {`${isVisible ? "visible" : "invisible"} flex flex-col gap-y-2 p-2 w-full bg-dark absolute z-10 rounded-md max-h-60 overflow-y-auto`}>
@@ -77,11 +53,7 @@ export const SearchResults = React.forwardRef<HTMLDivElement, Props>(({
 									<a className = {d.fromHistory ? "visible" : "invisible"} onClick={(e) => {
 										if (d.fromHistory){
 											e.preventDefault()
-											setIsLoadingForRemoval({
-												isLoading: false,
-												index: i 
-											})
-											// onClickRemove(i)
+											onClickRemove(i)
 										}
 									}}><IconClose className = "w-3 h-3"/></a>
 								)
