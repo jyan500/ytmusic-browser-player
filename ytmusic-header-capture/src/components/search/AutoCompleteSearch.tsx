@@ -32,10 +32,6 @@ export const AutoCompleteSearch = ({existingSearchTerm = ""}: Props) => {
 		index: -1
 	})
 
-	useEffect(() => {
-		console.log("searchTerm: ", searchTerm)
-	}, [searchTerm])
-
 	const onClickRemove = async (index: number) => {
 
 		setIsLoadingForRemoval({isLoading: true, index: index})
