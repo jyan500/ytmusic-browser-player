@@ -19,12 +19,18 @@ export const useClickOutside = (
 	}
 
 	useEffect(() => {
+		// note, this needed to be changed from "click" to "mousedown" to avoid issues where the 
+		// event.target above refers to an original version of the DOM before potential changes were made to it,
+		// therefore becoming stale. When using mousedown, it will fire immediately before any onClick handlers, 
+		// so ref.current is still the same as before, and event.target is still inside it.
+		// This fixed an issue inside the SearchResults where clicking the X mark
+		// that should've been inside ref.current was getting treated as outside.
 		if (addEventListener){
-			document.addEventListener("click", handleClick)
+			document.addEventListener("mousedown", handleClick)
 		}
 
 		return () => {
-			document.removeEventListener("click", handleClick)
+			document.removeEventListener("mousedown", handleClick)
 		}
 	}, [addEventListener])
 }

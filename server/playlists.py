@@ -33,7 +33,7 @@ def add_to_playlist(playlistId):
     if "videoIds" in data:
         ytmusic.add_playlist_items(playlistId=playlistId, videoIds=data["videoIds"])
     return jsonify({"message": "playlist item added successfully!"}), 200
-
+    
 @playlists.route("/playlists/<playlistId>", endpoint="remove_from_playlist", methods=["DELETE"])
 @require_authentication
 def remove_from_playlist(playlistId):

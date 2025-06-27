@@ -9,7 +9,10 @@ import { CollapseText } from "../components/elements/CollapseText"
 import { ActionButton } from "../components/elements/ActionButton"
 import { SideScroller } from "../components/SideScroller"
 import { UserScrollContent } from "../components/UserScrollContent"
-import { Home } from "../pages/Home"
+import { addToast } from "../slices/toastSlice"
+import { v4 as uuidv4 } from "uuid"
+import { useAppDispatch } from "../hooks/redux-hooks"
+import { Home } from "./Home"
 
 interface Props {
 	channelId: string
@@ -18,6 +21,19 @@ interface Props {
 
 export const User = ({channelId, invalidArtist}: Props) => {
 	const {data, isFetching, isError} = useGetUserQuery(channelId ?? skipToken)
+	const dispatch = useAppDispatch()
+
+	useEffect(() => {
+		if (isError){
+			dispatch(addToast({
+				id: uuidv4(),	
+				message: "Page could not be found!",
+				animationType: "animation-in"
+			}))
+			goTo(Home)
+			return
+		}
+	}, [isError])
 
 	return (
 		!isFetching && data ? (

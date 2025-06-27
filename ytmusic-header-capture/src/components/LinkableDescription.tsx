@@ -8,7 +8,7 @@ interface Props {
 export const LinkableDescription = ({description}: Props) => {
 	return (
 		<>
-			<p className = "whitespace-pre-wrap word-break text-gray-300">{description}</p>
+			<p className = "whitespace-pre-wrap break-normal text-gray-300">{description}</p>
 		</>
 	)	
 }

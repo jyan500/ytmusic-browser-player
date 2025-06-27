@@ -21,13 +21,19 @@ def get_song(videoId):
 @require_authentication
 def get_song_playback(videoId):
     ytmusic = initYTMusic(request)
+
     try:
         playbackURL = getPlaybackURL(videoId)
         return {"videoId": videoId, "playbackURL": playbackURL }, 200
-    except:
-        print("Initial playback attempt failed. Attempting fallback.")
+    except Exception as e:
+        print(e)
+        print("Initial playback attempt failed. Attempting fallback: ")
     try:
-        playbackURL = getPlaybackURLFallback(videoId)
+        authHeader = json.loads(request.headers.get("Authorization"))
+        cookies = ""
+        if authHeader.get("Cookie"):
+            cookies = authHeader.get("Cookie")
+        playbackURL = getPlaybackURLFallback(videoId, cookies)
         return {"videoId": videoId, "playbackURL": playbackURL }, 200
     except:
         return jsonify({"message": "There was an error getting playback"}), 500
