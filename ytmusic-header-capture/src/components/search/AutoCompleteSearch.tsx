@@ -100,8 +100,6 @@ export const AutoCompleteSearch = ({existingSearchTerm = ""}: Props) => {
 		// checking the previous debounced search will prevent an edge case where upon render, setting the
 		// existing search term triggers this call. At that time, debounced search and previous debounced search
 		// would have the same value, so the logic prevents that search from occurring. 
-		console.log("previousDebounce", previousDebouncedSearch)
-		console.log("debounce search", debouncedSearch)
 		if (previousDebouncedSearch != null && debouncedSearch !== "" && debouncedSearch !== previousDebouncedSearch){
 			trigger({search: debouncedSearch})
 		}
