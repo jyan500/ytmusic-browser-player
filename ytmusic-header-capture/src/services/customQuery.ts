@@ -20,6 +20,9 @@ async (args, api, extraOptions) => {
 	        }
 	        return headers
 	    }})(args, api, extraOptions)	
+	if (result.error.status === 401){
+		api.dispatch(logout())
+	}
 	// if (result.error){
 	// 	if (result.error.status === 403) {
 	// 		// TODO: implement refresh token

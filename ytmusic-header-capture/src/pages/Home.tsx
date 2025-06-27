@@ -26,8 +26,26 @@ export const Home = () => {
 	const { userProfile } = useAppSelector((state) => state.userProfile)
     const [ trigger, { data: homeData, error: getHomeError, isFetching: isGetHomeFetching }] = useLazyGetHomeQuery();
 
+	// useEffect(() => {
+	// 	authenticate()
+	// }, [])
+
 	useEffect(() => {
-		authenticate()
+		if (!headers){
+			chrome.runtime.sendMessage({ type: "refresh-music-youtube-tabs" })
+		}
+        const listener = (message: any, sender: chrome.runtime.MessageSender) => {
+            if (message.type === "music-youtube-tab-loaded" && !headers) {
+            	authenticate()
+            }
+        };
+
+        chrome.runtime.onMessage.addListener(listener);
+
+        // Cleanup
+        return () => {
+            chrome.runtime.onMessage.removeListener(listener);
+        }
 	}, [])
 
 	useEffect(() => {
@@ -36,18 +54,22 @@ export const Home = () => {
 		}
 	}, [isLoading, headers, userProfile])
 
+	const loginAttempt = async (headers: string) => {
+		const response = await login({headers}).unwrap()
+		if (response){
+			dispatch(setCredentials({headers}))
+			dispatch(setUserProfile({userProfile: {
+				accountName: response.accountName,
+			    channelHandle: response.channelHandle,
+			    accountPhotoUrl: response.accountPhotoUrl
+			} as UserProfile}))
+		}
+	}
 	const authenticate = async () => {
 		const fallbackHeaders = await chrome.storage.local.get("ytMusicHeaders")
 		if (headers){
 			try {
-				const response = await login({headers}).unwrap()
-				if (!headers){
-					dispatch(setUserProfile({userProfile: {
-						accountName: response.accountName,
-					    channelHandle: response.channelHandle,
-					    accountPhotoUrl: response.accountPhotoUrl
-					} as UserProfile}))
-				}
+				await loginAttempt(headers)	
 				return
 			}
 			catch (e){
@@ -56,26 +78,17 @@ export const Home = () => {
 			}
 		}
 		if (fallbackHeaders?.ytMusicHeaders){
+			const fallback = JSON.stringify(fallbackHeaders.ytMusicHeaders)	
 			try {
-				const fallback = JSON.stringify(fallbackHeaders.ytMusicHeaders)	
-				const response = await login({ headers: fallback }).unwrap()
-				dispatch(setCredentials({ headers: fallback }))
-				dispatch(setUserProfile({
-					userProfile: {
-						accountName: response.accountName,
-						channelHandle: response.channelHandle,
-						accountPhotoUrl: response.accountPhotoUrl,
-					} as UserProfile
-				}))
+				await loginAttempt(fallback)
 				return
 			}
 			catch (e){
-
 			}
 		}
 		dispatch(addToast({
 			id: uuidv4(),
-			message: "Please open music.youtube.com to reauthenticate",
+			message: "Unable to authenticate to music.youtube.com",
 			animationType: "animation-in"
 		}))
 	}
