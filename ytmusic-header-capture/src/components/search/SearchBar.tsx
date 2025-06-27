@@ -21,6 +21,7 @@ export const SearchBar = React.forwardRef<HTMLDivElement, Props>(({placeholder, 
 				searchTerm !== "" ? 
 				<a onClick={(e) => {
 					e.preventDefault() 
+					console.log("clearing...")
 					onClear()}
 				} className = "w-4 h-4 absolute top-2 right-2"><IconClose/></a>
 				: null

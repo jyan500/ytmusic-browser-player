@@ -32,6 +32,10 @@ export const AutoCompleteSearch = ({existingSearchTerm = ""}: Props) => {
 		index: -1
 	})
 
+	useEffect(() => {
+		console.log("searchTerm: ", searchTerm)
+	}, [searchTerm])
+
 	const onClickRemove = async (index: number) => {
 
 		setIsLoadingForRemoval({isLoading: true, index: index})
@@ -119,7 +123,7 @@ export const AutoCompleteSearch = ({existingSearchTerm = ""}: Props) => {
 				e.preventDefault()
 				onClickResult(searchTerm)
 			}}>
-				<SearchBar onFocus={onFocus} ref={searchBarRef} onClear={onClear} searchTerm = {searchTerm === "" ? existingSearchTerm : searchTerm} onChange={onChange} placeholder={"Search songs, albums, artists"}/>
+				<SearchBar onFocus={onFocus} ref={searchBarRef} onClear={onClear} searchTerm = {searchTerm} onChange={onChange} placeholder={"Search songs, albums, artists"}/>
 				<SearchResults isLoadingForRemoval={isLoadingForRemoval} data={suggestedResults} isVisible={openSuggestedResults} ref={searchSuggestionsRef} onClickRemove={onClickRemove} onClickResult={onClickResult} isLoading={isFetching}/>
 			</form>
 		</div>

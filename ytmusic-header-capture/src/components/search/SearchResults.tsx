@@ -49,14 +49,15 @@ export const SearchResults = React.forwardRef<HTMLDivElement, Props>(({
 								<p>{d.text}</p>
 							</a>
 							{
-								isLoadingForRemoval.index == i ? <LoadingSpinner width={"w-3"} height={"h-3"}/> : (
-									<a className = {d.fromHistory ? "visible" : "invisible"} onClick={(e) => {
+								d.fromHistory ? 
+									isLoadingForRemoval.index == i ? <LoadingSpinner width={"w-3"} height={"h-3"}/> : (
+									<a onClick={(e) => {
 										if (d.fromHistory){
 											e.preventDefault()
 											onClickRemove(i)
 										}
 									}}><IconClose className = "w-3 h-3"/></a>
-								)
+								) : null
 							}
 						</div>
 					)) : null
