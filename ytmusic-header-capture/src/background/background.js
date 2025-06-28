@@ -60,10 +60,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
     if (changeInfo.status === "complete" && tab.url?.startsWith("https://music.youtube.com")) {
-        console.log("Tab finished loading:", tabId);
         const headers = tabHeaders[tabId];
         if (headers) {
-            console.log("Captured headers:", headers);
             chrome.storage.local.set({ ytMusicHeaders: headers });
             delete tabHeaders[tabId]; // cleanup
             // Send a message to the popup or content script

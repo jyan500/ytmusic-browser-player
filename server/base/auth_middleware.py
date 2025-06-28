@@ -15,9 +15,11 @@ class AuthMiddleware:
         # going through the setup() function first, since
         # this is the accepted format
         try:
-            ytmusicapi.YTMusic(auth_string) 
+            ytmusic = ytmusicapi.YTMusic(auth_string) 
             return True
         except ytmusicapi.exceptions.YTMusicUserError:
+            return False
+        except ytmusicapi.exceptions.YTMusicServerError:
             return False
 
     def authenticate(self):

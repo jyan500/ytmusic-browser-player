@@ -8,6 +8,8 @@ import { CustomError } from "../types/common"
 import { BACKEND_BASE_URL } from "../helpers/urls" 
 import { RootState } from "../store" 
 import { logout } from "../slices/authSlice"
+import { addToast } from "../slices/toastSlice"
+import { v4 as uuidv4 } from "uuid"
 
 export const baseQueryWithReauth: BaseQueryFn<string | FetchArgs, unknown, {}>
  =
@@ -23,12 +25,11 @@ async (args, api, extraOptions) => {
 	    }})(args, api, extraOptions)	
 	if (result.error?.status === 401){
 		api.dispatch(logout())
+		api.dispatch(addToast({
+			id: uuidv4(),
+			message: "Unable to authenticate to music.youtube.com",
+			animationType: "animation-in",
+		}))
 	}
-	// if (result.error){
-	// 	if (result.error.status === 403) {
-	// 		// TODO: implement refresh token
-	// 		api.dispatch(logout())
-	// 	}
-	// }
 	return result
 }
