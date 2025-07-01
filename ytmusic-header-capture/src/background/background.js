@@ -5,6 +5,7 @@ const OFFSCREEN_PATH = "offscreen.html"
 const POPUP_PATH = "popup.html"
 // https://developer.chrome.com/docs/extensions/reference/api/offscreen
 let creating // A global promise to avoid concurrency issues
+let tabHeaders = {}
 
 chrome.webRequest.onSendHeaders.addListener(
     (details) => {
@@ -16,11 +17,64 @@ chrome.webRequest.onSendHeaders.addListener(
             }
             return acc
         }, {})
+        if (details.tabId >= 0){
+            tabHeaders[details.tabId] = relevant 
+        }
         chrome.storage.local.set({ ytMusicHeaders: relevant });
     },
     { urls: ["https://music.youtube.com/youtubei/v1/browse*"] },
     ["requestHeaders", "extraHeaders"]
 );
+
+chrome.webRequest.onBeforeSendHeaders.addListener(
+    (details) => {
+        if (details.tabId >= 0) {
+            tabHeaders[details.tabId] = details.requestHeaders;
+        }
+    },
+    { urls: ["https://music.youtube.com/*"] },
+    ["requestHeaders"]
+);
+
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    if (message.type === "refresh-music-youtube-tabs") {
+        chrome.tabs.query({ url: "https://music.youtube.com/*" }, (tabs) => {
+            if (tabs.length === 0) {
+                sendResponse({ success: false, message: "No matching tabs found" });
+                return;
+            }
+
+            tabs.forEach((tab) => {
+                if (tab.id !== undefined) {
+                    chrome.tabs.reload(tab.id);
+                }
+            });
+
+            sendResponse({ success: true, reloadedCount: tabs.length });
+        });
+
+        // Allow async sendResponse
+        return true;
+    }
+});
+
+chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+    if (changeInfo.status === "complete" && tab.url?.startsWith("https://music.youtube.com")) {
+        const headers = tabHeaders[tabId];
+        if (headers) {
+            chrome.storage.local.set({ ytMusicHeaders: headers });
+            delete tabHeaders[tabId]; // cleanup
+            // Send a message to the popup or content script
+            chrome.runtime.sendMessage({
+                type: "music-youtube-tab-loaded",
+                tabId: tabId,
+                url: tab.url
+            })
+        } else {
+            console.log("No headers found for this tab");
+        }
+    }
+});
 
 // store the id so that when the window closes, we can stop the background audio
 let extensionWindowId = null
