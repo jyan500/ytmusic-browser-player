@@ -27,7 +27,7 @@ async (args, api, extraOptions) => {
 		api.dispatch(logout())
 		api.dispatch(addToast({
 			id: uuidv4(),
-			message: "Unable to authenticate to music.youtube.com",
+			message: "Unable to authenticate to music.youtube.com, please refresh the page.",
 			animationType: "animation-in",
 		}))
 	}
