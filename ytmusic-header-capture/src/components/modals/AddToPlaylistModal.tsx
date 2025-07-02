@@ -92,6 +92,7 @@ export const AddToPlaylistModal = ({videoId, setVideoId}: Props) => {
 
 	return (
 		<div className = "flex flex-col gap-y-4">
+			<p className = "text-xl font-semibold">Save to Playlist</p>
 			{data ? (
 				<InfiniteScrollList<Playlist, Omit<PlaylistRowsProps, "data">> props={{addToPlaylist: addToPlaylist, loading}} data={data} component={PlaylistRows}/>
 			) : (

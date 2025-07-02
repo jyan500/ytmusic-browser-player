@@ -14,7 +14,6 @@ export const ModalManager = () => {
             case "add-to-playlist":
                 return (
                     <>
-                        <p className = "text-xl font-semibold">Save to Playlist</p>
                         <AddToPlaylistModal {...(modalProps as AddToPlaylistModalProps )} />
                         <PillButton className = "absolute bottom-0 right-0 mr-2 mb-2" onClick={() => {}} text={"New Playlist"}><IconAdd className = "w-3 h-3 text-dark"/></PillButton>
                     </>
