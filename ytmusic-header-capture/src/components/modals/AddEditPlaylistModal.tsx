@@ -19,6 +19,7 @@ import { PRIVACY_STATUSES } from "../../helpers/constants"
 import { Input } from "../elements/Input"
 import { Label } from "../elements/Label"
 import { Select } from "../elements/Select"
+import { setIsOpen, setModalProps, setModalType } from "../../slices/modalSlice"
 
 export interface Props {
 	videoId?: string
@@ -39,7 +40,7 @@ export const AddEditPlaylistModal = ({videoId, playlistId}: Props) => {
 		title: "",		
 		description: "",
 		privacyStatus: "PUBLIC",
-		videoId: ""
+		videoId: videoId ?? ""
 	})
 
 	const [errors, setErrors] = useState({
@@ -47,7 +48,7 @@ export const AddEditPlaylistModal = ({videoId, playlistId}: Props) => {
 		privacyStatus: {error: false, message: "Privacy is required"}
 	})
 
-	const [addNewPlaylist, {isLoading, error}] = useAddNewPlaylistMutation()
+	const [addNewPlaylist, {isLoading: isNewPlaylistLoading, error: isNewPlaylistError}] = useAddNewPlaylistMutation()
 
 	useEffect(() => {
 		if (!isFetching && data){
@@ -122,6 +123,9 @@ export const AddEditPlaylistModal = ({videoId, playlistId}: Props) => {
 				if (validatePlaylist()){
 					playlistId ? await editPlaylist() : await createNewPlaylist()
 				}
+				dispatch(setModalType(""))
+				dispatch(setModalProps({}))
+				dispatch(setIsOpen(false))
 			}}>
 				<div className = "flex flex-col gap-y-2">
 					<Label htmlFor={"playlist-title"}>Title<span className = "font-bold">*</span></Label>	
@@ -159,7 +163,9 @@ export const AddEditPlaylistModal = ({videoId, playlistId}: Props) => {
 					{errors.privacyStatus.error ? <small>{errors.privacyStatus.message}</small>: null}
 				</div>
 				<div>
-					<PillButton type="submit" text={"Submit"}/>
+					<PillButton type="submit" text={"Submit"}>
+						{isNewPlaylistLoading ? <LoadingSpinner width={"2-3"} height={"h-3"}/> : null}
+					</PillButton>
 				</div>
 			</form>
 		</div>

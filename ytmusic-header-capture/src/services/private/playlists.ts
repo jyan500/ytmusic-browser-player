@@ -42,7 +42,8 @@ export const playlistsApi = privateApi.injectEndpoints({
 				url: `${PLAYLIST_URL}`,	
 				method: "POST",
 				body: form
-			})
+			}),
+			invalidatesTags: ["Playlists"]
 		}),
 		addPlaylistItems: builder.mutation<{message: string}, {playlistId: string, videoIds: Array<string>}>({
 			query: ({playlistId, videoIds}) => ({
