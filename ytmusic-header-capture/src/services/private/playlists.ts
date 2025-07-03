@@ -2,7 +2,7 @@ import { BaseQueryFn, FetchArgs, createApi, fetchBaseQuery } from "@reduxjs/tool
 import { BACKEND_BASE_URL, PLAYLIST_URL } from "../../helpers/urls" 
 import { CustomError, WatchPlaylist, Playlist, Thumbnail, PlaylistInfo, Track, ListResponse, VideoItem } from "../../types/common" 
 import { privateApi } from "../private" 
-import { FormValues } from "../../components/modals/NewPlaylistModal"
+import { FormValues } from "../../components/modals/AddEditPlaylistModal"
 
 export const playlistsApi = privateApi.injectEndpoints({
 	overrideExisting: false,
