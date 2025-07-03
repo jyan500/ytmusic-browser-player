@@ -25,6 +25,28 @@ def get_playlist(playlistId):
     # remove the tracks attribute
     # return jsonify({k: v for k, v in playlistInfo.items() if k != "tracks"}), 200
 
+@playlists.route("/playlists", endpoint="add_playlist", methods=["POST"])
+@require_authentication
+def add_playlist():
+    json = request.get_json()
+    data = json["form"]
+    fields = [
+        "title",
+        "description",
+        "privacyStatus",
+    ]
+    for field in fields:
+        if field not in data:
+            return jsonify({"message": f"missing field `{field}`"}), 422
+    ytmusic = initYTMusic(request)
+    playlistId = ytmusic.create_playlist(
+        title=data["title"], 
+        description=data["description"],
+        privacy_status=data["privacyStatus"],
+        video_ids=[data["videoId"]] if "videoId" in data else None
+    )
+    return jsonify({"message": "Playlist created successfully!", "id": playlistId}), 200
+
 @playlists.route("/playlists/<playlistId>", endpoint="add_to_playlist", methods=["POST"])
 @require_authentication
 def add_to_playlist(playlistId):

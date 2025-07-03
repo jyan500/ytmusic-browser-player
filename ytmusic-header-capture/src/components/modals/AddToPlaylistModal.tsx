@@ -12,6 +12,8 @@ import { InfiniteScrollList } from "../InfiniteScrollList"
 import { SEPARATOR } from "../../helpers/constants"
 import { addToast } from "../../slices/toastSlice"
 import { v4 as uuidv4 } from "uuid"
+import { IconAdd } from "../../icons/IconAdd"
+import { PillButton } from "../elements/PillButton"
 
 export interface Props {
 	videoId: string
@@ -96,6 +98,7 @@ export const AddToPlaylistModal = ({videoId, setVideoId}: Props) => {
 			) : (
 				<LoadingSpinner/>
 			)}
+	
 		</div>
 	)
 }

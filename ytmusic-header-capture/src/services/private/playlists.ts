@@ -2,6 +2,7 @@ import { BaseQueryFn, FetchArgs, createApi, fetchBaseQuery } from "@reduxjs/tool
 import { BACKEND_BASE_URL, PLAYLIST_URL } from "../../helpers/urls" 
 import { CustomError, WatchPlaylist, Playlist, Thumbnail, PlaylistInfo, Track, ListResponse, VideoItem } from "../../types/common" 
 import { privateApi } from "../private" 
+import { FormValues } from "../../components/modals/AddEditPlaylistModal"
 
 export const playlistsApi = privateApi.injectEndpoints({
 	overrideExisting: false,
@@ -35,6 +36,14 @@ export const playlistsApi = privateApi.injectEndpoints({
 				params: params
 			}),
 			providesTags: ["PlaylistTracks"]
+		}),
+		addNewPlaylist: builder.mutation<{message: string, id: string}, {form: FormValues}>({
+			query: (form) => ({
+				url: `${PLAYLIST_URL}`,	
+				method: "POST",
+				body: form
+			}),
+			invalidatesTags: ["Playlists"]
 		}),
 		addPlaylistItems: builder.mutation<{message: string}, {playlistId: string, videoIds: Array<string>}>({
 			query: ({playlistId, videoIds}) => ({
@@ -112,6 +121,7 @@ export const {
 	useLazyGetPlaylistTracksQuery,
 	useLazyGetPlaylistRelatedTracksQuery,
 	useLazyGetWatchPlaylistQuery,
+	useAddNewPlaylistMutation,
 	useAddPlaylistItemsMutation,
 	useRemovePlaylistItemsMutation
 } = playlistsApi 

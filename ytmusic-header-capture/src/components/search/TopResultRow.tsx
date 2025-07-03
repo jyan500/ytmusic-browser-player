@@ -12,6 +12,7 @@ import { User } from "../../pages/User"
 import { useLoadPlaylist } from "../../hooks/useLoadPlaylist"
 import { setIsOpen, setModalType, setModalProps } from "../../slices/modalSlice"
 import { goTo } from "react-chrome-extension-router"
+import { PillButton } from "../elements/PillButton"
 
 interface Props {
 	resultType: string
@@ -97,14 +98,18 @@ export const TopResultRow = ({resultType, data}: Props) => {
 	const buttonBar = () => {
 		if (data.resultType === "artist") {
 			return (
-				<button className = "flex bg-white text-black px-3 py-1 rounded-md" onClick={() => goTo(Artist, {browseId: data.browseId ?? ""})}><p className = "font-semibold">See More</p></button>
+                <PillButton onClick={() => goTo(Artist, {browseId: data.browseId ?? ""})} text={"See More"}/>
 			)
 		}
 		if ("videoId" in data || "playlistId" in data){
 			return (
 				<>
-			        <button onClick={() => onPlay()} className="flex flex-row gap-x-2 items-center bg-white text-black px-3 py-1 rounded-md"><IconPlay className = "w-3 h-3 text-dark"/><p className = "font-semibold">Play</p></button>
-			        <button onClick={() => onAddToPlaylist()} className="flex flex-row gap-x-2 items-center bg-white text-black px-3 py-1 rounded-md"><IconAddToPlaylist className = "w-3 h-3 text-dark"/><p className = "font-semibold">Save</p></button>
+                    <PillButton onClick={onPlay} text={"Play"}>
+                        <IconPlay className = "w-3 h-3 text-dark"/>  
+                    </PillButton>
+                    <PillButton onClick={onAddToPlaylist} text={"Save"}>
+                        <IconAddToPlaylist className = "w-3 h-3 text-dark"/> 
+                    </PillButton>
 		        </>
 			)		
 		}
