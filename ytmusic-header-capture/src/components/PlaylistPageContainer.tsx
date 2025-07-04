@@ -24,6 +24,8 @@ import { setShowQueuedTrackList, setPlaylist } from "../slices/queuedTrackListSl
 import { prepareQueueItems, randRange } from "../helpers/functions"
 import { useLoadPlaylist } from "../hooks/useLoadPlaylist"
 import { LoadingSpinner } from "./elements/LoadingSpinner"
+import { IconEdit } from "../icons/IconEdit"
+import { setIsOpen, setModalProps, setModalType } from "../slices/modalSlice"
 
 interface Props {
 	playlist: Playlist
@@ -46,7 +48,20 @@ export const PlaylistPageContainer = ({playlist, tracks}: Props) => {
 			<NavButton onClick={() => {goBack()}} message={"Go Back"}/>
 			<div className = "flex flex-col justify-center items-center">
 				<PlaylistCardItem isHeader={true} imageWidth={"w-64"} imageHeight={"h-64"} playlist={playlist}>	
-					<div className = "w-full flex flex-row justify-center items-center">
+					<div className = "w-full flex flex-row justify-center items-center gap-x-4">
+						{
+							playlist.owned ? 
+								<button onClick={() => {
+									dispatch(setModalType("add-edit-playlist"))
+									dispatch(setModalProps({
+										playlistId: playlist.playlistId
+									}))
+									dispatch(setIsOpen(true))
+								}} className = "hover:opacity-60 w-10 h-10">
+									<IconEdit className = "w-full h-full"/>
+								</button>
+							: null
+						}
 						<PlayButton isPlaying={isPlaying && currentPlaylist?.playlistId === playlist.playlistId} onClick={() => {
 							// if the playlist is the currently selected playlist
 							if (currentPlaylist?.playlistId === playlist.playlistId){

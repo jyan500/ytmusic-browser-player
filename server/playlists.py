@@ -47,6 +47,28 @@ def add_playlist():
     )
     return jsonify({"message": "Playlist created successfully!", "id": playlistId}), 200
 
+@playlists.route("/playlists/<playlistId>", endpoint="edit_playlist", methods=["PUT"])
+@require_authentication
+def edit_playlist(playlistId):
+    json = request.get_json()
+    data = json["form"]
+    fields = [
+        "title",
+        "description",
+        "privacyStatus",
+    ]
+    for field in fields:
+        if field not in data:
+            return jsonify({"message": f"missing field `{field}`"}), 422
+    ytmusic = initYTMusic(request)
+    playlistId = ytmusic.edit_playlist(
+        playlistId=playlistId,
+        title=data["title"], 
+        description=data["description"],
+        privacyStatus=data["privacyStatus"],
+    )
+    return jsonify({"message": "Playlist edited successfully!"}), 200
+
 @playlists.route("/playlists/<playlistId>", endpoint="add_to_playlist", methods=["POST"])
 @require_authentication
 def add_to_playlist(playlistId):

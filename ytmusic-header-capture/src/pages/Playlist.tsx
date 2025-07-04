@@ -54,6 +54,7 @@ export const Playlist = ({playlist}: Props) => {
 				// when an item is added/removed from the playlist though.
 				description: playlist.author?.[0] ? convertOptionTypesToString([playlist.author[0], {id: "", name: `${playlistData.trackCount.toString()} tracks`}]) : playlist.description,
 				count: playlistData.trackCount,
+				owned: playlistData.owned,
 				tracks: playlistData.tracks,	
 			} as TPlaylist} 
 			tracks={playlistData.tracks}/> : <LoadingSpinner/>

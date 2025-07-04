@@ -55,6 +55,7 @@ export interface PlaylistInfo {
 	id: string 
 	privacy: string
 	title: string
+	owned: boolean
 	thumbnails: Array<Thumbnail> 
 	description: string
 	author: string
@@ -135,6 +136,7 @@ export interface Playlist {
 	author?: Array<OptionType>
     title: string
     thumbnails?: Array<Thumbnail>
+    owned?: boolean
     description: string
     count: number
     tracks: Array<Track>
