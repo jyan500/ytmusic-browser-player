@@ -45,6 +45,16 @@ export const playlistsApi = privateApi.injectEndpoints({
 			}),
 			invalidatesTags: ["Playlists"]
 		}),
+		editPlaylist: builder.mutation<{message: string}, {playlistId: string, form: FormValues}>({
+			query: ({playlistId, form}) => ({
+				url: `${PLAYLIST_URL}/${playlistId}`,
+				method: "PUT",
+				body: {
+					form: form
+				},
+			}),
+			invalidatesTags: ["Playlists"]
+		}),
 		addPlaylistItems: builder.mutation<{message: string}, {playlistId: string, videoIds: Array<string>}>({
 			query: ({playlistId, videoIds}) => ({
 				url: `${PLAYLIST_URL}/${playlistId}`,
@@ -123,5 +133,6 @@ export const {
 	useLazyGetWatchPlaylistQuery,
 	useAddNewPlaylistMutation,
 	useAddPlaylistItemsMutation,
+	useEditPlaylistMutation,
 	useRemovePlaylistItemsMutation
 } = playlistsApi 

@@ -4,7 +4,9 @@ import { useAppDispatch } from "../../hooks/redux-hooks"
 import { 
 	useAddPlaylistItemsMutation, 
 	useAddNewPlaylistMutation,
+	useEditPlaylistMutation,
 	useGetPlaylistQuery,
+	useLazyGetPlaylistQuery,
 } from "../../services/private/playlists"
 import { LoadingSpinner } from "../elements/LoadingSpinner"
 import { getThumbnail } from "../../helpers/functions"
@@ -36,6 +38,7 @@ export interface FormValues {
 export const AddEditPlaylistModal = ({videoId, playlistId}: Props) => {
 	const dispatch = useAppDispatch()
 	const {data, isFetching, isError} = useGetPlaylistQuery(playlistId ? {playlistId: playlistId, params: {}} : skipToken)
+	const [triggerGetPlaylist, {data: triggerPlaylistData, isFetching: isTriggerFetching, isError: isTriggerError}] = useLazyGetPlaylistQuery()
 	const [ form, setForm ] = useState<FormValues>({
 		title: "",		
 		description: "",
@@ -49,6 +52,7 @@ export const AddEditPlaylistModal = ({videoId, playlistId}: Props) => {
 	})
 
 	const [addNewPlaylist, {isLoading: isNewPlaylistLoading, error: isNewPlaylistError}] = useAddNewPlaylistMutation()
+	const [editPlaylist, {isLoading: isEditPlaylistLoading, error: isEditPlaylistError}] = useEditPlaylistMutation()
 
 	useEffect(() => {
 		if (!isFetching && data){
@@ -97,22 +101,23 @@ export const AddEditPlaylistModal = ({videoId, playlistId}: Props) => {
 		}
 	}
 
-	const editPlaylist = async () => {
-		// try {
-		// 	await editPlaylist({form}).unwrap()
-		// 	dispatch(addToast({
-		// 		id: uuidv4(),
-		// 		animationType: "animation-in",
-		// 		message: "Created playlist and added item successfully!"
-		// 	}))
-		// }
-		// catch {
-		// 	dispatch(addToast({
-		// 		id: uuidv4(),
-		// 		animationType: "animation-in",
-		// 		message: "Something went wrong when adding to playlist."
-		// 	}))
-		// }
+	const formEditPlaylist = async () => {
+		try {
+			await editPlaylist({playlistId: playlistId ?? "", form}).unwrap()
+			await triggerGetPlaylist({playlistId: playlistId ?? "", params: {}}).unwrap()
+			dispatch(addToast({
+				id: uuidv4(),
+				animationType: "animation-in",
+				message: "Edited playlist successfully!"
+			}))
+		}
+		catch {
+			dispatch(addToast({
+				id: uuidv4(),
+				animationType: "animation-in",
+				message: "Something went wrong when adding to playlist."
+			}))
+		}
 	}
 
 	return (
@@ -121,7 +126,7 @@ export const AddEditPlaylistModal = ({videoId, playlistId}: Props) => {
 			<form className = "flex flex-col gap-y-4" onSubmit={async (e) => {
 				e.preventDefault()
 				if (validatePlaylist()){
-					playlistId ? await editPlaylist() : await createNewPlaylist()
+					playlistId ? await formEditPlaylist() : await createNewPlaylist()
 				}
 				dispatch(setModalType(""))
 				dispatch(setModalProps({}))
@@ -164,7 +169,7 @@ export const AddEditPlaylistModal = ({videoId, playlistId}: Props) => {
 				</div>
 				<div>
 					<PillButton type="submit" text={"Submit"}>
-						{isNewPlaylistLoading ? <LoadingSpinner width={"2-3"} height={"h-3"}/> : null}
+						{isNewPlaylistLoading || isEditPlaylistLoading || isTriggerFetching ? <LoadingSpinner width={"2-3"} height={"h-3"}/> : null}
 					</PillButton>
 				</div>
 			</form>
