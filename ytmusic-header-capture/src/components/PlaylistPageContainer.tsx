@@ -26,6 +26,9 @@ import { useLoadPlaylist } from "../hooks/useLoadPlaylist"
 import { LoadingSpinner } from "./elements/LoadingSpinner"
 import { IconEdit } from "../icons/IconEdit"
 import { setIsOpen, setModalProps, setModalType } from "../slices/modalSlice"
+import { IconVerticalMenu } from "../icons/IconVerticalMenu"
+import { useClickOutside } from "../hooks/useClickOutside"
+import { PlaylistDropdown } from "./dropdowns/PlaylistDropdown"
 
 interface Props {
 	playlist: Playlist
@@ -34,14 +37,18 @@ interface Props {
 
 export const PlaylistPageContainer = ({playlist, tracks}: Props) => {
 	const dispatch = useAppDispatch()
+	const [ showDropdown, setShowDropdown ] = useState(false)
 	const { triggerLoadPlaylist } = useLoadPlaylist()
 	const { isPlaying, queuedTracks, showAudioPlayer, storedPlaybackInfo } = useAppSelector((state) => state.audioPlayer)
 	const { showQueuedTrackList, playlist: currentPlaylist } = useAppSelector((state) => state.queuedTrackList)
-	const divRef = useRef<HTMLDivElement | null>(null)
+	const dropdownRef = useRef<HTMLDivElement | null>(null)
+	const buttonRef = useRef<HTMLButtonElement | null>(null)
 
 	const onPause = () => {
 		dispatch(setIsPlaying(false))		
 	}
+
+	useClickOutside(dropdownRef, () => setShowDropdown(false), buttonRef)
 
 	return (
 		<div className = "space-y-2">
@@ -57,8 +64,8 @@ export const PlaylistPageContainer = ({playlist, tracks}: Props) => {
 										playlistId: playlist.playlistId
 									}))
 									dispatch(setIsOpen(true))
-								}} className = "hover:opacity-60 w-10 h-10">
-									<IconEdit className = "w-full h-full"/>
+								}} className = "hover:opacity-60 bg-dark w-10 h-10 rounded-full flex justify-center items-center">
+									<IconEdit className = "w-6 h-6 text-white"/>
 								</button>
 							: null
 						}
@@ -75,6 +82,26 @@ export const PlaylistPageContainer = ({playlist, tracks}: Props) => {
 								triggerLoadPlaylist(playlist, tracks)
 							}
 						}} />
+						{
+							<div className = "relative">
+								<button ref={buttonRef} onClick={() => {
+									setShowDropdown(!showDropdown)
+								}} className = "hover:opacity-60 bg-dark w-10 h-10 rounded-full flex justify-center items-center">
+									<IconVerticalMenu className = "w-6 h-6 text-white"/>	
+									
+								</button>
+								{
+									showDropdown ? (
+										<PlaylistDropdown 
+											ref={dropdownRef}
+											playlistId={playlist.playlistId} 
+											owned={playlist.owned} 
+											closeDropdown = {() => setShowDropdown(false)}
+										/>
+									) : null
+								}
+							</div>
+						}
 					</div>
 				</PlaylistCardItem>
 			</div>
