@@ -55,6 +55,13 @@ export const playlistsApi = privateApi.injectEndpoints({
 			}),
 			invalidatesTags: ["Playlists"]
 		}),
+		deletePlaylist: builder.mutation<{message: string},{playlistId: string}>({
+			query: ({playlistId}) => ({
+				url: `${PLAYLIST_URL}/${playlistId}`,
+				method: "DELETE",
+			}),
+			invalidatesTags: ["Playlists", "Home"]
+		}),
 		addPlaylistItems: builder.mutation<{message: string}, {playlistId: string, videoIds: Array<string>}>({
 			query: ({playlistId, videoIds}) => ({
 				url: `${PLAYLIST_URL}/${playlistId}`,
@@ -134,5 +141,6 @@ export const {
 	useAddNewPlaylistMutation,
 	useAddPlaylistItemsMutation,
 	useEditPlaylistMutation,
+	useDeletePlaylistMutation,
 	useRemovePlaylistItemsMutation
 } = playlistsApi 
