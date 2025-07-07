@@ -69,6 +69,13 @@ def edit_playlist(playlistId):
     )
     return jsonify({"message": "Playlist edited successfully!"}), 200
 
+@playlists.route("/playlists/<playlistId>", endpoint="delete_playlist", methods=["DELETE"])
+@require_authentication
+def delete_playlist(playlistId):
+    ytmusic = initYTMusic(request)
+    playlistId = ytmusic.delete_playlist(playlistId=playlistId)
+    return jsonify({"message": "Playlist deleted successfully!"}), 200
+
 @playlists.route("/playlists/<playlistId>", endpoint="add_to_playlist", methods=["POST"])
 @require_authentication
 def add_to_playlist(playlistId):

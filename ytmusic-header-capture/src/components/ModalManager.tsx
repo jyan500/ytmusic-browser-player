@@ -3,6 +3,7 @@ import { Modal } from "./elements/Modal";
 import { setIsOpen, setModalProps, setModalType } from "../slices/modalSlice";
 import { AddToPlaylistModal, Props as AddToPlaylistModalProps } from "./modals/AddToPlaylistModal"
 import { AddEditPlaylistModal, Props as AddEditPlaylistModalProps } from "./modals/AddEditPlaylistModal"
+import { DeletePlaylistModal, Props as DeletePlaylistModalProps } from "./modals/DeletePlaylistModal"
 import { PillButton } from "./elements/PillButton"
 import { IconAdd } from "../icons/IconAdd"
 
@@ -27,6 +28,10 @@ export const ModalManager = () => {
             case "add-edit-playlist":
                 return (
                     <AddEditPlaylistModal {...(modalProps as AddEditPlaylistModalProps)}/>
+                )
+            case "delete-playlist":
+                return (
+                    <DeletePlaylistModal {...(modalProps as DeletePlaylistModalProps)}/>
                 )
             default:
                 return null

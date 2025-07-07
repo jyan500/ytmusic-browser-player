@@ -42,7 +42,7 @@ export const TrackListRow = ({
 		<li 
             tabIndex={0} 
             key={key} 
-            className={`relative hover:cursor-pointer group flex flex-row justify-between items-center ${shouldHighlightRow ? "bg-orange-secondary" : ""}`}>
+            className={`z-0 relative hover:cursor-pointer group flex flex-row justify-between items-center ${shouldHighlightRow ? "bg-orange-secondary" : ""}`}>
                 <div className = "flex flex-row gap-x-2">
                     <ImagePlayButton 
                         playButtonWidth={"w-6"}
