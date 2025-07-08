@@ -59,7 +59,7 @@ export const PlaylistDropdown = React.forwardRef<HTMLDivElement, Props>(({
 			triggerLoadPlaylist({
 				...playlist,
 				playlistId: "audioPlaylistId" in playlist ? playlist.audioPlaylistId : playlist.playlistId,
-			} as TPlaylist, tracksData, false, queuedTracks.length === 0)
+			} as TPlaylist, tracksData, false, queuedTracks.length > 0)
 		}
 	}, [tracksData, isTracksFetching])
 

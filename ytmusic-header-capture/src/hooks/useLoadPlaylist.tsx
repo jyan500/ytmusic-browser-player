@@ -19,7 +19,7 @@ export const useLoadPlaylist = () => {
     const [ triggerGetPlayback, { data: songData, error: songError, isFetching: isFetchingSong } ] = useLazyGetSongPlaybackQuery()
     const [ triggerRelatedTracks, {data: relatedTracksData, error: relatedTracksError, isFetching: isRelatedTracksFetching}] = useLazyGetPlaylistRelatedTracksQuery()
 
-	const onQueuePlaylist = (playlist: Playlist, tracksData: Array<Track>, getRelated=true, triggerPlayback=true) => {
+	const onQueuePlaylist = (playlist: Playlist, tracksData: Array<Track>, getRelated=true, addToQueue=false) => {
 		/* 
 			1) put all tracks onto the queue
 			2) if triggering playback, set the current track
@@ -32,16 +32,20 @@ export const useLoadPlaylist = () => {
 				const queueItems = prepareQueueItems(tracksData)
 				const top = queueItems[0]
 				dispatch(setIsLoading(true))
-				if (triggerPlayback){
+				if (!addToQueue){
 					dispatch(setCurrentTrack(top))
 				}
-				dispatch(setQueuedTracks(queueItems))
-				if (triggerPlayback){
+				// if we're adding to queue, add the new queue items to the back of the existing queue items
+				dispatch(setQueuedTracks(addToQueue ? [...queuedTracks, ...queueItems] : queueItems))
+				if (!addToQueue){
 		            triggerGetPlayback(top.videoId)
 		            const randIndex = randRange(0, queueItems.length-1)
 		            if (getRelated){
 			            triggerRelatedTracks({playlistId: playlist.playlistId, videoId: queueItems[randIndex].videoId})
 		            }
+				}
+				if (addToQueue){
+					dispatch(setIsLoading(false))
 				}
 			}
 			dispatch(setCurrentPlaylist(playlist))
@@ -69,8 +73,8 @@ export const useLoadPlaylist = () => {
     }, [relatedTracksData, isRelatedTracksFetching])
 
 
-    const triggerLoadPlaylist = (playlistParam: Playlist, tracksParam: Array<Track>, getRelated=true,triggerPlayback=true) => {
-		onQueuePlaylist(playlistParam, tracksParam, getRelated, triggerPlayback)
+    const triggerLoadPlaylist = (playlistParam: Playlist, tracksParam: Array<Track>, getRelated=true, addToQueue=false) => {
+		onQueuePlaylist(playlistParam, tracksParam, getRelated, addToQueue)
 	}
 
 	return {
