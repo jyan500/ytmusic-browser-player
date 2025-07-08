@@ -48,8 +48,8 @@ export const AudioPlayer = () => {
 	                        <IconVerticalMenu/>
 	                    </button>
 	                    {
-	                    showDropdown && currentTrack ? 
-		                    <TrackDropdown displayAbove={true} playlistId={playlist?.playlistId} videoId={currentTrack.videoId} setVideoId={currentTrack.setVideoId} ref={menuDropdownRef} closeDropdown={() => setShowDropdown(false)}/>
+	                    	currentTrack ? 
+		                    <TrackDropdown showDropdown={showDropdown} displayAbove={true} playlistId={playlist?.playlistId} videoId={currentTrack.videoId} setVideoId={currentTrack.setVideoId} ref={menuDropdownRef} closeDropdown={() => setShowDropdown(false)}/>
 		                    : null
 		                }
 		            </div>

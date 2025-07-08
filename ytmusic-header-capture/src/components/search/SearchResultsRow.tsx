@@ -228,9 +228,7 @@ export const SearchResultsRow = ({
                             <IconVerticalMenu/>
                         </button>
                         {
-                        showDropdown ? 
-    	                    <SearchResultsDropdown videoId={data.videoId ?? ""} ref={menuDropdownRef} closeDropdown={() => setShowDropdown(false)}/>
-    	                    : null
+    	                    <SearchResultsDropdown showDropdown={showDropdown} videoId={data.videoId ?? ""} ref={menuDropdownRef} closeDropdown={() => setShowDropdown(false)}/>
     	                }
                     </div> : null
                 }

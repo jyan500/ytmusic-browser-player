@@ -19,6 +19,7 @@ import { PLAYLIST_DROPDOWN_Z_INDEX } from "../../helpers/constants"
 
 type Props = {
 	closeDropdown: () => void
+	showDropdown: boolean
 	owned?: boolean
 	playlist: TPlaylist,
 	displayAbove?: boolean
@@ -28,6 +29,7 @@ type Props = {
 export const PlaylistDropdown = React.forwardRef<HTMLDivElement, Props>(({
 	closeDropdown, 
 	playlist,
+	showDropdown,
 	owned,
 	displayAbove=false,
 }: Props, ref) => {
@@ -41,13 +43,6 @@ export const PlaylistDropdown = React.forwardRef<HTMLDivElement, Props>(({
 	const addToQueue = () => {
 		triggerGetTracks({playlistId: playlist.playlistId ?? "", params: {}})
 	}
-
-	// if the queued tracklist appears, close the dropdown
-	// useEffect(() => {
-	// 	if (showQueuedTrackList){
-	// 		closeDropdown()	
-	// 	}
-	// }, [showQueuedTrackList])
 
 	useEffect(() => {
 		if (!isLoading && prevLoading){
@@ -92,7 +87,7 @@ export const PlaylistDropdown = React.forwardRef<HTMLDivElement, Props>(({
 
 	return (
 		// we want a z index that's less than the queued tracklist 
-		<Dropdown zIndex={PLAYLIST_DROPDOWN_Z_INDEX} closeDropdown={closeDropdown} ref = {ref} className = {`${displayAbove ? "bottom-full right-full mb-2": "mt-2"} text-white`}>
+		<Dropdown showDropdown={showDropdown} zIndex={PLAYLIST_DROPDOWN_Z_INDEX} closeDropdown={closeDropdown} ref = {ref} className = {`${displayAbove ? "bottom-full right-full mb-2": "mt-2"} text-white`}>
 			<ul>
 				{Object.values(options).map((option) => {
 					return (

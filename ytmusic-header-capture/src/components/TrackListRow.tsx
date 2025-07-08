@@ -66,9 +66,7 @@ export const TrackListRow = ({
                         <IconVerticalMenu/>
                     </button>
                     {
-                    showDropdown ? 
-	                    <TrackDropdown playlistId={playlistId} videoId={track.videoId} setVideoId={track.setVideoId} ref={menuDropdownRef} closeDropdown={() => setShowDropdown(false)}/>
-	                    : null
+	                    <TrackDropdown showDropdown={showDropdown} playlistId={playlistId} videoId={track.videoId} setVideoId={track.setVideoId} ref={menuDropdownRef} closeDropdown={() => setShowDropdown(false)}/>
 	                }
                 </div>
 

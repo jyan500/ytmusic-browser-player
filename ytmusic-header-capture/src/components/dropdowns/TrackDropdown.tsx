@@ -13,6 +13,7 @@ import { LoadingSpinner } from "../elements/LoadingSpinner"
 type Props = {
 	closeDropdown: () => void
 	setVideoId?: string
+	showDropdown: boolean
 	playlistId?: string
 	displayAbove?: boolean
 	videoId: string
@@ -23,6 +24,7 @@ export const TrackDropdown = React.forwardRef<HTMLDivElement, Props>(({
 	closeDropdown, 
 	setVideoId,
 	playlistId, 
+	showDropdown,
 	videoId,
 	displayAbove=false,
 }: Props, ref) => {
@@ -74,7 +76,7 @@ export const TrackDropdown = React.forwardRef<HTMLDivElement, Props>(({
 	}
 
 	return (
-		<Dropdown closeDropdown={closeDropdown} ref = {ref} className = {`${displayAbove ? "bottom-full right-full mb-2": "mt-2"} text-white`}>
+		<Dropdown showDropdown={showDropdown} closeDropdown={closeDropdown} ref = {ref} className = {`${displayAbove ? "bottom-full right-full mb-2": "mt-2"} text-white`}>
 			<ul>
 				{Object.values(options).map((option) => {
 					return (
