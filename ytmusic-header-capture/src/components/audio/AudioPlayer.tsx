@@ -9,7 +9,7 @@ import { ProgressBar } from "./ProgressBar"
 import { VolumeControl } from "./VolumeControl"
 import { Playlist } from "./Playlist"
 import { setShowQueuedTrackList } from "../../slices/queuedTrackListSlice"
-import { TRANSITION_TRANSFORM } from "../../helpers/constants"
+import { AUDIO_PLAYER_Z_INDEX, TRANSITION_TRANSFORM } from "../../helpers/constants"
 import { TrackDropdown } from "../dropdowns/TrackDropdown"
 import { IconVerticalMenu } from "../../icons/IconVerticalMenu"
 import { useClickOutside } from "../../hooks/useClickOutside"
@@ -30,7 +30,7 @@ export const AudioPlayer = () => {
     useClickOutside(menuDropdownRef, onClickOutside, buttonRef)
 
 	return (
-		<div className = {`${isOpen ? `translate-y-0` : "translate-y-full"} ${TRANSITION_TRANSFORM} w-full fixed bottom-0 left-0`}>
+		<div className = {`${AUDIO_PLAYER_Z_INDEX} ${isOpen ? `translate-y-0` : "translate-y-full"} ${TRANSITION_TRANSFORM} w-full fixed bottom-0 left-0`}>
 			<ProgressBar/>
 			<div className = "flex flex-row gap-4 items-center text-white p-[0.5rem_10px] min-h-8 bg-dark">
 				<div className = "w-3/8">

@@ -11,9 +11,11 @@ import { addToast } from "../../slices/toastSlice"
 import { LoadingSpinner } from "../elements/LoadingSpinner"
 import { IconAddToQueue } from "../../icons/IconAddToQueue"
 import { setShowQueuedTrackList, setPlaylist } from "../../slices/queuedTrackListSlice"
-import { setQueuedTracks } from "../../slices/audioPlayerSlice"
+import { setQueuedTracks, setIsLoading } from "../../slices/audioPlayerSlice"
 import { useLoadPlaylist } from "../../hooks/useLoadPlaylist"
 import { useLazyGetPlaylistTracksQuery } from "../../services/private/playlists"
+import { usePrevious } from "../../hooks/usePrevious"
+import { PLAYLIST_DROPDOWN_Z_INDEX } from "../../helpers/constants"
 
 type Props = {
 	closeDropdown: () => void
@@ -30,13 +32,28 @@ export const PlaylistDropdown = React.forwardRef<HTMLDivElement, Props>(({
 	displayAbove=false,
 }: Props, ref) => {
 	const dispatch = useAppDispatch()
-	const { queuedTracks } = useAppSelector((state) => state.audioPlayer)
+	const { isLoading, queuedTracks } = useAppSelector((state) => state.audioPlayer)
+	const { showQueuedTrackList } = useAppSelector((state) => state.queuedTrackList)
 	const { triggerLoadPlaylist } = useLoadPlaylist()
 	const [ triggerGetTracks, {data: tracksData, isFetching: isTracksFetching, isError: isTracksError } ] = useLazyGetPlaylistTracksQuery()
+	const prevLoading = usePrevious(isLoading)
 
 	const addToQueue = () => {
 		triggerGetTracks({playlistId: playlist.playlistId ?? "", params: {}})
 	}
+
+	// if the queued tracklist appears, close the dropdown
+	// useEffect(() => {
+	// 	if (showQueuedTrackList){
+	// 		closeDropdown()	
+	// 	}
+	// }, [showQueuedTrackList])
+
+	useEffect(() => {
+		if (!isLoading && prevLoading){
+			closeDropdown()
+		}
+	}, [isLoading, prevLoading])
 
 	useEffect(() => {
 		if (!isTracksFetching && tracksData){
@@ -56,6 +73,7 @@ export const PlaylistDropdown = React.forwardRef<HTMLDivElement, Props>(({
 			text: "Add to Queue",
 			icon: <IconAddToQueue/>,
 			onClick: () => {
+				dispatch(setIsLoading(true))
 				addToQueue()
 			}
 		},
@@ -73,14 +91,15 @@ export const PlaylistDropdown = React.forwardRef<HTMLDivElement, Props>(({
 	}
 
 	return (
-		<Dropdown closeDropdown={closeDropdown} ref = {ref} className = {`${displayAbove ? "bottom-full right-full mb-2": "mt-2"} text-white`}>
+		// we want a z index that's less than the queued tracklist 
+		<Dropdown zIndex={PLAYLIST_DROPDOWN_Z_INDEX} closeDropdown={closeDropdown} ref = {ref} className = {`${displayAbove ? "bottom-full right-full mb-2": "mt-2"} text-white`}>
 			<ul>
 				{Object.values(options).map((option) => {
 					return (
 						<li
 							key={option.text}
 							onClick={(e) => {
-								if (e.defaultPrevented || isTracksFetching){
+								if (e.defaultPrevented || isLoading){
 									return 
 								}
 								option.onClick()
@@ -89,7 +108,7 @@ export const PlaylistDropdown = React.forwardRef<HTMLDivElement, Props>(({
 							role="menuitem"
 						>
 							<div className = "flex flex-row gap-x-2 items-center">
-								{isTracksFetching && option.text === "Add to Queue" ? <div><LoadingSpinner width={"w-3"} height={"h-3"}/></div> : <div>{option.icon}</div>}
+								{isLoading && option.text === "Add to Queue" ? <div><LoadingSpinner width={"w-3"} height={"h-3"}/></div> : <div>{option.icon}</div>}
 								<p>{option.text}</p>
 							</div>
 						</li>
