@@ -60,6 +60,11 @@ export const PlaylistDropdown = React.forwardRef<HTMLDivElement, Props>(({
 				...playlist,
 				playlistId: "audioPlaylistId" in playlist ? playlist.audioPlaylistId : playlist.playlistId,
 			} as TPlaylist, tracksData, false, queuedTracks.length > 0)
+			dispatch(addToast({
+				id: uuidv4(),
+				message: "Playlist added to queue",
+				animationType: "animation-in"
+			}))
 		}
 	}, [tracksData, isTracksFetching])
 
