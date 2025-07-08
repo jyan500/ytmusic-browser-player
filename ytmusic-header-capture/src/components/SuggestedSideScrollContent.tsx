@@ -43,7 +43,7 @@ export const SuggestedSideScrollContent = ({content}: Props) => {
     		}
     	}
     	else if ("playlistId" in content || "audioPlaylistId" in content){
-    		if ((currentPlaylist && (currentPlaylist?.playlistId === content?.playlistId) || (currentPlaylist?.playlistId === content?.audioPlaylistId))){
+    		if (currentPlaylist && ((currentPlaylist?.playlistId === content?.playlistId) || (currentPlaylist?.playlistId === content?.audioPlaylistId))){
     			dispatch(setIsPlaying(!isPlaying))	
     		}
     		else {
@@ -171,8 +171,8 @@ export const SuggestedSideScrollContent = ({content}: Props) => {
 			isCircular={"subscribers" in content}
 			cardClickAction={() => cardClickAction()}
 			playContent={() => playContent()}
-		    showPauseButton={shouldShowPauseButton()}
-		    linkableDescription={<LinkableDescription description={getLinkableDescription()}/>}
+		   showPauseButton={shouldShowPauseButton()}
+		   linkableDescription={<LinkableDescription description={getLinkableDescription()}/>}
 		>
 		</SideScrollContent>
 	)

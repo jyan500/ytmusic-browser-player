@@ -94,7 +94,7 @@ export const PlaylistPageContainer = ({playlist, tracks}: Props) => {
 									showDropdown ? (
 										<PlaylistDropdown 
 											ref={dropdownRef}
-											playlistId={playlist.playlistId} 
+											playlist={playlist}
 											owned={playlist.owned} 
 											closeDropdown = {() => setShowDropdown(false)}
 										/>
