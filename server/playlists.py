@@ -76,7 +76,7 @@ def delete_playlist(playlistId):
     playlistId = ytmusic.delete_playlist(playlistId=playlistId)
     return jsonify({"message": "Playlist deleted successfully!"}), 200
 
-@playlists.route("/playlists/<playlistId>", endpoint="add_to_playlist", methods=["POST"])
+@playlists.route("/playlists/<playlistId>/tracks", endpoint="add_to_playlist", methods=["POST"])
 @require_authentication
 def add_to_playlist(playlistId):
     ytmusic = initYTMusic(request)
@@ -85,7 +85,7 @@ def add_to_playlist(playlistId):
         ytmusic.add_playlist_items(playlistId=playlistId, videoIds=data["videoIds"])
     return jsonify({"message": "playlist item added successfully!"}), 200
     
-@playlists.route("/playlists/<playlistId>", endpoint="remove_from_playlist", methods=["DELETE"])
+@playlists.route("/playlists/<playlistId>/tracks", endpoint="remove_from_playlist", methods=["DELETE"])
 @require_authentication
 def remove_from_playlist(playlistId):
     ytmusic = initYTMusic(request)

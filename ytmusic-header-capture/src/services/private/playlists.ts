@@ -64,7 +64,7 @@ export const playlistsApi = privateApi.injectEndpoints({
 		}),
 		addPlaylistItems: builder.mutation<{message: string}, {playlistId: string, videoIds: Array<string>}>({
 			query: ({playlistId, videoIds}) => ({
-				url: `${PLAYLIST_URL}/${playlistId}`,
+				url: `${PLAYLIST_URL}/${playlistId}/tracks`,
 				method: "POST",
 				body: {
 					videoIds: videoIds
@@ -80,7 +80,7 @@ export const playlistsApi = privateApi.injectEndpoints({
 		}),
 		removePlaylistItems: builder.mutation<{message: string}, {playlistId: string, videoItems: Array<VideoItem>}>({
 			query: ({playlistId, videoItems}) => ({
-				url: `${PLAYLIST_URL}/${playlistId}`,
+				url: `${PLAYLIST_URL}/${playlistId}/tracks`,
 				method: "DELETE",
 				body: {
 					videoItems: videoItems

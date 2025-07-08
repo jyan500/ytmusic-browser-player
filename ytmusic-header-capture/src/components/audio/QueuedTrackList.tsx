@@ -10,6 +10,7 @@ import { IconDownArrow } from "../../icons/IconDownArrow"
 import { IconUpArrow } from "../../icons/IconUpArrow"
 import { Switch } from "../elements/Switch"
 import { FilterButton } from "../elements/FilterButton"
+import { QUEUED_TRACK_LIST_Z_INDEX } from "../../helpers/constants"
 
 export const QueuedTrackList = () => {
 	const dispatch = useAppDispatch()
@@ -69,7 +70,7 @@ export const QueuedTrackList = () => {
 	}
 
 	return (
-		<div className = {`${isOpen ? `translate-y-0`: "translate-y-full"} ${TRANSITION_TRANSFORM} fixed bottom-0 left-0 bg-dark w-full overscroll-contain ${PADDING_AVOID_AUDIO_PLAYER_OVERLAP} ${OVERFLOW_MAX_HEIGHT}`}>
+		<div className = {`${QUEUED_TRACK_LIST_Z_INDEX} ${isOpen ? `translate-y-0`: "translate-y-full"} ${TRANSITION_TRANSFORM} fixed bottom-0 left-0 bg-dark w-full overscroll-contain ${PADDING_AVOID_AUDIO_PLAYER_OVERLAP} ${OVERFLOW_MAX_HEIGHT}`}>
 			{/* width 95% is to prevent the scrollbar from showing*/}
 			<div className = "p-2 space-y-2">
 				<div className = "justify-between flex flex-row items-center">

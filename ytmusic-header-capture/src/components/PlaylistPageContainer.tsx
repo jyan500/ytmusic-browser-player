@@ -39,7 +39,7 @@ export const PlaylistPageContainer = ({playlist, tracks}: Props) => {
 	const dispatch = useAppDispatch()
 	const [ showDropdown, setShowDropdown ] = useState(false)
 	const { triggerLoadPlaylist } = useLoadPlaylist()
-	const { isPlaying, queuedTracks, showAudioPlayer, storedPlaybackInfo } = useAppSelector((state) => state.audioPlayer)
+	const { isLoading, isPlaying, queuedTracks, showAudioPlayer, storedPlaybackInfo } = useAppSelector((state) => state.audioPlayer)
 	const { showQueuedTrackList, playlist: currentPlaylist } = useAppSelector((state) => state.queuedTrackList)
 	const dropdownRef = useRef<HTMLDivElement | null>(null)
 	const buttonRef = useRef<HTMLButtonElement | null>(null)
@@ -48,7 +48,12 @@ export const PlaylistPageContainer = ({playlist, tracks}: Props) => {
 		dispatch(setIsPlaying(false))		
 	}
 
-	useClickOutside(dropdownRef, () => setShowDropdown(false), buttonRef)
+	useClickOutside(dropdownRef, () => {
+		// prevent the dropdown from being closed if in the process of loading
+		if (!isLoading){
+			setShowDropdown(false)
+		}
+	}, buttonRef)
 
 	return (
 		<div className = "space-y-2">
@@ -91,14 +96,13 @@ export const PlaylistPageContainer = ({playlist, tracks}: Props) => {
 									
 								</button>
 								{
-									showDropdown ? (
-										<PlaylistDropdown 
-											ref={dropdownRef}
-											playlistId={playlist.playlistId} 
-											owned={playlist.owned} 
-											closeDropdown = {() => setShowDropdown(false)}
-										/>
-									) : null
+									<PlaylistDropdown 
+										showDropdown={showDropdown}
+										ref={dropdownRef}
+										playlist={playlist}
+										owned={playlist.owned} 
+										closeDropdown = {() => setShowDropdown(false)}
+									/>
 								}
 							</div>
 						}
