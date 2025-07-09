@@ -35,6 +35,7 @@ export const useQueuePlaylist = () => {
 				if (!showQueuedTrackList){
 					dispatch(setShowQueuedTrackList(true))
 				}
+				dispatch(setIsLoading(false))
 			}
 		}
 	}
