@@ -3,18 +3,22 @@ import { useAppDispatch, useAppSelector } from "../../hooks/redux-hooks"
 import { Dropdown } from "../elements/Dropdown" 
 import { IconAddToPlaylist } from "../../icons/IconAddToPlaylist"
 import { setIsOpen, setModalType, setModalProps } from "../../slices/modalSlice"
-import { Playlist, VideoItem } from "../../types/common"
+import { Playlist, VideoItem, Track, QueueItem } from "../../types/common"
 import { IconTrash } from "../../icons/IconTrash"
 import { useLazyGetPlaylistQuery, useRemovePlaylistItemsMutation } from "../../services/private/playlists"
 import { v4 as uuidv4 } from "uuid"
 import { addToast } from "../../slices/toastSlice"
 import { LoadingSpinner } from "../elements/LoadingSpinner"
+import { IconAddToQueue } from "../../icons/IconAddToQueue"
+import { setIsLoading } from "../../slices/audioPlayerSlice"
+import { useQueueTrack } from "../../hooks/useQueueTrack"
 
 type Props = {
 	closeDropdown: () => void
 	setVideoId?: string
 	showDropdown: boolean
 	playlistId?: string
+	track?: Track | QueueItem
 	displayAbove?: boolean
 	videoId: string
 }
@@ -24,13 +28,17 @@ export const TrackDropdown = React.forwardRef<HTMLDivElement, Props>(({
 	closeDropdown, 
 	setVideoId,
 	playlistId, 
+	track,
 	showDropdown,
 	videoId,
 	displayAbove=false,
 }: Props, ref) => {
 	const dispatch = useAppDispatch()
+	const { isLoading: isAudioPlayerLoading } = useAppSelector((state) => state.audioPlayer)
+	const { playlist: currentPlaylist } = useAppSelector((state) => state.queuedTrackList)
 	const [removePlaylistItems, {isLoading, error}] = useRemovePlaylistItemsMutation()
 	const [triggerGetPlaylist, {data, isFetching, isError}] = useLazyGetPlaylistQuery()
+	const { triggerQueueTrack } = useQueueTrack()
 
 	const removePlaylistItem = async () => {
 		if (playlistId && videoId && setVideoId){
@@ -58,6 +66,18 @@ export const TrackDropdown = React.forwardRef<HTMLDivElement, Props>(({
 	}
 
 	const options = {
+		...(track ? {"add-to-queue": {
+			text: "Add to Queue",
+			icon: <IconAddToQueue/>,
+			onClick: () => {
+				triggerQueueTrack(currentPlaylist, track)
+				dispatch(addToast({
+					id: uuidv4(),
+					message: "Track added to queue",
+					animationType: "animation-in"
+				}))
+			},
+		}} : {}),
 		"save-to-playlist": {
 			text: "Save to playlist",
 			icon: <IconAddToPlaylist/>,

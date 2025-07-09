@@ -19,7 +19,7 @@ export const useLoadPlaylist = () => {
     const [ triggerGetPlayback, { data: songData, error: songError, isFetching: isFetchingSong } ] = useLazyGetSongPlaybackQuery()
     const [ triggerRelatedTracks, {data: relatedTracksData, error: relatedTracksError, isFetching: isRelatedTracksFetching}] = useLazyGetPlaylistRelatedTracksQuery()
 
-	const onQueuePlaylist = (playlist: Playlist, tracksData: Array<Track>, getRelated=true, addToQueue=false) => {
+	const onQueuePlaylist = (playlist: Playlist, tracksData: Array<Track>, getRelated=true) => {
 		/* 
 			1) put all tracks onto the queue
 			2) if triggering playback, set the current track
@@ -32,21 +32,13 @@ export const useLoadPlaylist = () => {
 				const queueItems = prepareQueueItems(tracksData)
 				const top = queueItems[0]
 				dispatch(setIsLoading(true))
-				if (!addToQueue){
-					dispatch(setCurrentTrack(top))
-				}
-				// if we're adding to queue, add the new queue items to the back of the existing queue items
-				dispatch(setQueuedTracks(addToQueue ? [...queuedTracks, ...queueItems] : queueItems))
-				if (!addToQueue){
-		            triggerGetPlayback(top.videoId)
-		            const randIndex = randRange(0, queueItems.length-1)
-		            if (getRelated){
-			            triggerRelatedTracks({playlistId: playlist.playlistId, videoId: queueItems[randIndex].videoId})
-		            }
-				}
-				if (addToQueue){
-					dispatch(setIsLoading(false))
-				}
+				dispatch(setCurrentTrack(top))
+				dispatch(setQueuedTracks(queueItems))
+	            triggerGetPlayback(top.videoId)
+	            const randIndex = randRange(0, queueItems.length-1)
+	            if (getRelated){
+		            triggerRelatedTracks({playlistId: playlist.playlistId, videoId: queueItems[randIndex].videoId})
+	            }
 			}
 			dispatch(setCurrentPlaylist(playlist))
 			if (!showAudioPlayer){
@@ -61,6 +53,7 @@ export const useLoadPlaylist = () => {
     useEffect(() => {
     	if (!isFetchingSong && songData){
             dispatch(setStoredPlaybackInfo(songData))
+			dispatch(setIsLoading(false))
             dispatch(setIsPlaying(true))
         }
     }, [songData, isFetchingSong])
@@ -72,8 +65,8 @@ export const useLoadPlaylist = () => {
     }, [relatedTracksData, isRelatedTracksFetching])
 
 
-    const triggerLoadPlaylist = (playlistParam: Playlist, tracksParam: Array<Track>, getRelated=true, addToQueue=false) => {
-		onQueuePlaylist(playlistParam, tracksParam, getRelated, addToQueue)
+    const triggerLoadPlaylist = (playlistParam: Playlist, tracksParam: Array<Track>, getRelated=true) => {
+		onQueuePlaylist(playlistParam, tracksParam, getRelated)
 	}
 
 	return {

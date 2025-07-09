@@ -12,7 +12,7 @@ import { LoadingSpinner } from "../elements/LoadingSpinner"
 import { IconAddToQueue } from "../../icons/IconAddToQueue"
 import { setShowQueuedTrackList, setPlaylist } from "../../slices/queuedTrackListSlice"
 import { setQueuedTracks, setIsLoading } from "../../slices/audioPlayerSlice"
-import { useLoadPlaylist } from "../../hooks/useLoadPlaylist"
+import { useQueuePlaylist } from "../../hooks/useQueuePlaylist"
 import { useLazyGetPlaylistTracksQuery } from "../../services/private/playlists"
 import { usePrevious } from "../../hooks/usePrevious"
 import { PLAYLIST_DROPDOWN_Z_INDEX } from "../../helpers/constants"
@@ -36,7 +36,7 @@ export const PlaylistDropdown = React.forwardRef<HTMLDivElement, Props>(({
 	const dispatch = useAppDispatch()
 	const { isLoading, queuedTracks } = useAppSelector((state) => state.audioPlayer)
 	const { showQueuedTrackList } = useAppSelector((state) => state.queuedTrackList)
-	const { triggerLoadPlaylist } = useLoadPlaylist()
+	const { triggerQueuePlaylist } = useQueuePlaylist()
 	const [ triggerGetTracks, {data: tracksData, isFetching: isTracksFetching, isError: isTracksError } ] = useLazyGetPlaylistTracksQuery()
 	const prevLoading = usePrevious(isLoading)
 
@@ -56,10 +56,10 @@ export const PlaylistDropdown = React.forwardRef<HTMLDivElement, Props>(({
 			// if there are no existing queue items, load the queue, and set the playback for the top
 			// of the queue.
 			// Otherwise, only load the items into the queue.
-			triggerLoadPlaylist({
+			triggerQueuePlaylist({
 				...playlist,
 				playlistId: "audioPlaylistId" in playlist ? playlist.audioPlaylistId : playlist.playlistId,
-			} as TPlaylist, tracksData, false, queuedTracks.length > 0)
+			} as TPlaylist, tracksData)
 			dispatch(addToast({
 				id: uuidv4(),
 				message: "Playlist added to queue",

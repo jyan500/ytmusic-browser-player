@@ -21,6 +21,7 @@ export const useLoadTrack = () => {
 	
 	useEffect(() => {
         if (!isFetching && songData){
+            dispatch(setIsLoading(false))
             dispatch(setIsPlaying(true))
             dispatch(setStoredPlaybackInfo(songData))
         }
@@ -34,7 +35,7 @@ export const useLoadTrack = () => {
     }
 
     const onPress = (track: Track, playlist: Playlist | undefined) => {
-        if (currentTrack?.videoId === track.videoId){
+        if (currentTrack && currentTrack?.videoId === track.videoId){
             dispatch(setIsPlaying(!isPlaying))
         }
         else {
