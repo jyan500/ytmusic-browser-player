@@ -6,7 +6,7 @@ import { Playlist } from "../pages/Playlist"
 import { Props as ImagePlayButtonProps, ImagePlayButton } from "./ImagePlayButton"
 import { setSuggestedTracks, setIsLoading, setIsPlaying, setCurrentCardId, setCurrentTrack, setQueuedTracks, setStoredPlaybackInfo, setShowAudioPlayer } from "../slices/audioPlayerSlice"
 import { setShowQueuedTrackList, setPlaylist } from "../slices/queuedTrackListSlice"
-import { useLazyGetPlaylistTracksQuery, useLazyGetPlaylistRelatedTracksQuery } from "../services/private/playlists"
+import { useLazyGetPlaylistQuery, useLazyGetPlaylistTracksQuery, useLazyGetPlaylistRelatedTracksQuery } from "../services/private/playlists"
 import { useLazyGetSongPlaybackQuery } from "../services/private/songs"
 import { prepareQueueItems, randRange } from "../helpers/functions"
 import { PlayableCard } from "./PlayableCard"
@@ -17,6 +17,7 @@ import { v4 as uuidv4 } from "uuid"
 import { PlaylistDropdown } from "./dropdowns/PlaylistDropdown"
 import { useClickOutside } from "../hooks/useClickOutside"
 import { IconVerticalMenu } from "../icons/IconVerticalMenu"
+import { LoadingSpinner } from "./elements/LoadingSpinner"
 
 interface Props {
 	playlist: TPlaylist
@@ -36,6 +37,7 @@ export const PlaylistCardItem = ({playlist, imageHeight, imageWidth, children, i
 	const biggestWidth = Math.max(...widths)
 	const thumbnail = playlist?.thumbnails?.find((thumbnail) => thumbnail.width === biggestWidth)
     const [ triggerGetTracks, { data: tracksData, error: tracksError, isFetching: isFetchingTracks }] = useLazyGetPlaylistTracksQuery();
+    const [ triggerGetPlaylist, {data: playlistInfoData, error: playlistError, isFetching: isPlaylistFetching} ] = useLazyGetPlaylistQuery()
 	const { triggerLoadPlaylist } = useLoadPlaylist()
 	const id = useRef(uuidv4())
 	const dropdownRef = useRef<HTMLDivElement | null>(null)
@@ -132,16 +134,25 @@ export const PlaylistCardItem = ({playlist, imageHeight, imageWidth, children, i
 					    showPauseButton: isPlaying && currentPlaylist?.playlistId === playlist?.playlistId,
 					    showVerticalMenu: () => (
 					    	<>
+					    		{
+					    		!isPlaylistFetching ? <>
                             	<button ref={buttonRef} onClick={() => {
                             		setShowDropdown(!showDropdown)	
+                            		triggerGetPlaylist({playlistId: playlist.playlistId, params: {}}, true)
                             	}} className = "absolute top-0 right-0 mr-0.5 mt-1"><IconVerticalMenu className = {"h-6 w-6 text-gray-300"}/></button>
+                            	</> : <div className = "absolute top-0 right-0 mr-1 mt-1.5"><LoadingSpinner width={"w-4"} height={"h-4"}/></div>
+	                            }
 						    </>
 					    )
 					}}
 				>
 					{children}
 				</PlayableCard>
-				<PlaylistDropdown showDropdown={showDropdown} ref={dropdownRef} closeDropdown={() => {setShowDropdown(false)}} playlist={playlist} owned={playlist.owned}/>	
+				{
+					playlistInfoData && !isPlaylistFetching ? 
+						<PlaylistDropdown showDropdown={showDropdown} ref={dropdownRef} closeDropdown={() => {setShowDropdown(false)}} playlist={playlist} owned={playlistInfoData.owned}/>	
+					: null
+				}
 			</div>
 	)
 }
