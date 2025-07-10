@@ -1,4 +1,4 @@
-import React, { useEffect } from "react"
+import React, { useRef, useEffect } from "react"
 import { useAppDispatch, useAppSelector } from "../hooks/redux-hooks"
 import { ContainsArtists, ArtistContent, OptionType, Playlist as TPlaylist, Track } from "../types/common"
 import { PlayableCard } from "./PlayableCard"
@@ -15,13 +15,15 @@ import { getThumbnail } from "../helpers/functions"
 import { SideScrollContent } from "./SideScrollContent"
 import { LinkableDescription } from "./LinkableDescription"
 import { ArtistDescription } from "./ArtistDescription"
+import { setCurrentCardId } from "../slices/audioPlayerSlice"
+import { v4 as uuidv4 } from "uuid"
 
 interface Props {
 	content: ArtistContent
 }
 
 export const ArtistScrollContent = ({content}: Props) => {
-
+	const dispatch = useAppDispatch()
 	const { isPlaying, currentTrack } = useAppSelector((state) => state.audioPlayer)
 	const { playlist: currentPlaylist } = useAppSelector((state) => state.queuedTrackList)
     const [ triggerGetTracks, { data: tracksData, error: tracksError, isFetching: isFetchingTracks }] = useLazyGetPlaylistTracksQuery();
@@ -29,6 +31,7 @@ export const ArtistScrollContent = ({content}: Props) => {
     const [ triggerGetWatchPlaylist, {data: watchPlaylistData, error: watchPlaylistError, isFetching: isWatchPlaylistFetching}] = useLazyGetWatchPlaylistQuery()
     const [ triggerGetAlbum, {data: albumData, error: albumError, isFetching: isAlbumFetching } ] = useLazyGetAlbumQuery()
     const { triggerLoadPlaylist } = useLoadPlaylist()
+    const id = useRef(uuidv4())
 
 	const playContent = () => {
 		if ("browseId" in content){
@@ -41,6 +44,7 @@ export const ArtistScrollContent = ({content}: Props) => {
     	else if ("audioPlaylistId" in content){
 			triggerGetTracks({playlistId: "playlistId" in content ? (content.playlistId ?? "") : (content.audioPlaylistId ?? ""), params: {}})
     	}
+    	dispatch(setCurrentCardId(id.current))
     }
 
 	const getDescription = (): string => {
@@ -109,7 +113,7 @@ export const ArtistScrollContent = ({content}: Props) => {
 			triggerLoadPlaylist({
 				...content,
 				playlistId: "audioPlaylistId" in content ? content.audioPlaylistId : content.playlistId,
-			} as TPlaylist, tracksData)
+			} as TPlaylist, tracksData, true)
 		}
 	}, [tracksData, isFetchingTracks])
 
@@ -135,6 +139,7 @@ export const ArtistScrollContent = ({content}: Props) => {
 
 	return (
 		<SideScrollContent 
+			id={id.current}
 			title={content.title ?? ""}
 			thumbnail={getThumbnail(content)}
 			description={getDescription()}

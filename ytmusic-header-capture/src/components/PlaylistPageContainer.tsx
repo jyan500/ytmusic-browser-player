@@ -7,6 +7,7 @@ import {
 	setIsPlaying, 
 	setCurrentTrack, 
 	setQueuedTracks, 
+	setCurrentCardId,
 	setStoredPlaybackInfo } 
 from "../slices/audioPlayerSlice"
 import { Album as TAlbum, Playlist, Track } from "../types/common"
@@ -29,6 +30,7 @@ import { setIsOpen, setModalProps, setModalType } from "../slices/modalSlice"
 import { IconVerticalMenu } from "../icons/IconVerticalMenu"
 import { useClickOutside } from "../hooks/useClickOutside"
 import { PlaylistDropdown } from "./dropdowns/PlaylistDropdown"
+import { v4 as uuidv4 } from "uuid"
 
 interface Props {
 	playlist: Playlist
@@ -39,10 +41,11 @@ export const PlaylistPageContainer = ({playlist, tracks}: Props) => {
 	const dispatch = useAppDispatch()
 	const [ showDropdown, setShowDropdown ] = useState(false)
 	const { triggerLoadPlaylist } = useLoadPlaylist()
-	const { isLoading, isPlaying, queuedTracks, showAudioPlayer, storedPlaybackInfo } = useAppSelector((state) => state.audioPlayer)
+	const { isLoading, isPlaying, currentCardId, queuedTracks, showAudioPlayer, storedPlaybackInfo } = useAppSelector((state) => state.audioPlayer)
 	const { showQueuedTrackList, playlist: currentPlaylist } = useAppSelector((state) => state.queuedTrackList)
 	const dropdownRef = useRef<HTMLDivElement | null>(null)
 	const buttonRef = useRef<HTMLButtonElement | null>(null)
+	const id = useRef(uuidv4())
 
 	const onPause = () => {
 		dispatch(setIsPlaying(false))		
@@ -74,19 +77,26 @@ export const PlaylistPageContainer = ({playlist, tracks}: Props) => {
 								</button>
 							: null
 						}
-						<PlayButton isPlaying={isPlaying && currentPlaylist?.playlistId === playlist.playlistId} onClick={() => {
-							// if the playlist is the currently selected playlist
-							if (currentPlaylist?.playlistId === playlist.playlistId){
-								// if there are queued tracks and a current song playing, toggle the playback
-								if (queuedTracks?.length && storedPlaybackInfo){
-									dispatch(setIsPlaying(!isPlaying))
-								}
-							}
-							// Otherwise, load the playlist tracks and the first song of the playlist.
-							else {
-								triggerLoadPlaylist(playlist, tracks)
-							}
-						}} />
+						{
+							currentCardId === id.current && isLoading ? 
+								<LoadingSpinner width ="w-4" height="h-4"/> 
+							: (
+								<PlayButton isPlaying={isPlaying && currentPlaylist?.playlistId === playlist.playlistId} onClick={() => {
+									// if the playlist is the currently selected playlist
+									if (currentPlaylist?.playlistId === playlist.playlistId){
+										// if there are queued tracks and a current song playing, toggle the playback
+										if (queuedTracks?.length && storedPlaybackInfo){
+											dispatch(setIsPlaying(!isPlaying))
+										}
+									}
+									// Otherwise, load the playlist tracks and the first song of the playlist.
+									else {
+										dispatch(setCurrentCardId(id.current))
+										triggerLoadPlaylist(playlist, tracks, true)
+									}
+								}} />
+							)
+						}
 						{
 							<div className = "relative">
 								<button ref={buttonRef} onClick={() => {

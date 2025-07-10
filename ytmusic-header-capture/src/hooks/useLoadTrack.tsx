@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react"
 import { Playlist, Track } from "../types/common"
 import { useAppDispatch, useAppSelector } from "./redux-hooks"
-import { setSuggestedTracks, setIndex, setIsLoading, setIsPlaying, setCurrentTrack, setQueuedTracks, setStoredPlaybackInfo, setShowAudioPlayer } from "../slices/audioPlayerSlice"
+import { setSuggestedTracks, setCurrentCardId, setIndex, setIsLoading, setIsPlaying, setCurrentTrack, setQueuedTracks, setStoredPlaybackInfo, setShowAudioPlayer } from "../slices/audioPlayerSlice"
 import { setShowQueuedTrackList, setPlaylist as setCurrentPlaylist } from "../slices/queuedTrackListSlice"
 import { useLazyGetPlaylistTracksQuery, useLazyGetPlaylistRelatedTracksQuery } from "../services/private/playlists"
 import { useLazyGetSongPlaybackQuery } from "../services/private/songs"
@@ -22,6 +22,7 @@ export const useLoadTrack = () => {
 	useEffect(() => {
         if (!isFetching && songData){
             dispatch(setIsLoading(false))
+            dispatch(setCurrentCardId(""))
             dispatch(setIsPlaying(true))
             dispatch(setStoredPlaybackInfo(songData))
         }

@@ -1,5 +1,5 @@
-import React, {useEffect} from "react"
-import { useAppSelector } from "../hooks/redux-hooks"
+import React, {useEffect, useRef} from "react"
+import { useAppDispatch, useAppSelector } from "../hooks/redux-hooks"
 import { OptionType, Track, Playlist, ArtistContent } from "../types/common"
 import { HorizontalPlayableCard } from "./HorizontalPlayableCard"
 import { useLazyGetWatchPlaylistQuery } from "../services/private/playlists"
@@ -7,18 +7,22 @@ import { useLoadPlaylist } from "../hooks/useLoadPlaylist"
 import { convertOptionTypesToString, getThumbnail } from "../helpers/functions"
 import { ImagePlayButton } from "./ImagePlayButton"
 import { SEPARATOR } from "../helpers/constants"
+import { setCurrentCardId } from "../slices/audioPlayerSlice"
+import { v4 as uuidv4 } from "uuid"
 
 interface Props {
 	content: Array<ArtistContent>
 }
 
 export const ArtistContentTable = ({content}: Props) => {
+	const dispatch = useAppDispatch()
     const [ triggerGetWatchPlaylist, {data: watchPlaylistData, error: watchPlaylistError, isFetching: isWatchPlaylistFetching}] = useLazyGetWatchPlaylistQuery()
 	const { isPlaying, currentTrack } = useAppSelector((state) => state.audioPlayer)
 	const { triggerLoadPlaylist } = useLoadPlaylist()
 
-	const onPress = (artistContent: ArtistContent) => {
+	const onPress = (artistContent: ArtistContent, id: string) => {
 		triggerGetWatchPlaylist({videoId: artistContent?.videoId ?? ""})
+		dispatch(setCurrentCardId(id))
 	}
 
 	useEffect(() => {
@@ -39,17 +43,19 @@ export const ArtistContentTable = ({content}: Props) => {
 		<table className="w-full table table-fixed overflow-x-auto border-collapse">
 			{
 				content.map((c: ArtistContent, index: number) => {
+					const id = `artist-content-table-${index}`
 					return (
 						<tr className = {`${index < content.length - 1 ? SEPARATOR : ""} mb-2`}>
 							<td className="w-14 py-1 align-middle group">
 								<ImagePlayButton
+									id={id}
 									imageHeight={"w-12"}
 								    imageWidth={"h-12"} 
 								    playButtonWidth={"w-4"} 
 								    isAvailable={c.isAvailable}
 								    playButtonHeight={"h-4"}
 								    imageURL={getThumbnail(c)?.url ?? ""}
-								    onPress={() => onPress(c)}
+								    onPress={() => onPress(c, id)}
 								    showPauseButton={currentTrack != null && "videoId" in c && currentTrack.videoId === c.videoId}	
 								>
 								</ImagePlayButton>

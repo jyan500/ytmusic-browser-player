@@ -5,6 +5,7 @@ import { IconVerticalMenu } from "../icons/IconVerticalMenu"
 import { TrackDropdown } from "./dropdowns/TrackDropdown"
 import { useClickOutside } from "../hooks/useClickOutside"
 import { ImagePlayButton } from "./ImagePlayButton"
+import { v4 as uuidv4 } from "uuid"
 
 interface Props {
 	track: Track | QueueItem
@@ -45,6 +46,7 @@ export const TrackListRow = ({
             className={`z-0 relative hover:cursor-pointer group flex flex-row justify-between items-center ${shouldHighlightRow ? "bg-orange-secondary" : ""}`}>
                 <div className = "flex flex-row gap-x-2">
                     <ImagePlayButton 
+                        id={uuidv4()}
                         playButtonWidth={"w-6"}
                         playButtonHeight={"h-6"}
                         imageWidth={"w-24"}

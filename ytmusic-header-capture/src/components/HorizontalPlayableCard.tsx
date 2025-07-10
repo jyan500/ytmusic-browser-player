@@ -36,6 +36,7 @@ export const HorizontalPlayableCard = ({
 					{
 						imagePlayButtonProps ? 
 						<ImagePlayButton
+							id={imagePlayButtonProps?.id}
 							imageHeight={imagePlayButtonProps?.imageHeight ?? "h-32"}
 							imageWidth={imagePlayButtonProps?.imageWidth ?? "w-32"}
 							playButtonWidth={imagePlayButtonProps?.playButtonWidth ?? "w-6"}

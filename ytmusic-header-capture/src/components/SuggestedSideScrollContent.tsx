@@ -1,4 +1,4 @@
-import React, { useEffect } from "react"
+import React, { useEffect, useRef } from "react"
 import { useAppDispatch, useAppSelector } from "../hooks/redux-hooks"
 import { ContainsAuthor, ContainsArtists, SuggestedContent, OptionType, Playlist as TPlaylist, Track } from "../types/common"
 import { PlayableCard } from "./PlayableCard"
@@ -15,7 +15,8 @@ import { SideScrollContent } from "./SideScrollContent"
 import { LinkableDescription } from "./LinkableDescription"
 import { ArtistDescription } from "./ArtistDescription"
 import { AuthorDescription } from "./AuthorDescription"
-import { setIsPlaying } from "../slices/audioPlayerSlice"
+import { setCurrentCardId, setIsPlaying } from "../slices/audioPlayerSlice"
+import { v4 as uuidv4 } from "uuid"
 
 interface Props {
 	content: SuggestedContent
@@ -30,6 +31,7 @@ export const SuggestedSideScrollContent = ({content}: Props) => {
    const [ triggerGetRelatedTracks, { data: relatedTracksData, error: relatedTracksError, isFetching: isFetchingRelatedTracks }] = useLazyGetRelatedTracksQuery();
    const [ triggerGetWatchPlaylist, {data: watchPlaylistData, error: watchPlaylistError, isFetching: isWatchPlaylistFetching}] = useLazyGetWatchPlaylistQuery()
    const { triggerLoadPlaylist } = useLoadPlaylist()
+   const id = useRef(uuidv4())
 
 	const playContent = () => {
     	if ("videoId" in content){
@@ -50,6 +52,7 @@ export const SuggestedSideScrollContent = ({content}: Props) => {
 				triggerGetTracks({playlistId: "playlistId" in content ? (content.playlistId ?? "") : (content.audioPlaylistId ?? ""), params: {}})
     		}
     	}
+    	dispatch(setCurrentCardId(id.current))
    }
 
 	const getDescription = (): string => {
@@ -143,7 +146,7 @@ export const SuggestedSideScrollContent = ({content}: Props) => {
 			triggerLoadPlaylist({
 				...content,
 				playlistId: "audioPlaylistId" in content ? content.audioPlaylistId : content.playlistId,
-			} as TPlaylist, tracksData)
+			} as TPlaylist, tracksData, true)
 		}
 	}, [tracksData, isFetchingTracks])
 
@@ -163,6 +166,7 @@ export const SuggestedSideScrollContent = ({content}: Props) => {
 
 	return (
 		<SideScrollContent 
+			id={id.current}
 			title={content.title ?? ""}
 			thumbnail={getThumbnail(content)}
 			description={getDescription()}

@@ -32,7 +32,6 @@ interface Props {
 
 export const Album = ({browseId}: Props) => {
 	const dispatch = useAppDispatch()
-	const { triggerLoadPlaylist } = useLoadPlaylist()
 	const { isPlaying, queuedTracks, showAudioPlayer, storedPlaybackInfo } = useAppSelector((state) => state.audioPlayer)
 	const { showQueuedTrackList, playlist: currentPlaylist } = useAppSelector((state) => state.queuedTrackList)
 	const { data: albumData, isFetching: isAlbumFetching, isError: isAlbumError} = useGetAlbumQuery(browseId ?? skipToken)

@@ -1,10 +1,14 @@
-import React from "react"
+import React, { useState } from "react"
+import { useAppSelector } from "../hooks/redux-hooks"
 import { IconPause } from "../icons/IconPause"
 import { IconPlay } from "../icons/IconPlay"
 import { IconAlert } from "../icons/IconAlert"
+import { IconVerticalMenu } from "../icons/IconVerticalMenu"
 import { PlaceholderThumbnail } from "./elements/PlaceholderThumbnail"
+import { LoadingSpinner } from "./elements/LoadingSpinner"
 
 export interface Props {
+    id: string,
     imageHeight: string
     imageWidth: string
     isAvailable?: boolean
@@ -13,9 +17,12 @@ export interface Props {
     imageURL: string
     onPress: () => void
     showPauseButton: boolean
+    showVerticalMenu?: boolean
+    onPressVerticalMenu?: () => void
 }
 
 export const ImagePlayButton = ({
+    id,
     imageHeight, 
     imageWidth, 
     playButtonWidth, 
@@ -23,8 +30,47 @@ export const ImagePlayButton = ({
     playButtonHeight, 
     imageURL, 
     onPress, 
-    showPauseButton
+    showPauseButton,
+    showVerticalMenu,
+    onPressVerticalMenu,
 }: Props) => {
+    const { currentCardId, isLoading } = useAppSelector((state) => state.audioPlayer)
+
+    const centerDisplay = () => {
+        const mainButton = (
+            <button onClick={onPress}>
+            {
+                showPauseButton ? 
+                <IconPause className={`${playButtonWidth} ${playButtonHeight} text-white`}/> :
+                <IconPlay className={`${playButtonWidth} ${playButtonHeight} text-white`}/>
+            }
+            </button>
+        )
+        return mainButton
+    }
+
+    const overlay = () => {
+        return (
+            // if we're loading the current card
+            currentCardId !== "" && id === currentCardId ? (
+                <div className = "absolute flex justify-center items-center inset-0 bg-black/50 opacity-100">
+                    <LoadingSpinner width={"w-4"} height={"h-4"}/>
+                </div>
+            ) : (
+                isAvailable ? 
+                    <div className = "absolute flex justify-center items-center inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-in-out">
+                        { centerDisplay() }
+                        {
+                            showVerticalMenu && onPressVerticalMenu ? 
+                            <button onClick={onPressVerticalMenu} className = "absolute top-0 right-0 mr-0.5 mt-1"><IconVerticalMenu className = {"h-6 w-6 text-gray-300"}/></button>
+                            : null
+                        }
+                    </div>
+                : null
+            )
+        )
+    }
+
     return (
         <div className = {`${imageWidth} ${imageHeight} overflow-hidden relative`}>
             {
@@ -42,16 +88,7 @@ export const ImagePlayButton = ({
                     </div>
             }
             {
-                isAvailable ?  
-                <div className = "absolute flex justify-center items-center inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-in-out">
-                    <button onClick={onPress}>
-                    {
-                        showPauseButton ? 
-                        <IconPause className={`${playButtonWidth} ${playButtonHeight} text-white`}/> :
-                        <IconPlay className={`${playButtonWidth} ${playButtonHeight} text-white`}/>
-                    }
-                    </button>
-                </div> : null
+               overlay() 
             }
         </div>
     )
