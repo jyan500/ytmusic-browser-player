@@ -16,6 +16,7 @@ import { useQueuePlaylist } from "../../hooks/useQueuePlaylist"
 import { useLazyGetPlaylistTracksQuery } from "../../services/private/playlists"
 import { usePrevious } from "../../hooks/usePrevious"
 import { PLAYLIST_DROPDOWN_Z_INDEX } from "../../helpers/constants"
+import { IconEdit } from "../../icons/IconEdit"
 
 type Props = {
 	closeDropdown: () => void
@@ -77,6 +78,16 @@ export const PlaylistDropdown = React.forwardRef<HTMLDivElement, Props>(({
 				addToQueue()
 			}
 		},
+		...(owned ? {"edit-playlist": {
+			text: "Edit Playlist",
+			icon: <IconEdit/>,
+			onClick: () => {
+				closeDropdown()
+				dispatch(setModalType("add-edit-playlist"))
+				dispatch(setIsOpen(true))
+				dispatch(setModalProps({playlistId: playlist.playlistId}))
+			},
+		}} : {}),
 		...(owned ? {"delete-playlist": {
 			text: "Delete playlist",
 			icon: <IconTrash/>,
