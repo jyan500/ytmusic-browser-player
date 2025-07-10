@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react"
-import { useAppDispatch } from "../../hooks/redux-hooks"
+import { useAppDispatch, useAppSelector } from "../../hooks/redux-hooks"
 import { ContainsArtists, SearchContent, Playlist as TPlaylist } from "../../types/common"
 import { getThumbnail } from "../../helpers/functions"
 import { LinkableDescription } from "../LinkableDescription"
@@ -15,6 +15,7 @@ import { goTo } from "react-chrome-extension-router"
 import { PillButton } from "../elements/PillButton"
 import { setCurrentCardId } from "../../slices/audioPlayerSlice"
 import { v4 as uuidv4 } from "uuid"
+import { LoadingSpinner } from "../elements/LoadingSpinner"
 
 interface Props {
 	resultType: string
@@ -23,6 +24,7 @@ interface Props {
 
 export const TopResultRow = ({resultType, data}: Props) => {
 	const dispatch = useAppDispatch()
+    const { currentCardId } = useAppSelector((state) => state.audioPlayer)
 	const [ triggerGetWatchPlaylist, {data: watchPlaylistData, error: watchPlaylistError, isFetching: isWatchPlaylistFetching}] = useLazyGetWatchPlaylistQuery()
     const [ triggerGetTracks, { data: tracksData, error: tracksError, isFetching: isFetchingTracks }] = useLazyGetPlaylistTracksQuery();
     const {triggerLoadPlaylist} = useLoadPlaylist()
@@ -109,7 +111,11 @@ export const TopResultRow = ({resultType, data}: Props) => {
 			return (
 				<>
                     <PillButton onClick={onPlay} text={"Play"}>
-                        <IconPlay className = "w-3 h-3 text-dark"/>  
+                        {
+
+                            currentCardId !== "" && id.current === currentCardId ? <LoadingSpinner width="w-3" height="h-3"/> : <IconPlay className = "w-3 h-3 text-dark"/>
+                            
+                        }
                     </PillButton>
                     <PillButton onClick={onAddToPlaylist} text={"Save"}>
                         <IconAddToPlaylist className = "w-3 h-3 text-dark"/> 
@@ -122,11 +128,13 @@ export const TopResultRow = ({resultType, data}: Props) => {
 	return (
 		<div className="relative bg-linear-to-bl from-black to-dark text-white p-4 w-full overflow-hidden rounded-lg shadow-md">
             <div className="flex items-center space-x-4">
-                <img
-                    src={getThumbnail(data)?.url ?? ""}
-                    alt="Thumbnail"
-                    className="w-20 h-20 object-cover rounded"
-                />
+                <div className = "relative w-20 h-20">
+                    <img
+                        src={getThumbnail(data)?.url ?? ""}
+                        alt="Thumbnail"
+                        className="w-20 h-20 object-cover rounded"
+                    />
+                </div>
                 <div className="w-3/4 truncate">
     			    <h2 className="text-lg font-bold">
                     	{getTitle()}
