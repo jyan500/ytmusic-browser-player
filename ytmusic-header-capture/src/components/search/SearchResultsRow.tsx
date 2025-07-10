@@ -15,7 +15,8 @@ import { ArtistDescription } from "../ArtistDescription"
 import { AuthorDescription } from "../AuthorDescription"
 import { useLoadPlaylist } from "../../hooks/useLoadPlaylist"
 import { useLazyGetPlaylistTracksQuery, useLazyGetWatchPlaylistQuery } from "../../services/private/playlists"
-import { setIsPlaying } from "../../slices/audioPlayerSlice"
+import { setIsPlaying, setCurrentCardId } from "../../slices/audioPlayerSlice"
+import { v4 as uuidv4 } from "uuid"
 
 interface Props {
     data: SearchContent 
@@ -37,6 +38,7 @@ export const SearchResultsRow = ({
     const buttonRef = useRef<HTMLButtonElement>(null)
     const { currentTrack, isPlaying } = useAppSelector((state) => state.audioPlayer)
     const { playlist: currentPlaylist } = useAppSelector((state) => state.queuedTrackList)
+    const id = useRef(uuidv4())
 
     const onClickOutside = () => {
         setShowDropdown(false)  
@@ -52,7 +54,7 @@ export const SearchResultsRow = ({
             triggerLoadPlaylist({
                 ...data,
                 playlistId: data.resultType === "album" ? data.playlistId : data.browseId,
-            } as TPlaylist, tracksData)
+            } as TPlaylist, tracksData, true)
         }
     }, [tracksData, isFetchingTracks])
 
@@ -162,6 +164,7 @@ export const SearchResultsRow = ({
             else {
                 triggerGetWatchPlaylist({videoId: data.videoId ?? ""})
             }
+            dispatch(setCurrentCardId(id.current))
             return
         }
         if (data.resultType === "album" || data.resultType === "playlist"){
@@ -174,6 +177,7 @@ export const SearchResultsRow = ({
                 const id = data.resultType === "playlist" ? (data.browseId ?? "") : (data.playlistId ?? "")
                 triggerGetTracks({playlistId: id, params: {}})
             }
+            dispatch(setCurrentCardId(id.current))
             return
         }
         if (data.resultType === "artist"){
@@ -199,6 +203,7 @@ export const SearchResultsRow = ({
                     {
                         canPlay ? (
                             <ImagePlayButton 
+                                id={id.current}
                                 playButtonWidth={"w-6"}
                                 playButtonHeight={"h-6"}
                                 imageWidth={"w-24"}

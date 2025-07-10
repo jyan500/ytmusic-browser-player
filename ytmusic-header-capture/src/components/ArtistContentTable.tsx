@@ -1,5 +1,5 @@
-import React, {useEffect} from "react"
-import { useAppSelector } from "../hooks/redux-hooks"
+import React, {useEffect, useRef} from "react"
+import { useAppDispatch, useAppSelector } from "../hooks/redux-hooks"
 import { OptionType, Track, Playlist, ArtistContent } from "../types/common"
 import { HorizontalPlayableCard } from "./HorizontalPlayableCard"
 import { useLazyGetWatchPlaylistQuery } from "../services/private/playlists"
@@ -7,18 +7,23 @@ import { useLoadPlaylist } from "../hooks/useLoadPlaylist"
 import { convertOptionTypesToString, getThumbnail } from "../helpers/functions"
 import { ImagePlayButton } from "./ImagePlayButton"
 import { SEPARATOR } from "../helpers/constants"
+import { setCurrentCardId } from "../slices/audioPlayerSlice"
+import { v4 as uuidv4 } from "uuid"
 
 interface Props {
 	content: Array<ArtistContent>
 }
 
 export const ArtistContentTable = ({content}: Props) => {
+	const dispatch = useAppDispatch()
     const [ triggerGetWatchPlaylist, {data: watchPlaylistData, error: watchPlaylistError, isFetching: isWatchPlaylistFetching}] = useLazyGetWatchPlaylistQuery()
 	const { isPlaying, currentTrack } = useAppSelector((state) => state.audioPlayer)
 	const { triggerLoadPlaylist } = useLoadPlaylist()
+	const id = useRef(uuidv4())
 
 	const onPress = (artistContent: ArtistContent) => {
 		triggerGetWatchPlaylist({videoId: artistContent?.videoId ?? ""})
+		dispatch(setCurrentCardId(id.current))
 	}
 
 	useEffect(() => {
@@ -43,6 +48,7 @@ export const ArtistContentTable = ({content}: Props) => {
 						<tr className = {`${index < content.length - 1 ? SEPARATOR : ""} mb-2`}>
 							<td className="w-14 py-1 align-middle group">
 								<ImagePlayButton
+									id={id.current}
 									imageHeight={"w-12"}
 								    imageWidth={"h-12"} 
 								    playButtonWidth={"w-4"} 

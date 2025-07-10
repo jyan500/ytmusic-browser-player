@@ -11,11 +11,13 @@ import { Playlist } from "../pages/Playlist"
 import { Artist } from "../pages/Artist"
 import { Album } from "../pages/Album"
 import { getThumbnail } from "../helpers/functions"
+import { v4 as uuidv4 } from "uuid"
 
 interface Props {
 	title: string
 	thumbnail: Thumbnail | undefined
 	canPlay: boolean
+	id: string 
 	description: string
 	cardClickAction: () => void
 	playContent: () => void
@@ -29,6 +31,7 @@ export const SideScrollContent = ({
 	thumbnail, 
 	canPlay,
 	description, 
+	id, 
 	cardClickAction,
 	linkableDescription,
 	playContent,
@@ -48,6 +51,7 @@ export const SideScrollContent = ({
 			cardOnClick={cardClickAction}
 			linkableDescription={linkableDescription}
 			imagePlayButtonProps={canPlay ? {
+				id:id,
 				onPress: playContent,
 				imageHeight: "h-32", 
 			    imageWidth: "w-32",

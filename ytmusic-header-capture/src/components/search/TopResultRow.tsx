@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react"
+import React, { useState, useEffect, useRef } from "react"
 import { useAppDispatch } from "../../hooks/redux-hooks"
 import { ContainsArtists, SearchContent, Playlist as TPlaylist } from "../../types/common"
 import { getThumbnail } from "../../helpers/functions"
@@ -13,6 +13,8 @@ import { useLoadPlaylist } from "../../hooks/useLoadPlaylist"
 import { setIsOpen, setModalType, setModalProps } from "../../slices/modalSlice"
 import { goTo } from "react-chrome-extension-router"
 import { PillButton } from "../elements/PillButton"
+import { setCurrentCardId } from "../../slices/audioPlayerSlice"
+import { v4 as uuidv4 } from "uuid"
 
 interface Props {
 	resultType: string
@@ -24,6 +26,7 @@ export const TopResultRow = ({resultType, data}: Props) => {
 	const [ triggerGetWatchPlaylist, {data: watchPlaylistData, error: watchPlaylistError, isFetching: isWatchPlaylistFetching}] = useLazyGetWatchPlaylistQuery()
     const [ triggerGetTracks, { data: tracksData, error: tracksError, isFetching: isFetchingTracks }] = useLazyGetPlaylistTracksQuery();
     const {triggerLoadPlaylist} = useLoadPlaylist()
+    const id = useRef(uuidv4())
 
     useEffect(() => {
         if (!isFetchingTracks && tracksData){
@@ -31,7 +34,7 @@ export const TopResultRow = ({resultType, data}: Props) => {
             triggerLoadPlaylist({
                 ...data,
                 playlistId: data.resultType === "album" ? data.playlistId : data.browseId,
-            } as TPlaylist, tracksData)
+            } as TPlaylist, tracksData, true)
         }
     }, [tracksData, isFetchingTracks])
 
@@ -87,6 +90,7 @@ export const TopResultRow = ({resultType, data}: Props) => {
 		else if ("playlistId" in data){
 			triggerGetTracks({playlistId: data.playlistId ?? "", params: {}})
 		}
+        dispatch(setCurrentCardId(id.current))
 	}
 
 	const onAddToPlaylist = () => {

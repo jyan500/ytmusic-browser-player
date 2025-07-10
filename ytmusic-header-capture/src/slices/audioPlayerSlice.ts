@@ -8,6 +8,7 @@ type AudioPlayerState = {
    storedPlaybackInfo: PlaybackInfo | null
    queuedTracks: Array<QueueItem>
    shuffledQueuedTracks: Array<QueueItem>
+   currentCardId: string
    suggestedTracks: Array<Track>
    currentTrack: QueueItem | null
    showAudioPlayer: boolean
@@ -30,6 +31,7 @@ const initialState: AudioPlayerState = {
     index: 0,
     currentTrack: null,
     showAudioPlayer: false,
+    currentCardId: "",
     isLoading: false,
     isPlaying: false,
     isShuffling: false,
@@ -88,6 +90,9 @@ const audioPlayerSlice = createSlice({
         },
         setMuted: (state, action: PayloadAction<boolean>) => {
             state.muted = action.payload
+        },
+        setCurrentCardId: (state, action: PayloadAction<string>) => {
+            state.currentCardId = action.payload
         }
     },
 })
@@ -99,6 +104,7 @@ export const {
     setShowAudioPlayer, 
     setTimeProgress,
     setIsLoading,
+    setCurrentCardId,
     setIsPlaying,
     setIsShuffling,
     setShuffledQueuedTracks,

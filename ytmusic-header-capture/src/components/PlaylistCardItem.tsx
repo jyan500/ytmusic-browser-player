@@ -1,10 +1,10 @@
-import React, {useState, useEffect} from "react"
+import React, {useState, useRef, useEffect} from "react"
 import { goTo } from "react-chrome-extension-router"
 import { useAppDispatch, useAppSelector } from "../hooks/redux-hooks"
 import { ContainsAuthor, Thumbnail, Playlist as TPlaylist } from "../types/common"
 import { Playlist } from "../pages/Playlist"
 import { Props as ImagePlayButtonProps, ImagePlayButton } from "./ImagePlayButton"
-import { setSuggestedTracks, setIsLoading, setIsPlaying, setCurrentTrack, setQueuedTracks, setStoredPlaybackInfo, setShowAudioPlayer } from "../slices/audioPlayerSlice"
+import { setSuggestedTracks, setIsLoading, setIsPlaying, setCurrentCardId, setCurrentTrack, setQueuedTracks, setStoredPlaybackInfo, setShowAudioPlayer } from "../slices/audioPlayerSlice"
 import { setShowQueuedTrackList, setPlaylist } from "../slices/queuedTrackListSlice"
 import { useLazyGetPlaylistTracksQuery, useLazyGetPlaylistRelatedTracksQuery } from "../services/private/playlists"
 import { useLazyGetSongPlaybackQuery } from "../services/private/songs"
@@ -13,6 +13,7 @@ import { PlayableCard } from "./PlayableCard"
 import { useLoadPlaylist } from "../hooks/useLoadPlaylist"
 import { AuthorDescription } from "./AuthorDescription"
 import { LinkableDescription } from "./LinkableDescription"
+import { v4 as uuidv4 } from "uuid"
 
 interface Props {
 	playlist: TPlaylist
@@ -25,19 +26,21 @@ interface Props {
 export const PlaylistCardItem = ({playlist, imageHeight, imageWidth, children, isHeader}: Props) => {
 	// find the largest thumbnail and compress to fit 
 	const dispatch = useAppDispatch()
-	const { queuedTracks, isPlaying, showAudioPlayer, storedPlaybackInfo } = useAppSelector((state) => state.audioPlayer)
+	const { queuedTracks, isPlaying, isLoading, showAudioPlayer, storedPlaybackInfo } = useAppSelector((state) => state.audioPlayer)
 	const { showQueuedTrackList, playlist: currentPlaylist } = useAppSelector((state) => state.queuedTrackList)
 	const widths = playlist?.thumbnails?.map((thumbnail) => thumbnail.width) ?? []
 	const biggestWidth = Math.max(...widths)
 	const thumbnail = playlist?.thumbnails?.find((thumbnail) => thumbnail.width === biggestWidth)
     const [ triggerGetTracks, { data: tracksData, error: tracksError, isFetching: isFetchingTracks }] = useLazyGetPlaylistTracksQuery();
 	const { triggerLoadPlaylist } = useLoadPlaylist()
+	const id = useRef(uuidv4())
 
 	const onPressPlay = () => {
 		// need to get all the tracks for the playlist first when the button is clicked
 		if (playlist){
 			triggerGetTracks({playlistId: playlist?.playlistId, params: {}})
 		}
+		dispatch(setCurrentCardId(id.current))
 	}
 
 	const getLinkableDescription = () => {
@@ -63,7 +66,7 @@ export const PlaylistCardItem = ({playlist, imageHeight, imageWidth, children, i
 
 	useEffect(() => {
 		if (!isFetchingTracks && tracksData && playlist){
-			triggerLoadPlaylist(playlist, tracksData)
+			triggerLoadPlaylist(playlist, tracksData, true)
 		}
 	}, [tracksData, isFetchingTracks])
 
@@ -110,12 +113,17 @@ export const PlaylistCardItem = ({playlist, imageHeight, imageWidth, children, i
 								onPressPlay()
 							}
 						},
+						id: id.current,
 						imageHeight: imageHeight ?? "h-32", 
 					    imageWidth: imageHeight ?? "w-32",
 					    playButtonWidth: "w-6", 
 					    playButtonHeight: "h-6",
 					    imageURL: thumbnail?.url ?? "", 
-					    showPauseButton: isPlaying && currentPlaylist?.playlistId === playlist?.playlistId
+					    showPauseButton: isPlaying && currentPlaylist?.playlistId === playlist?.playlistId,
+					    showVerticalMenu: true,
+					    onPressVerticalMenu: () => {
+					    	console.log("pressed vertical menu")	
+					    }
 					}}
 				>
 					{children}
