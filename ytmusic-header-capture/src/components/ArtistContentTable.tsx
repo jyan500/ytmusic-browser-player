@@ -19,11 +19,10 @@ export const ArtistContentTable = ({content}: Props) => {
     const [ triggerGetWatchPlaylist, {data: watchPlaylistData, error: watchPlaylistError, isFetching: isWatchPlaylistFetching}] = useLazyGetWatchPlaylistQuery()
 	const { isPlaying, currentTrack } = useAppSelector((state) => state.audioPlayer)
 	const { triggerLoadPlaylist } = useLoadPlaylist()
-	const id = useRef(uuidv4())
 
-	const onPress = (artistContent: ArtistContent) => {
+	const onPress = (artistContent: ArtistContent, id: string) => {
 		triggerGetWatchPlaylist({videoId: artistContent?.videoId ?? ""})
-		dispatch(setCurrentCardId(id.current))
+		dispatch(setCurrentCardId(id))
 	}
 
 	useEffect(() => {
@@ -44,18 +43,19 @@ export const ArtistContentTable = ({content}: Props) => {
 		<table className="w-full table table-fixed overflow-x-auto border-collapse">
 			{
 				content.map((c: ArtistContent, index: number) => {
+					const id = `artist-content-table-${index}`
 					return (
 						<tr className = {`${index < content.length - 1 ? SEPARATOR : ""} mb-2`}>
 							<td className="w-14 py-1 align-middle group">
 								<ImagePlayButton
-									id={id.current}
+									id={id}
 									imageHeight={"w-12"}
 								    imageWidth={"h-12"} 
 								    playButtonWidth={"w-4"} 
 								    isAvailable={c.isAvailable}
 								    playButtonHeight={"h-4"}
 								    imageURL={getThumbnail(c)?.url ?? ""}
-								    onPress={() => onPress(c)}
+								    onPress={() => onPress(c, id)}
 								    showPauseButton={currentTrack != null && "videoId" in c && currentTrack.videoId === c.videoId}	
 								>
 								</ImagePlayButton>
