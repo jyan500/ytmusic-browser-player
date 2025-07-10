@@ -89,7 +89,6 @@ export const PlayableCard = ({
 						imageURL={imagePlayButtonProps?.imageURL}
 						showPauseButton={imagePlayButtonProps?.showPauseButton}
 						showVerticalMenu={imagePlayButtonProps?.showVerticalMenu}
-						onPressVerticalMenu={imagePlayButtonProps?.onPressVerticalMenu}
 					/> :
 					<div className = {`${isCircular ? "rounded-full" : ""} ${imageWidth ?? ""} ${imageHeight ?? ""}`}>
 						<img loading="lazy" className={`${imageHeight ?? "h-32"} ${isCircular ? "rounded-full" : ""} object-fill`} src = {thumbnail?.url}/>

@@ -17,8 +17,7 @@ export interface Props {
     imageURL: string
     onPress: () => void
     showPauseButton: boolean
-    showVerticalMenu?: boolean
-    onPressVerticalMenu?: () => void
+    showVerticalMenu?: () => React.ReactNode
 }
 
 export const ImagePlayButton = ({
@@ -32,7 +31,6 @@ export const ImagePlayButton = ({
     onPress, 
     showPauseButton,
     showVerticalMenu,
-    onPressVerticalMenu,
 }: Props) => {
     const { currentCardId, isLoading } = useAppSelector((state) => state.audioPlayer)
 
@@ -61,9 +59,10 @@ export const ImagePlayButton = ({
                     <div className = "absolute flex justify-center items-center inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-in-out">
                         { centerDisplay() }
                         {
-                            showVerticalMenu && onPressVerticalMenu ? 
-                            <button onClick={onPressVerticalMenu} className = "absolute top-0 right-0 mr-0.5 mt-1"><IconVerticalMenu className = {"h-6 w-6 text-gray-300"}/></button>
-                            : null
+                            // showVerticalMenu && onPressVerticalMenu ? 
+                            // <button onClick={onPressVerticalMenu} className = "absolute top-0 right-0 mr-0.5 mt-1"><IconVerticalMenu className = {"h-6 w-6 text-gray-300"}/></button>
+                            // : null
+                            showVerticalMenu ? showVerticalMenu() : null
                         }
                     </div>
                 : null

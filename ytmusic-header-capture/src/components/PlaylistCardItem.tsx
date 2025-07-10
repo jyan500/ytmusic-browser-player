@@ -14,6 +14,9 @@ import { useLoadPlaylist } from "../hooks/useLoadPlaylist"
 import { AuthorDescription } from "./AuthorDescription"
 import { LinkableDescription } from "./LinkableDescription"
 import { v4 as uuidv4 } from "uuid"
+import { PlaylistDropdown } from "./dropdowns/PlaylistDropdown"
+import { useClickOutside } from "../hooks/useClickOutside"
+import { IconVerticalMenu } from "../icons/IconVerticalMenu"
 
 interface Props {
 	playlist: TPlaylist
@@ -26,6 +29,7 @@ interface Props {
 export const PlaylistCardItem = ({playlist, imageHeight, imageWidth, children, isHeader}: Props) => {
 	// find the largest thumbnail and compress to fit 
 	const dispatch = useAppDispatch()
+	const [showDropdown, setShowDropdown] = useState(false)
 	const { queuedTracks, isPlaying, isLoading, showAudioPlayer, storedPlaybackInfo } = useAppSelector((state) => state.audioPlayer)
 	const { showQueuedTrackList, playlist: currentPlaylist } = useAppSelector((state) => state.queuedTrackList)
 	const widths = playlist?.thumbnails?.map((thumbnail) => thumbnail.width) ?? []
@@ -34,6 +38,8 @@ export const PlaylistCardItem = ({playlist, imageHeight, imageWidth, children, i
     const [ triggerGetTracks, { data: tracksData, error: tracksError, isFetching: isFetchingTracks }] = useLazyGetPlaylistTracksQuery();
 	const { triggerLoadPlaylist } = useLoadPlaylist()
 	const id = useRef(uuidv4())
+	const dropdownRef = useRef<HTMLDivElement | null>(null)
+	const buttonRef = useRef<HTMLButtonElement | null>(null)
 
 	const onPressPlay = () => {
 		// need to get all the tracks for the playlist first when the button is clicked
@@ -70,6 +76,10 @@ export const PlaylistCardItem = ({playlist, imageHeight, imageWidth, children, i
 		}
 	}, [tracksData, isFetchingTracks])
 
+	useClickOutside(dropdownRef, () => {
+		setShowDropdown(false)
+	}, buttonRef)
+
 	return (
 		isHeader ? 
 			<div className = "flex flex-col gap-y-2">
@@ -86,7 +96,7 @@ export const PlaylistCardItem = ({playlist, imageHeight, imageWidth, children, i
 				</PlayableCard>
 			</div>
 			:
-			<div className = "flex flex-col gap-y-2">
+			<div className = "flex flex-col gap-y-2 relative">
 				<PlayableCard 
 					imageHeight={imageHeight} 
 					title={playlist?.title ?? ""}
@@ -120,14 +130,18 @@ export const PlaylistCardItem = ({playlist, imageHeight, imageWidth, children, i
 					    playButtonHeight: "h-6",
 					    imageURL: thumbnail?.url ?? "", 
 					    showPauseButton: isPlaying && currentPlaylist?.playlistId === playlist?.playlistId,
-					    showVerticalMenu: true,
-					    onPressVerticalMenu: () => {
-					    	console.log("pressed vertical menu")	
-					    }
+					    showVerticalMenu: () => (
+					    	<>
+                            	<button ref={buttonRef} onClick={() => {
+                            		setShowDropdown(!showDropdown)	
+                            	}} className = "absolute top-0 right-0 mr-0.5 mt-1"><IconVerticalMenu className = {"h-6 w-6 text-gray-300"}/></button>
+						    </>
+					    )
 					}}
 				>
 					{children}
 				</PlayableCard>
+				<PlaylistDropdown showDropdown={showDropdown} ref={dropdownRef} closeDropdown={() => {setShowDropdown(false)}} playlist={playlist} owned={playlist.owned}/>	
 			</div>
 	)
 }
