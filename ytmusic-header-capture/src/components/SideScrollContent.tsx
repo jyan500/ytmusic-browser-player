@@ -22,6 +22,7 @@ interface Props {
 	cardClickAction: () => void
 	playContent: () => void
 	linkableDescription?: React.ReactNode
+	showVerticalMenu?: () => React.ReactNode
 	showPauseButton: boolean
 	isCircular?: boolean
 }
@@ -35,6 +36,7 @@ export const SideScrollContent = ({
 	cardClickAction,
 	linkableDescription,
 	playContent,
+	showVerticalMenu,
 	isCircular=false,
 	showPauseButton,
 }: Props) => {
@@ -58,6 +60,7 @@ export const SideScrollContent = ({
 			    playButtonWidth: "w-6", 
 			    playButtonHeight: "h-6",
 			    imageURL: thumbnail?.url ?? "", 
+			    showVerticalMenu: showVerticalMenu,
 			    showPauseButton: showPauseButton,
 			} : undefined}
 		>

@@ -17,6 +17,10 @@ import { ArtistDescription } from "./ArtistDescription"
 import { AuthorDescription } from "./AuthorDescription"
 import { setCurrentCardId, setIsPlaying } from "../slices/audioPlayerSlice"
 import { v4 as uuidv4 } from "uuid"
+import { IconVerticalMenu } from "../icons/IconVerticalMenu"
+import { LoadingSpinner } from "./elements/LoadingSpinner"
+import { PlaylistDropdown } from "./dropdowns/PlaylistDropdown"
+import { TrackDropdown } from "./dropdowns/TrackDropdown"
 
 interface Props {
 	content: SuggestedContent
@@ -31,7 +35,11 @@ export const SuggestedSideScrollContent = ({content}: Props) => {
    const [ triggerGetRelatedTracks, { data: relatedTracksData, error: relatedTracksError, isFetching: isFetchingRelatedTracks }] = useLazyGetRelatedTracksQuery();
    const [ triggerGetWatchPlaylist, {data: watchPlaylistData, error: watchPlaylistError, isFetching: isWatchPlaylistFetching}] = useLazyGetWatchPlaylistQuery()
    const { triggerLoadPlaylist } = useLoadPlaylist()
+   const [ showDropdown, setShowDropdown ] = useState(false)
    const id = useRef(uuidv4())
+   const trackDropdownRef = useRef<HTMLDivElement | null>(null)
+   const playlistDropdownRef = useRef<HTMLDivElement | null>(null)
+   const buttonRef = useRef<HTMLButtonElement | null>(null)
 
 	const playContent = () => {
     	if ("videoId" in content){
@@ -121,6 +129,34 @@ export const SuggestedSideScrollContent = ({content}: Props) => {
 		return false 
 	}
 
+	const displayDropdown = () => {
+		if ("playlistId" in content || "audioPlaylistId" in content){
+			return (
+				<PlaylistDropdown/>
+			)
+		}	
+		else if ("videoId" in content){
+			return (
+				<TrackDropdown/>
+			)
+		}
+	}
+
+	const onVerticalMenuPress = () => {
+		if ("playlistId" in content || "audioPlaylistId" in content){
+			return (
+			)
+		}	
+		else if ("videoId" in content){
+			return (
+			)
+		}
+	}
+
+	const dropdownContentLoading = () => {
+		return true
+	}
+
 	const cardClickAction = () => {
     	// if it's a playlist, enter the playlist page
     	if ("subscribers" in content && "browseId" in content){
@@ -165,19 +201,34 @@ export const SuggestedSideScrollContent = ({content}: Props) => {
 	}, [watchPlaylistData, isWatchPlaylistFetching])
 
 	return (
-		<SideScrollContent 
-			id={id.current}
-			title={content.title ?? ""}
-			thumbnail={getThumbnail(content)}
-			description={getDescription()}
-			// if the subscribers key is present, this is an artist, which isn't a playable entity
-			canPlay={!("subscribers" in content)}
-			isCircular={"subscribers" in content}
-			cardClickAction={() => cardClickAction()}
-			playContent={() => playContent()}
-		   showPauseButton={shouldShowPauseButton()}
-		   linkableDescription={<LinkableDescription description={getLinkableDescription()}/>}
-		>
-		</SideScrollContent>
+		<div className = "relative">
+			<SideScrollContent 
+				id={id.current}
+				title={content.title ?? ""}
+				thumbnail={getThumbnail(content)}
+				description={getDescription()}
+				// if the subscribers key is present, this is an artist, which isn't a playable entity
+				canPlay={!("subscribers" in content)}
+				isCircular={"subscribers" in content}
+				cardClickAction={() => cardClickAction()}
+				playContent={() => playContent()}
+			   showPauseButton={shouldShowPauseButton()}
+			   linkableDescription={<LinkableDescription description={getLinkableDescription()}/>}
+			   showVerticalMenu={() => {
+			    	<>
+			    		{
+				    		!dropdownContentLoading ? <>
+	                	<button ref={buttonRef} onClick={() => {
+	                		// setShowDropdown(!showDropdown)	
+	                		// triggerGetPlaylist({playlistId: playlist.playlistId, params: {}}, true)
+	                		onVerticalMenuPress()	
+	                	}} className = "absolute top-0 right-0 mr-0.5 mt-1"><IconVerticalMenu className = {"h-6 w-6 text-gray-300"}/></button>
+	                	</> : <div className = "absolute top-0 right-0 mr-1 mt-1.5"><LoadingSpinner width={"w-4"} height={"h-4"}/></div>
+                  }
+				    </>
+			   }}
+			>
+			</SideScrollContent>
+		<div>
 	)
 }
