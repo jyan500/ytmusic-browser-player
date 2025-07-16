@@ -71,6 +71,7 @@ export const SuggestedContentGrid = ({content}: Props) => {
 					<HorizontalPlayableCard
 						title={sContent.title ?? ""}	
 						description={getArtists(sContent)}
+						content={sContent}
 						linkableDescription={<LinkableDescription description={getLinkableDescription(sContent)}/>}
 						cardOnClick={() => {}}
 						imagePlayButtonProps={

@@ -22,7 +22,8 @@ type Props = {
 	closeDropdown: () => void
 	showDropdown: boolean
 	owned?: boolean
-	playlist: TPlaylist,
+	playlist: TPlaylist
+	containsTracks?: boolean
 	displayAbove?: boolean
 }
 
@@ -32,6 +33,7 @@ export const PlaylistDropdown = React.forwardRef<HTMLDivElement, Props>(({
 	playlist,
 	showDropdown,
 	owned,
+	containsTracks=false,
 	displayAbove=false,
 }: Props, ref) => {
 	const dispatch = useAppDispatch()
@@ -42,7 +44,17 @@ export const PlaylistDropdown = React.forwardRef<HTMLDivElement, Props>(({
 	const prevLoading = usePrevious(isLoading)
 
 	const addToQueue = () => {
-		triggerGetTracks({playlistId: playlist.playlistId ?? "", params: {}})
+		if (!containsTracks){
+			triggerGetTracks({playlistId: playlist.playlistId ?? "", params: {}})
+		}
+		else {
+			triggerQueuePlaylist(playlist, playlist.tracks)
+			dispatch(addToast({
+				id: uuidv4(),
+				message: "Playlist added to queue",
+				animationType: "animation-in"
+			}))
+		}
 	}
 
 	useEffect(() => {
