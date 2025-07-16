@@ -24,6 +24,7 @@ interface Props {
 	linkableDescription?: React.ReactNode
 	showVerticalMenu?: () => React.ReactNode
 	displayDropdown?: () => React.ReactNode
+	dropdownContentFinishedLoading?: boolean
 	showPauseButton: boolean
 	isCircular?: boolean
 }
@@ -39,6 +40,7 @@ export const SideScrollContent = ({
 	playContent,
 	showVerticalMenu,
 	displayDropdown,
+	dropdownContentFinishedLoading,
 	isCircular=false,
 	showPauseButton,
 }: Props) => {
@@ -64,6 +66,7 @@ export const SideScrollContent = ({
 				    playButtonHeight: "h-6",
 				    imageURL: thumbnail?.url ?? "", 
 				    showVerticalMenu: showVerticalMenu,
+				    dropdownContentFinishedLoading: dropdownContentFinishedLoading,
 				    showPauseButton: showPauseButton,
 				} : undefined}
 			>

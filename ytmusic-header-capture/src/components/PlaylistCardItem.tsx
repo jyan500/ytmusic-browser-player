@@ -132,6 +132,7 @@ export const PlaylistCardItem = ({playlist, imageHeight, imageWidth, children, i
 					    playButtonHeight: "h-6",
 					    imageURL: thumbnail?.url ?? "", 
 					    showPauseButton: isPlaying && currentPlaylist?.playlistId === playlist?.playlistId,
+					    dropdownContentFinishedLoading: !isPlaylistFetching,
 					    showVerticalMenu: () => (
 					    	<>
 					    		{

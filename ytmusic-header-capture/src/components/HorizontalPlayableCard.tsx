@@ -59,7 +59,6 @@ export const HorizontalPlayableCard = ({
 								onPress={imagePlayButtonProps?.onPress}
 								imageURL={imagePlayButtonProps?.imageURL}
 								showPauseButton={imagePlayButtonProps?.showPauseButton}
-
 							/> : null 
 						}
 					</div>
@@ -76,7 +75,7 @@ export const HorizontalPlayableCard = ({
                         	videoId: content?.videoId ?? "",
                         })
                     }
-                    } className="hover:opacity-60 invisible group-hover:visible absolute">
+                    } className={`hover:opacity-60 ${!isFetching ? "invisible group-hover:visible" : ""} absolute`}>
                         {isFetching ? <LoadingSpinner width={"w-3"} height={"h-3"}/> : <IconVerticalMenu/>}
                     </button>
                     {

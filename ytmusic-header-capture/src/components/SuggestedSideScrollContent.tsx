@@ -186,6 +186,7 @@ export const SuggestedSideScrollContent = ({content}: Props) => {
 		if ("playlistId" in content || "audioPlaylistId" in content){
 			return !isPlaylistFetching
 		}
+		return false
 	}
 
 	const cardClickAction = () => {
@@ -257,6 +258,7 @@ export const SuggestedSideScrollContent = ({content}: Props) => {
 		   showPauseButton={shouldShowPauseButton()}
 		   linkableDescription={<LinkableDescription description={getLinkableDescription()}/>}
 		   displayDropdown={() => displayDropdown()}
+		   dropdownContentFinishedLoading={!isPlaylistFetching}
 		   showVerticalMenu={() => {
 		   	return (
 			    	<>
