@@ -157,8 +157,6 @@ export const SuggestedSideScrollContent = ({content}: Props) => {
 				count: playlistData.trackCount,
 			}
 		}
-		console.log("useWatchPlaylist: ", useWatchPlaylist)
-		console.log("usePlaylist: ", usePlaylist)
 		if (useWatchPlaylist || usePlaylist){
 			return <PlaylistDropdown ref={playlistDropdownRef} showDropdown={showDropdown} playlist={playlistForDropdown} owned={usePlaylist ? playlistData.owned : false} closeDropdown={() => setShowDropdown(false)} />
 		}
