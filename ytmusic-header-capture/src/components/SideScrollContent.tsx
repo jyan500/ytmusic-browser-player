@@ -22,6 +22,9 @@ interface Props {
 	cardClickAction: () => void
 	playContent: () => void
 	linkableDescription?: React.ReactNode
+	showVerticalMenu?: () => React.ReactNode
+	displayDropdown?: () => React.ReactNode
+	dropdownContentFinishedLoading?: boolean
 	showPauseButton: boolean
 	isCircular?: boolean
 }
@@ -35,32 +38,40 @@ export const SideScrollContent = ({
 	cardClickAction,
 	linkableDescription,
 	playContent,
+	showVerticalMenu,
+	displayDropdown,
+	dropdownContentFinishedLoading,
 	isCircular=false,
 	showPauseButton,
 }: Props) => {
 	return (
-		<PlayableCard 
-			imageHeight={"h-32"}
-			imageWidth={"w-32"}
-			title={title}
-			thumbnail={thumbnail}
-			description={description}
-			isCircular={isCircular}
-			isHeader={false}
-			canPlay={canPlay}
-			cardOnClick={cardClickAction}
-			linkableDescription={linkableDescription}
-			imagePlayButtonProps={canPlay ? {
-				id:id,
-				onPress: playContent,
-				imageHeight: "h-32", 
-			    imageWidth: "w-32",
-			    playButtonWidth: "w-6", 
-			    playButtonHeight: "h-6",
-			    imageURL: thumbnail?.url ?? "", 
-			    showPauseButton: showPauseButton,
-			} : undefined}
-		>
-		</PlayableCard>
+		<div className = "flex flex-col gap-y-2 relative">
+			<PlayableCard 
+				imageHeight={"h-32"}
+				imageWidth={"w-32"}
+				title={title}
+				thumbnail={thumbnail}
+				description={description}
+				isCircular={isCircular}
+				isHeader={false}
+				canPlay={canPlay}
+				cardOnClick={cardClickAction}
+				linkableDescription={linkableDescription}
+				imagePlayButtonProps={canPlay ? {
+					id:id,
+					onPress: playContent,
+					imageHeight: "h-32", 
+				    imageWidth: "w-32",
+				    playButtonWidth: "w-6", 
+				    playButtonHeight: "h-6",
+				    imageURL: thumbnail?.url ?? "", 
+				    showVerticalMenu: showVerticalMenu,
+				    dropdownContentFinishedLoading: dropdownContentFinishedLoading,
+				    showPauseButton: showPauseButton,
+				} : undefined}
+			>
+			</PlayableCard>
+			{displayDropdown ? displayDropdown() : null}
+		</div>
 	)
 }

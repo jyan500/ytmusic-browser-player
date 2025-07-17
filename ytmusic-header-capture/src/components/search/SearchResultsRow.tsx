@@ -17,6 +17,7 @@ import { useLoadPlaylist } from "../../hooks/useLoadPlaylist"
 import { useLazyGetPlaylistTracksQuery, useLazyGetWatchPlaylistQuery } from "../../services/private/playlists"
 import { setIsPlaying, setCurrentCardId } from "../../slices/audioPlayerSlice"
 import { v4 as uuidv4 } from "uuid"
+import { LoadingSpinner } from "../elements/LoadingSpinner"
 
 interface Props {
     data: SearchContent 
@@ -46,6 +47,8 @@ export const SearchResultsRow = ({
 
     const [ triggerGetWatchPlaylist, {data: watchPlaylistData, error: watchPlaylistError, isFetching: isWatchPlaylistFetching}] = useLazyGetWatchPlaylistQuery()
     const [ triggerGetTracks, { data: tracksData, error: tracksError, isFetching: isFetchingTracks }] = useLazyGetPlaylistTracksQuery();
+    const [ triggerGetWatchPlaylistWithoutLoad, { data: watchPlaylistWithoutLoadData, error: watchPlaylistWithoutLoadError, isFetching: isWatchPlaylistWithoutLoadFetching}] = useLazyGetWatchPlaylistQuery()
+    const [ triggerGetTracksWithoutLoad, { data: tracksWithoutLoadData, error: tracksWithoutLoadError, isFetching: isFetchingTracksWithoutLoad }] = useLazyGetPlaylistTracksQuery()
     const {triggerLoadPlaylist} = useLoadPlaylist()
 
     useEffect(() => {
@@ -71,6 +74,7 @@ export const SearchResultsRow = ({
             } as TPlaylist, watchPlaylistData.tracks, false)
         }
     }, [watchPlaylistData, isWatchPlaylistFetching])
+
 
     const showPauseButton = () => {
         if ("playlistId" in data){
@@ -109,7 +113,7 @@ export const SearchResultsRow = ({
         }
         return (
             <div className = "flex flex-row gap-x-2">
-                <p className = {`text-sm text-gray-300 truncate overflow-hidden`}>
+                <p className = {`text-sm line-clamp-3 text-gray-300 truncate overflow-hidden`}>
                     {component}
                 </p>
             </div>
@@ -156,6 +160,51 @@ export const SearchResultsRow = ({
         )
     }
 
+    const loadDropdownContent = () => {
+        if ("videoId" in data){
+            triggerGetWatchPlaylistWithoutLoad({videoId: data.videoId ?? ""})
+        } 
+        if (data.resultType === "album" || data.resultType === "playlist"){
+            const playlistId = data.resultType === "playlist" ? (data.browseId ?? "") : (data.playlistId ?? "")
+            triggerGetTracksWithoutLoad({playlistId: playlistId, params: {}})
+        }
+        return
+    }
+
+    const canDropdownDisplay = () => {
+        if ("videoId" in data){
+            return !isWatchPlaylistWithoutLoadFetching
+        }
+        else if (data.resultType === "album" || data.resultType === "playlist"){
+            return !isFetchingTracksWithoutLoad
+        }
+        return false
+    }
+
+    const constructPlaylistForDropdown = () => {
+        if ((data.resultType === "playlist" || data.resultType === "album") && !isFetchingTracksWithoutLoad && tracksWithoutLoadData){
+            // include the playlistId as audioPlaylistId for album playlists
+            return {
+                ...data,
+                playlistId: data.resultType === "album" ? data.playlistId : data.browseId,
+                tracks: tracksWithoutLoadData,
+            } as TPlaylist
+        }
+
+        if ("videoId" in data && !isWatchPlaylistWithoutLoadFetching && watchPlaylistWithoutLoadData){
+            // don't need to load further suggested tracks
+            return {
+                playlistId: watchPlaylistWithoutLoadData.playlistId,   
+                thumbnails: [],
+                title: watchPlaylistWithoutLoadData.title,
+                count: watchPlaylistWithoutLoadData.tracks.length,
+                description: "",
+                tracks: watchPlaylistWithoutLoadData.tracks
+            } as TPlaylist
+        }
+        return {} as TPlaylist
+    }
+
     const triggerLoadContent = () => {
         if ("videoId" in data){
             if (currentTrack?.videoId === data.videoId){
@@ -174,8 +223,8 @@ export const SearchResultsRow = ({
                 dispatch(setIsPlaying(!isPlaying)) 
             }
             else {
-                const id = data.resultType === "playlist" ? (data.browseId ?? "") : (data.playlistId ?? "")
-                triggerGetTracks({playlistId: id, params: {}})
+                const playlistId = data.resultType === "playlist" ? (data.browseId ?? "") : (data.playlistId ?? "")
+                triggerGetTracks({playlistId: playlistId, params: {}})
             }
             dispatch(setCurrentCardId(id.current))
             return
@@ -200,40 +249,51 @@ export const SearchResultsRow = ({
             key={key} 
             className={`relative hover:cursor-pointer group flex flex-row justify-between items-center`}>
                 <div className = "flex flex-row gap-x-2">
-                    {
-                        canPlay ? (
-                            <ImagePlayButton 
-                                id={id.current}
-                                playButtonWidth={"w-6"}
-                                playButtonHeight={"h-6"}
-                                imageWidth={"w-24"}
-                                imageHeight={"h-16"}
-                                isAvailable={true}
-                                showPauseButton={showPauseButton()}
-                                onPress={() => triggerLoadContent()}
-                                imageURL={thumbnail}
-                            />        
-                        ) : (
-                            <button onClick={() => triggerLoadContent()} className = "hover:opacity-60 w-24 h-16">
-                                <img loading="lazy" className={`w-full h-full object-fill`} src = {thumbnail}/>
-                            </button>
-                        ) 
-                    }
+                    <div className = "w-24 h-16">
+                        {
+                            canPlay ? (
+                                <ImagePlayButton 
+                                    id={id.current}
+                                    playButtonWidth={"w-6"}
+                                    playButtonHeight={"h-6"}
+                                    imageWidth={"w-24"}
+                                    imageHeight={"h-16"}
+                                    isAvailable={true}
+                                    showPauseButton={showPauseButton()}
+                                    onPress={() => triggerLoadContent()}
+                                    imageURL={thumbnail}
+                                />        
+                            ) : (
+                                <button onClick={() => triggerLoadContent()} className = "hover:opacity-60 w-24 h-16">
+                                    <img loading="lazy" className={`w-full h-full object-fill`} src = {thumbnail}/>
+                                </button>
+                            ) 
+                        }
+                    </div>
                     <div className = "py-1 flex flex-col gap-y-2 items-start w-4/6">
                         {rowContent()}
                     </div>
                 </div>
                 {
-                    "videoId" in data ? 
+                    "videoId" in data || data.resultType === "album" || data.resultType === "playlist" ? 
                     <div className = "relative pr-2 w-12 flex-shrink-0 flex justify-end items-center">
-                        <p className = {`absolute ${showDropdown ? "invisible" : "group-hover:invisible"}`}>{data?.duration ?? ""}</p>
+                        <p className = {`absolute ${showDropdown || (isFetchingTracksWithoutLoad || isWatchPlaylistWithoutLoadFetching) ? "invisible" : "group-hover:invisible"}`}>{data?.duration ?? ""}</p>
                         <button ref={buttonRef} onClick={() => {
-                            setShowDropdown(!showDropdown)}
-                        } className="hover:opacity-60 invisible group-hover:visible absolute">
-                            <IconVerticalMenu/>
+                            setShowDropdown(!showDropdown)
+                            loadDropdownContent()
+                        }} className={`hover:opacity-60 ${!isWatchPlaylistWithoutLoadFetching && !isFetchingTracksWithoutLoad ? "invisible group-hover:visible" : ""} absolute`}>
+                            {isWatchPlaylistWithoutLoadFetching || isFetchingTracksWithoutLoad ? <LoadingSpinner width={"w-3"} height={"h-3"}/> : <IconVerticalMenu/>}
                         </button>
                         {
-    	                    <SearchResultsDropdown showDropdown={showDropdown} videoId={data.videoId ?? ""} ref={menuDropdownRef} closeDropdown={() => setShowDropdown(false)}/>
+                            canDropdownDisplay() ? 
+    	                    <SearchResultsDropdown 
+                                showDropdown={showDropdown} 
+                                videoId={data.videoId ?? ""} 
+                                ref={menuDropdownRef} 
+                                closeDropdown={() => setShowDropdown(false)}
+                                playlist={constructPlaylistForDropdown()}
+                            />
+                            : null
     	                }
                     </div> : null
                 }

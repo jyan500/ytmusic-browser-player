@@ -16,12 +16,14 @@ import { useQueuePlaylist } from "../../hooks/useQueuePlaylist"
 import { useLazyGetPlaylistTracksQuery } from "../../services/private/playlists"
 import { usePrevious } from "../../hooks/usePrevious"
 import { PLAYLIST_DROPDOWN_Z_INDEX } from "../../helpers/constants"
+import { IconEdit } from "../../icons/IconEdit"
 
 type Props = {
 	closeDropdown: () => void
 	showDropdown: boolean
 	owned?: boolean
-	playlist: TPlaylist,
+	playlist: TPlaylist
+	containsTracks?: boolean
 	displayAbove?: boolean
 }
 
@@ -31,6 +33,7 @@ export const PlaylistDropdown = React.forwardRef<HTMLDivElement, Props>(({
 	playlist,
 	showDropdown,
 	owned,
+	containsTracks=false,
 	displayAbove=false,
 }: Props, ref) => {
 	const dispatch = useAppDispatch()
@@ -41,7 +44,17 @@ export const PlaylistDropdown = React.forwardRef<HTMLDivElement, Props>(({
 	const prevLoading = usePrevious(isLoading)
 
 	const addToQueue = () => {
-		triggerGetTracks({playlistId: playlist.playlistId ?? "", params: {}})
+		if (!containsTracks){
+			triggerGetTracks({playlistId: playlist.playlistId ?? "", params: {}})
+		}
+		else {
+			triggerQueuePlaylist(playlist, playlist.tracks)
+			dispatch(addToast({
+				id: uuidv4(),
+				message: "Playlist added to queue",
+				animationType: "animation-in"
+			}))
+		}
 	}
 
 	useEffect(() => {
@@ -77,6 +90,16 @@ export const PlaylistDropdown = React.forwardRef<HTMLDivElement, Props>(({
 				addToQueue()
 			}
 		},
+		...(owned ? {"edit-playlist": {
+			text: "Edit Playlist",
+			icon: <IconEdit/>,
+			onClick: () => {
+				closeDropdown()
+				dispatch(setModalType("add-edit-playlist"))
+				dispatch(setIsOpen(true))
+				dispatch(setModalProps({playlistId: playlist.playlistId}))
+			},
+		}} : {}),
 		...(owned ? {"delete-playlist": {
 			text: "Delete playlist",
 			icon: <IconTrash/>,

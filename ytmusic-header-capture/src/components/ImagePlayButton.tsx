@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React, { useState, useEffect } from "react"
 import { useAppSelector } from "../hooks/redux-hooks"
 import { IconPause } from "../icons/IconPause"
 import { IconPlay } from "../icons/IconPlay"
@@ -17,8 +17,8 @@ export interface Props {
     imageURL: string
     onPress: () => void
     showPauseButton: boolean
-    showVerticalMenu?: boolean
-    onPressVerticalMenu?: () => void
+    dropdownContentFinishedLoading?: boolean
+    showVerticalMenu?: () => React.ReactNode
 }
 
 export const ImagePlayButton = ({
@@ -31,8 +31,8 @@ export const ImagePlayButton = ({
     imageURL, 
     onPress, 
     showPauseButton,
+    dropdownContentFinishedLoading=true,
     showVerticalMenu,
-    onPressVerticalMenu,
 }: Props) => {
     const { currentCardId, isLoading } = useAppSelector((state) => state.audioPlayer)
 
@@ -58,12 +58,13 @@ export const ImagePlayButton = ({
                 </div>
             ) : (
                 isAvailable ? 
-                    <div className = "absolute flex justify-center items-center inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-in-out">
-                        { centerDisplay() }
+                    <div className = {`absolute flex justify-center items-center inset-0 ${dropdownContentFinishedLoading ? "bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-in-out" : "opacity-100"}`}>
+                        { dropdownContentFinishedLoading ? centerDisplay() : null }
                         {
-                            showVerticalMenu && onPressVerticalMenu ? 
-                            <button onClick={onPressVerticalMenu} className = "absolute top-0 right-0 mr-0.5 mt-1"><IconVerticalMenu className = {"h-6 w-6 text-gray-300"}/></button>
-                            : null
+                            // showVerticalMenu && onPressVerticalMenu ? 
+                            // <button onClick={onPressVerticalMenu} className = "absolute top-0 right-0 mr-0.5 mt-1"><IconVerticalMenu className = {"h-6 w-6 text-gray-300"}/></button>
+                            // : null
+                            showVerticalMenu ? showVerticalMenu() : null
                         }
                     </div>
                 : null
