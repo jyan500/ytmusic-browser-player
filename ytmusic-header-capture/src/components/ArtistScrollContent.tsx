@@ -1,9 +1,9 @@
-import React, { useRef, useEffect } from "react"
+import React, { useRef, useState, useEffect } from "react"
 import { useAppDispatch, useAppSelector } from "../hooks/redux-hooks"
 import { ContainsArtists, ArtistContent, OptionType, Playlist as TPlaylist, Track } from "../types/common"
 import { PlayableCard } from "./PlayableCard"
 import { goTo } from "react-chrome-extension-router"
-import { useLazyGetWatchPlaylistQuery, useLazyGetPlaylistTracksQuery } from "../services/private/playlists"
+import { useLazyGetWatchPlaylistQuery, useLazyGetPlaylistTracksQuery, useLazyGetPlaylistQuery } from "../services/private/playlists"
 import { useLazyGetRelatedTracksQuery } from "../services/private/songs"
 import { useLazyGetAlbumQuery } from "../services/private/albums"
 import { useLoadTrack } from "../hooks/useLoadTrack"
@@ -16,6 +16,10 @@ import { SideScrollContent } from "./SideScrollContent"
 import { LinkableDescription } from "./LinkableDescription"
 import { ArtistDescription } from "./ArtistDescription"
 import { setCurrentCardId } from "../slices/audioPlayerSlice"
+import { IconVerticalMenu } from "../icons/IconVerticalMenu"
+import { LoadingSpinner } from "./elements/LoadingSpinner"
+import { PlaylistDropdown } from "./dropdowns/PlaylistDropdown"
+import { useClickOutside } from "../hooks/useClickOutside"
 import { v4 as uuidv4 } from "uuid"
 
 interface Props {
@@ -29,9 +33,17 @@ export const ArtistScrollContent = ({content}: Props) => {
     const [ triggerGetTracks, { data: tracksData, error: tracksError, isFetching: isFetchingTracks }] = useLazyGetPlaylistTracksQuery();
     const [ triggerGetRelatedTracks, { data: relatedTracksData, error: relatedTracksError, isFetching: isFetchingRelatedTracks }] = useLazyGetRelatedTracksQuery();
     const [ triggerGetWatchPlaylist, {data: watchPlaylistData, error: watchPlaylistError, isFetching: isWatchPlaylistFetching}] = useLazyGetWatchPlaylistQuery()
+    const [ triggerGetWatchPlaylistWithoutLoad, {data: watchPlaylistWithoutLoadData, error: watchPlaylistWithoutLoadError, isFetching: isWatchPlaylistWithoutLoadFetching}] = useLazyGetWatchPlaylistQuery()
     const [ triggerGetAlbum, {data: albumData, error: albumError, isFetching: isAlbumFetching } ] = useLazyGetAlbumQuery()
+    const [ triggerGetAlbumWithoutLoad, {data: albumDataWithoutLoad, error: albumErrorWithoutLoad, isFetching: isAlbumFetchingWithoutLoad } ] = useLazyGetAlbumQuery()
+    const [ triggerGetPlaylist, { data: playlistData, error: playlistError, isFetching: isPlaylistFetching}] = useLazyGetPlaylistQuery()
     const { triggerLoadPlaylist } = useLoadPlaylist()
     const id = useRef(uuidv4())
+    const [ showDropdown, setShowDropdown ] = useState(false)
+	const playlistDropdownRef = useRef<HTMLDivElement | null>(null)
+	const buttonRef = useRef<HTMLButtonElement | null>(null)
+
+    useClickOutside(playlistDropdownRef, () => { setShowDropdown(false) }, buttonRef)
 
 	const playContent = () => {
 		if ("browseId" in content){
@@ -131,6 +143,80 @@ export const ArtistScrollContent = ({content}: Props) => {
 		}
 	}, [watchPlaylistData, isWatchPlaylistFetching])
 
+	const displayDropdown = () => {
+		const useWatchPlaylist = "videoId" in content && !isWatchPlaylistWithoutLoadFetching && watchPlaylistWithoutLoadData != null
+		const usePlaylist = ("playlistId" in content || "audioPlaylistId" in content) && !isPlaylistFetching && playlistData != null
+		const useAlbum = ("browseId" in content && !("subscribers" in content)) && !isAlbumFetchingWithoutLoad && albumDataWithoutLoad != null
+		let playlistForDropdown = {} as TPlaylist
+		if (useWatchPlaylist){
+			playlistForDropdown = {
+				playlistId:  watchPlaylistWithoutLoadData.playlistId,	
+				thumbnails: [],
+				title:  watchPlaylistWithoutLoadData.title,
+				count:  watchPlaylistWithoutLoadData.tracks.length,
+				description: "",
+				tracks:  watchPlaylistWithoutLoadData.tracks
+			} as TPlaylist
+		}
+		else if (usePlaylist){
+			playlistForDropdown = {
+				...playlistData,	
+				author: [{id: "", name: playlistData.author} as OptionType],
+				playlistId: playlistData.id,
+				count: playlistData.trackCount,
+			}
+		}
+		else if (useAlbum){
+			playlistForDropdown = {
+				playlistId: albumDataWithoutLoad.audioPlaylistId,
+				title: albumDataWithoutLoad.title,
+				author: albumDataWithoutLoad.artists,
+				description: albumDataWithoutLoad.description,
+				thumbnails: albumDataWithoutLoad.thumbnails,
+				count: albumDataWithoutLoad.trackCount,
+				owned: false,
+				tracks: albumDataWithoutLoad.tracks,
+			} as TPlaylist	
+		}
+		if (useWatchPlaylist || usePlaylist || useAlbum){
+			return <PlaylistDropdown ref={playlistDropdownRef} showDropdown={showDropdown} playlist={playlistForDropdown} owned={usePlaylist ? playlistData.owned : false} closeDropdown={() => setShowDropdown(false)} />
+		}
+		return null
+	}
+
+	const onVerticalMenuPress = () => {
+		if ("videoId" in content){
+			// to avoid accidentally loading the playlist into playback, use a different trigger that makes a call to the same endpoint
+			triggerGetWatchPlaylistWithoutLoad({
+				videoId: content?.videoId ?? "",
+			}, true)
+		}
+		else if ("playlistId" in content || "audioPlaylistId" in content){
+			triggerGetPlaylist({
+				playlistId: "audioPlaylistId" in content ? (content?.audioPlaylistId ?? "") : (content?.playlistId ?? ""), 
+				params: {}}, 
+			true)
+		}	
+		else if ("browseId" in content && !("subscribers" in content)){
+			triggerGetAlbumWithoutLoad(content?.browseId ?? "")
+		}
+		return
+	}
+
+	const dropdownContentFinishedLoading = () => {
+		if ("videoId" in content){
+			return !isWatchPlaylistWithoutLoadFetching
+		}
+		else if ("playlistId" in content || "audioPlaylistId" in content){
+			return !isPlaylistFetching
+		}
+		else if ("browseId" in content && !("subscribers" in content)){
+			return !isAlbumFetchingWithoutLoad
+		}
+		return false
+	}
+
+
 	useEffect(() => {
 		if (albumData && !isAlbumFetching){
 			triggerGetTracks({playlistId: albumData.audioPlaylistId, params: {}})
@@ -150,6 +236,23 @@ export const ArtistScrollContent = ({content}: Props) => {
 			playContent={() => playContent()}
 			linkableDescription={<LinkableDescription description={getLinkableDescription()}/>}
 			showPauseButton={shouldShowPauseButton()}
+			displayDropdown={() => displayDropdown()}
+		    dropdownContentFinishedLoading={dropdownContentFinishedLoading()}
+		    showVerticalMenu={() => {
+			   	return (
+				    <>
+			    		{
+				    		dropdownContentFinishedLoading() ? <>
+		                	<button ref={buttonRef} onClick={() => {
+		                		setShowDropdown(!showDropdown)	
+		                		// triggerGetPlaylist({playlistId: playlist.playlistId, params: {}}, true)
+		                		onVerticalMenuPress()	
+		                	}} className = "absolute top-0 right-0 mr-0.5 mt-1"><IconVerticalMenu className = {"h-6 w-6 text-gray-300"}/></button>
+		                	</> : <div className = "absolute top-0 right-0 mr-1 mt-1.5"><LoadingSpinner width={"w-4"} height={"h-4"}/></div>
+		                }
+					</>
+			   )
+		    }}
 		>
 		</SideScrollContent>
 	)

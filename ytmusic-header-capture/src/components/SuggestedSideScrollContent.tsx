@@ -40,11 +40,9 @@ export const SuggestedSideScrollContent = ({content}: Props) => {
    const { triggerLoadPlaylist } = useLoadPlaylist()
    const [ showDropdown, setShowDropdown ] = useState(false)
    const id = useRef(uuidv4())
-   const trackDropdownRef = useRef<HTMLDivElement | null>(null)
    const playlistDropdownRef = useRef<HTMLDivElement | null>(null)
    const buttonRef = useRef<HTMLButtonElement | null>(null)
 
-   useClickOutside(trackDropdownRef, () => { setShowDropdown(false) }, buttonRef)
    useClickOutside(playlistDropdownRef, () => { setShowDropdown(false) }, buttonRef)
 
 	const playContent = () => {
@@ -258,7 +256,7 @@ export const SuggestedSideScrollContent = ({content}: Props) => {
 		   showPauseButton={shouldShowPauseButton()}
 		   linkableDescription={<LinkableDescription description={getLinkableDescription()}/>}
 		   displayDropdown={() => displayDropdown()}
-		   dropdownContentFinishedLoading={!isPlaylistFetching}
+		   dropdownContentFinishedLoading={dropdownContentFinishedLoading()}
 		   showVerticalMenu={() => {
 		   	return (
 			    	<>
