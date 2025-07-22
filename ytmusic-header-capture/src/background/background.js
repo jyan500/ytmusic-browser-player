@@ -22,7 +22,7 @@ chrome.webRequest.onSendHeaders.addListener(
         }
         chrome.storage.local.set({ ytMusicHeaders: relevant });
     },
-    { urls: ["https://music.youtube.com/youtubei/v1/browse*"] },
+    { urls: ["https://music.youtube.com/youtubei/v1/browse?ctoken=*"] },
     ["requestHeaders", "extraHeaders"]
 );
 
@@ -46,7 +46,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
             tabs.forEach((tab) => {
                 if (tab.id !== undefined) {
-                    chrome.tabs.reload(tab.id);
+                    chrome.tabs.update(tab.id, { url: "https://music.youtube.com/library" });;
                 }
             });
 

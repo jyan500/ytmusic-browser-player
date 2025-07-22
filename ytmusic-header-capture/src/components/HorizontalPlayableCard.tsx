@@ -6,8 +6,10 @@ import { IconVerticalMenu } from "../icons/IconVerticalMenu"
 import { useLazyGetWatchPlaylistQuery } from "../services/private/playlists"
 import { PlaylistDropdown } from "./dropdowns/PlaylistDropdown"
 import { LoadingSpinner } from "./elements/LoadingSpinner"
+import { useAppSelector } from "../hooks/redux-hooks"
 
 interface HorizontalPlayableCardProps {
+	id: string
 	title: string
 	description: string
 	content: SuggestedContent
@@ -17,6 +19,7 @@ interface HorizontalPlayableCardProps {
 }
 
 export const HorizontalPlayableCard = ({
+	id, 
 	title,
 	description,
 	linkableDescription,
@@ -25,6 +28,7 @@ export const HorizontalPlayableCard = ({
 	imagePlayButtonProps,
 }: HorizontalPlayableCardProps) => {
 	const [showDropdown, setShowDropdown] = useState(false)	
+	const { currentCardId } = useAppSelector((state) => state.audioPlayer)
 	const [ triggerGetWatchPlaylist, { data, isError, isFetching }] = useLazyGetWatchPlaylistQuery()
 	const buttonRef = useRef<HTMLButtonElement | null>(null)
 	const dropdownRef = useRef<HTMLDivElement | null>(null)
@@ -76,7 +80,7 @@ export const HorizontalPlayableCard = ({
                         })
                     }
                     } className={`hover:opacity-60 ${!isFetching ? "invisible group-hover:visible" : ""} absolute`}>
-                        {isFetching ? <LoadingSpinner width={"w-3"} height={"h-3"}/> : <IconVerticalMenu/>}
+                        {currentCardId !== id ? (isFetching ? <LoadingSpinner width={"w-3"} height={"h-3"}/> : <IconVerticalMenu/>) : <></>}
                     </button>
                     {
                     	!isFetching && data ? 

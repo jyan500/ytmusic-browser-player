@@ -69,6 +69,7 @@ export const SuggestedContentGrid = ({content}: Props) => {
 				const id = `suggested-content-grid-card-${index}` 
 				return (
 					<HorizontalPlayableCard
+						id={id}
 						title={sContent.title ?? ""}	
 						description={getArtists(sContent)}
 						content={sContent}

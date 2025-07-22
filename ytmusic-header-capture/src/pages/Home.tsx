@@ -30,7 +30,7 @@ export const Home = () => {
 		if (getHomeError){
 			dispatch(logout())
 			// refresh the youtube music tab to trigger re-authentication
-			chrome.runtime.sendMessage({ type: "refresh-music-youtube-tabs" })
+			// chrome.runtime.sendMessage({ type: "refresh-music-youtube-tabs" })
 		}
 	}, [getHomeError])
 
@@ -50,7 +50,7 @@ export const Home = () => {
         return () => {
             chrome.runtime.onMessage.removeListener(listener);
         }
-	}, [])
+	}, [headers])
 
 	useEffect(() => {
 		if (!isLoading && !error && headers && userProfile){
@@ -58,10 +58,10 @@ export const Home = () => {
 		}
 	}, [isLoading, headers, userProfile])
 
-	const loginAttempt = async (headers: string) => {
-		const response = await login({headers}).unwrap()
+	const loginAttempt = async (headerString: string) => {
+		const response = await login({headers: headerString}).unwrap()
 		if (response){
-			dispatch(setCredentials({headers}))
+			dispatch(setCredentials({headers: headerString}))
 			dispatch(setUserProfile({userProfile: {
 				accountName: response.accountName,
 			    channelHandle: response.channelHandle,
@@ -77,8 +77,6 @@ export const Home = () => {
 				return
 			}
 			catch (e){
-				// if the login fails, clear out the headers as they are likely expired
-				dispatch(logout())
 			}
 		}
 		if (fallbackHeaders?.ytMusicHeaders){
@@ -88,6 +86,8 @@ export const Home = () => {
 				return
 			}
 			catch (e){
+				// if the login fails, clear out the headers as they are likely expired
+				dispatch(logout())
 			}
 		}
 		dispatch(addToast({
