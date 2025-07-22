@@ -22,7 +22,7 @@ chrome.webRequest.onSendHeaders.addListener(
         }
         chrome.storage.local.set({ ytMusicHeaders: relevant });
     },
-    { urls: ["https://music.youtube.com/youtubei/v1/browse*"] },
+    { urls: ["https://music.youtube.com/youtubei/v1/browse?ctoken=*"] },
     ["requestHeaders", "extraHeaders"]
 );
 
@@ -46,7 +46,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
             tabs.forEach((tab) => {
                 if (tab.id !== undefined) {
-                    chrome.tabs.reload(tab.id);
+                    chrome.tabs.update(tab.id, { url: "https://music.youtube.com/library" });;
                 }
             });
 
@@ -61,6 +61,9 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
     if (changeInfo.status === "complete" && tab.url?.startsWith("https://music.youtube.com")) {
         const headers = tabHeaders[tabId];
+        console.log("changeInfo: ", changeInfo.status)
+        console.log("tab: ", tab)
+        console.log("headers: ", headers)
         if (headers) {
             chrome.storage.local.set({ ytMusicHeaders: headers });
             delete tabHeaders[tabId]; // cleanup
