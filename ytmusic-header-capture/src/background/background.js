@@ -79,6 +79,19 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
 // store the id so that when the window closes, we can stop the background audio
 let extensionWindowId = null
 chrome.action.onClicked.addListener((tab) => {
+    // if there's already a window present with the popup,
+    // focus it instead of opening a new one
+    chrome.windows.getAll({populate: true}, (windows) => {
+        for (const window of windows){
+            for (const tab of window.tabs){
+                if (tab.url === POPUP_PATH){
+                    chrome.windows.update(window.id, {focused: true})
+                    return
+                }
+            }
+        }
+    })
+
     chrome.windows.create({
         url: chrome.runtime.getURL(POPUP_PATH),
         type: 'popup',

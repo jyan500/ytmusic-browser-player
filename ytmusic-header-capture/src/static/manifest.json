@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "YT Music Header Capture",
+  "name": "YT Music Player",
   "version": "1.0",
-  "description": "Collects request headers for music.youtube.com",
+  "description": "Play music from your youtube music account",
   "permissions": [
     "webRequest",
     "offscreen",
@@ -10,6 +10,7 @@
     "scripting",
     "unlimitedStorage"
   ],
+
   "host_permissions": [
     "https://music.youtube.com/*",
     "http://localhost:5001/*"
@@ -19,6 +20,9 @@
   },
   "action": {
     // "default_popup": "popup.html",
-    "default_title": "YT Music Headers"
+    "default_title": "YT Music Player",
+    "default_icon": {
+      "144": "favicon.ico"
+    }
   }
 }

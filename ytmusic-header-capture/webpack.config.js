@@ -34,6 +34,13 @@ module.exports = {
                     "postcss-loader",
                 ]
             },
+            {
+                test: /\.ico$/,
+                type: 'asset/resource', // Webpack 5 way to handle assets
+                generator: {
+                    filename: '[name][ext][query]' // Optional: customize output filename
+                }
+            },
         ],
     },
     plugins: [
@@ -62,8 +69,9 @@ function getHtmlPlugins(chunks) {
     return chunks.map(
         (chunk) =>
             new HTMLPlugin({
-                title: "React extension",
+                title: "YTMusic Extension Player",
                 filename: `${chunk}.html`,
+                favicon: path.resolve(__dirname, 'src/static/favicon.ico'),
                 chunks: [chunk]
             })
     );
