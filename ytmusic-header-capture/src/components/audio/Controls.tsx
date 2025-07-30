@@ -117,34 +117,55 @@ export const Controls = () => {
 		trigger(track.videoId, true)
 	}
 
-	/* Handle animation for the progress bar once the audio playback begins */
-	const updateProgress = useCallback(() => {
+	const updateProgressUI = useCallback(() => {
+		if (progressBarRef?.current && duration){
+			progressBarRef.current.value = timeProgress.toString()
+			progressBarRef.current.style.setProperty(
+				"--range-progress",
+				`${(timeProgress/duration) * 100}%`
+			)
+		}
+	}, [timeProgress, duration, progressBarRef])
+
+	useEffect(() => {
 		const listener = (message: any, sender: any, sendResponse: any) => {
 			if (message.type === "AUDIO_PROGRESS" && isPlaying){
 				const currentTime = message.payload.currentTime
 				dispatch(setTimeProgress(currentTime))
-				if (progressBarRef?.current){
-					progressBarRef.current.value = currentTime.toString()
-					progressBarRef.current.style.setProperty(
-						"--range-progress",
-						`${(currentTime/duration) * 100}%`
-					)
-				}
 			}
 		}
 		chrome.runtime.onMessage.addListener(listener)
 		return () => chrome.runtime.onMessage.removeListener(listener)
-	}, [isPlaying, duration, timeProgress, progressBarRef])
+	}, [isPlaying])
+
+	/* Handle animation for the progress bar once the audio playback begins */
+	// const updateProgress = useCallback(() => {
+	// 	const listener = (message: any, sender: any, sendResponse: any) => {
+	// 		if (message.type === "AUDIO_PROGRESS" && isPlaying){
+	// 			const currentTime = message.payload.currentTime
+	// 			dispatch(setTimeProgress(currentTime))
+	// 			if (progressBarRef?.current){
+	// 				progressBarRef.current.value = currentTime.toString()
+	// 				progressBarRef.current.style.setProperty(
+	// 					"--range-progress",
+	// 					`${(currentTime/duration) * 100}%`
+	// 				)
+	// 			}
+	// 		}
+	// 	}
+	// 	chrome.runtime.onMessage.addListener(listener)
+	// 	return () => chrome.runtime.onMessage.removeListener(listener)
+	// }, [isPlaying, duration, timeProgress, progressBarRef])
 
 	const startAnimation = useCallback(() => {
 		if (progressBarRef.current && duration){
 			const animate = () => {
-				updateProgress()
+				updateProgressUI()
 				playAnimationRef.current = requestAnimationFrame(animate)
 			}
 			playAnimationRef.current = requestAnimationFrame(animate)
 		}
-	}, [isPlaying, updateProgress, duration, progressBarRef])
+	}, [isPlaying, updateProgressUI, duration, progressBarRef])
 
 	useEffect(() => {
 		// if we went from not playing to playing, or we're switching tracks, play audio
@@ -185,21 +206,21 @@ export const Controls = () => {
 
 	useEffect(() => {
 		if (isPlaying && duration){
-			playAnimationRef.current == null ? startAnimation() : updateProgress()
+			playAnimationRef.current == null ? startAnimation() : updateProgressUI()
 		}
 		else {
 			if (playAnimationRef.current != null){
 				cancelAnimationFrame(playAnimationRef.current)
 				playAnimationRef.current = null
 			}
-			updateProgress()
+			updateProgressUI()
 		}
 		return () => {
 			if (playAnimationRef.current != null){
 				cancelAnimationFrame(playAnimationRef.current)
 			}
 		}
-	}, [isPlaying, startAnimation, updateProgress])
+	}, [isPlaying, startAnimation, updateProgressUI])
 
 	useEffect(() => {
 		const listener = (message: any, sender: any, sendResponse: any) => {
