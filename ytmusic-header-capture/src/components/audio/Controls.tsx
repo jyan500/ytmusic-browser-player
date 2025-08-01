@@ -138,25 +138,6 @@ export const Controls = () => {
 		return () => chrome.runtime.onMessage.removeListener(listener)
 	}, [isPlaying])
 
-	/* Handle animation for the progress bar once the audio playback begins */
-	// const updateProgress = useCallback(() => {
-	// 	const listener = (message: any, sender: any, sendResponse: any) => {
-	// 		if (message.type === "AUDIO_PROGRESS" && isPlaying){
-	// 			const currentTime = message.payload.currentTime
-	// 			dispatch(setTimeProgress(currentTime))
-	// 			if (progressBarRef?.current){
-	// 				progressBarRef.current.value = currentTime.toString()
-	// 				progressBarRef.current.style.setProperty(
-	// 					"--range-progress",
-	// 					`${(currentTime/duration) * 100}%`
-	// 				)
-	// 			}
-	// 		}
-	// 	}
-	// 	chrome.runtime.onMessage.addListener(listener)
-	// 	return () => chrome.runtime.onMessage.removeListener(listener)
-	// }, [isPlaying, duration, timeProgress, progressBarRef])
-
 	const startAnimation = useCallback(() => {
 		if (progressBarRef.current && duration){
 			const animate = () => {
