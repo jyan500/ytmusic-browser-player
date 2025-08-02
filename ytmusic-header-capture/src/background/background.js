@@ -6,6 +6,8 @@ const POPUP_PATH = "popup.html"
 // https://developer.chrome.com/docs/extensions/reference/api/offscreen
 let creating // A global promise to avoid concurrency issues
 let tabHeaders = {}
+// store the id so that when the window closes, we can stop the background audio
+let extensionWindowId = null
 
 chrome.webRequest.onSendHeaders.addListener(
     (details) => {
@@ -21,6 +23,7 @@ chrome.webRequest.onSendHeaders.addListener(
             tabHeaders[details.tabId] = relevant 
         }
         chrome.storage.local.set({ ytMusicHeaders: relevant });
+        chrome.runtime.sendMessage({type: "ytmusic-headers-set"})
     },
     { urls: ["https://music.youtube.com/youtubei/v1/browse?ctoken=*"] },
     ["requestHeaders", "extraHeaders"]
@@ -46,7 +49,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
             tabs.forEach((tab) => {
                 if (tab.id !== undefined) {
-                    chrome.tabs.update(tab.id, { url: "https://music.youtube.com/library" });;
+                    chrome.tabs.update(tab.id, { url: "https://music.youtube.com/library" });
                 }
             });
 
@@ -56,28 +59,36 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         // Allow async sendResponse
         return true;
     }
-});
-
-chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-    if (changeInfo.status === "complete" && tab.url?.startsWith("https://music.youtube.com")) {
-        const headers = tabHeaders[tabId];
-        if (headers) {
-            chrome.storage.local.set({ ytMusicHeaders: headers });
-            delete tabHeaders[tabId]; // cleanup
-            // Send a message to the popup or content script
-            chrome.runtime.sendMessage({
-                type: "music-youtube-tab-loaded",
-                tabId: tabId,
-                url: tab.url
-            })
-        } else {
-            console.log("No headers found for this tab");
-        }
+    if (message.type === "refresh-current-tab"){
+        chrome.windows.get(extensionWindowId, { populate: true }, (window) => {
+            if (chrome.runtime.lastError || !window || !window.tabs) return
+            const [tab] = window.tabs
+            if (tab?.id) {
+                chrome.tabs.reload(tab.id)
+            }
+        })
+        return true
     }
 });
 
-// store the id so that when the window closes, we can stop the background audio
-let extensionWindowId = null
+// chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+//     if (changeInfo.status === "complete" && tab.url?.startsWith("https://music.youtube.com")) {
+//         const headers = tabHeaders[tabId];
+//         if (headers) {
+//             chrome.storage.local.set({ ytMusicHeaders: headers });
+//             delete tabHeaders[tabId]; // cleanup
+//             // Send a message to the popup or content script
+//             chrome.runtime.sendMessage({
+//                 type: "music-youtube-tab-loaded",
+//                 tabId: tabId,
+//                 url: tab.url
+//             })
+//         } else {
+//             console.log("No headers found for this tab");
+//         }
+//     }
+// });
+
 chrome.action.onClicked.addListener((tab) => {
     // if there's already a window present with the popup,
     // focus it instead of opening a new one

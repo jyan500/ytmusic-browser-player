@@ -39,7 +39,7 @@ export const Home = () => {
 			chrome.runtime.sendMessage({ type: "refresh-music-youtube-tabs" })
 		}
         const listener = (message: any, sender: chrome.runtime.MessageSender) => {
-            if (message.type === "music-youtube-tab-loaded" && !headers) {
+            if (message.type === "ytmusic-headers-set" && !headers) {
             	authenticate()
             }
         };
