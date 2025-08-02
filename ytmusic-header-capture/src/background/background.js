@@ -23,6 +23,7 @@ chrome.webRequest.onSendHeaders.addListener(
             tabHeaders[details.tabId] = relevant 
         }
         chrome.storage.local.set({ ytMusicHeaders: relevant });
+        // once the headers are set, send the message so the frontend receives and re-authenticates
         chrome.runtime.sendMessage({type: "ytmusic-headers-set"})
     },
     { urls: ["https://music.youtube.com/youtubei/v1/browse?ctoken=*"] },
@@ -59,35 +60,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         // Allow async sendResponse
         return true;
     }
-    if (message.type === "refresh-current-tab"){
-        chrome.windows.get(extensionWindowId, { populate: true }, (window) => {
-            if (chrome.runtime.lastError || !window || !window.tabs) return
-            const [tab] = window.tabs
-            if (tab?.id) {
-                chrome.tabs.reload(tab.id)
-            }
-        })
-        return true
-    }
 });
-
-// chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-//     if (changeInfo.status === "complete" && tab.url?.startsWith("https://music.youtube.com")) {
-//         const headers = tabHeaders[tabId];
-//         if (headers) {
-//             chrome.storage.local.set({ ytMusicHeaders: headers });
-//             delete tabHeaders[tabId]; // cleanup
-//             // Send a message to the popup or content script
-//             chrome.runtime.sendMessage({
-//                 type: "music-youtube-tab-loaded",
-//                 tabId: tabId,
-//                 url: tab.url
-//             })
-//         } else {
-//             console.log("No headers found for this tab");
-//         }
-//     }
-// });
 
 chrome.action.onClicked.addListener((tab) => {
     // if there's already a window present with the popup,
